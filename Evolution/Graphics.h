@@ -18,8 +18,8 @@ struct Graphics
     
     Graphics(const Graphics&) = delete;
     
-    virtual void initialize();
-    virtual void destory();
+    void initialize();
+    void destory();
     
     template <class It>
     void render(GLuint target, const Frame& frame, It* begin, It* end);
@@ -28,14 +28,109 @@ struct Graphics
 template <>
 struct Graphics <Stick>
 {
+    static const int number_of_vertices = 32;
+    
+    GLuint vao[1];
+    
+    /// (positions, normal), (length, radius), shape
+    GLuint vbo[3];
+    
+    typedef struct {
+        vec2 p;
+        vec2 n;
+    } vbo0_type;
+    
+    typedef vec2 vbo1_type;
+    
+    std::vector<vbo0_type> vbo0;
+    
+    std::vector<vbo1_type> vbo1;
+    
+    glProgram program;
+    
     void initialize() {
+        program.initialize_with_header("glsl/shape2.vs", "glsl/fill.fs", "glsl/common.glsl");
+        
+        glGenVertexArrays(1, vao);
+        glGenBuffers(3, vbo);
+        
+        glBindVertexArray(vao[0]);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glEnableVertexAttribArray(1);
+        
+        vec2 vertices[number_of_vertices];
+        
+        for(int i = 0; i < number_of_vertices; ++i) {
+            float a = 2.0f * M_PI * i / (float) number_of_vertices;
+            vertices[i].x = cosf(a);
+            vertices[i].y = sinf(a);
+        }
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glEnableVertexAttribArray(2);
+        
+        glVertexAttribDivisor(0, 1);
+        glVertexAttribDivisor(1, 1);
+        glVertexAttribDivisor(2, 0);
+        
+        glBindVertexArray(0);
     }
     
     void destory() {
+        program.destory();
+        
+        glDeleteVertexArrays(1, vao);
+        glDeleteBuffers(3, vbo);
     }
     
     template <class It>
-    void render(GLuint target, const Frame& frame, It* begin, It* end);
+    int load(It begin, It end) {
+        size_t size = std::distance(begin, end);
+        vbo0.resize(size);
+        vbo1.resize(size);
+        
+        size_t i = 0;
+        while(i != size) {
+            vbo0[i].p = (*begin)->stick.position;
+            vbo0[i].n = (*begin)->stick.normal;
+            vbo1[i] = vec2((*begin)->stick.length, (*begin)->stick.radius);
+            ++i;
+            ++begin;
+        }
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glBufferData(GL_ARRAY_BUFFER, size * sizeof(vbo0_type), vbo0.data(), GL_STREAM_DRAW);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        glBufferData(GL_ARRAY_BUFFER, size * sizeof(vbo1_type), vbo1.data(), GL_STREAM_DRAW);
+        
+        return (int)size;
+    }
+    
+    template <class It>
+    void render(GLuint target, const Frame& frame, It begin, It end) {
+        int size = load(begin, end);
+        
+        program.bind();
+        program.uniform2f("scl", frame.scl/(float)frame.w, frame.scl/(float)frame.h);
+        program.uniform2f("offset", frame.offset.x, frame.offset.y);
+        program.uniform4f("color", stick_color.r, stick_color.g, stick_color.b, stick_color.a);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, target);
+        glBindVertexArray(vao[0]);
+        glViewport(frame.x, frame.y, frame.w, frame.h);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, number_of_vertices, size);
+        glBindVertexArray(0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 };
 
 template <>
@@ -175,6 +270,7 @@ struct Graphics <World>
     
     void render(GLuint target, const Frame& frame) {
         body_renderer.render(target, frame, world->cbegin(), world->cend());
+        stick_renderer.render(target, frame, world->cbegin(), world->cend());
     }
 };
 

@@ -36,23 +36,7 @@ struct BodyDef
     
     int viewDiameter;
     
-    BodyDef() {
-        damping = 0.99f;
-        
-        brain_inputs = 1;
-        brain_outputs = 1;
-        
-        stick.radius = 0.25f;
-        stick.length = 1.0f;
-        
-        radius = 1.0f;
-        
-        maxHealth = 65536.0f;
-        
-        color = Colorf(0.0f);
-        
-        viewDiameter = 16;
-    }
+    BodyDef();
 };
 
 class Body
@@ -70,19 +54,18 @@ class Body
     
     float radius;
     
-    Stick stick;
-    
     friend class World;
     
 public:
     
     Colorf color;
     
+    Stick stick;
+    
     Body(const BodyDef* def);
     
     ~Body() {
-        delete brain;
-        brain = NULL;
+        delete(brain);
     }
     
     inline vec2 getPosition() const {

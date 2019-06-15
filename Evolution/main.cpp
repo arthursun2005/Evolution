@@ -54,6 +54,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if(key == GLFW_KEY_A) {
             BodyDef def;
             def.position = getMouse();
+            def.stick.angularVelocity = 10.0f;
             world.createBody(&def);
         }
         
@@ -130,7 +131,7 @@ int main(int argc, const char * argv[]) {
     renderer.initialize();
     
     glfwSwapInterval(1);
-
+    
     do {
         float currentTime = glfwGetTime();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -163,6 +164,8 @@ int main(int argc, const char * argv[]) {
         {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
+            
+            world.step(dt);
             
             renderer.render(0, frame);
         }

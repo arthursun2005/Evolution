@@ -18,6 +18,8 @@
 #include <string>
 #include <unistd.h>
 
+/// from std::allocator
+
 inline void* Alloc(size_t size) {
 #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
     return ::operator new(size);
@@ -54,7 +56,7 @@ inline int fstr(const char* file_name, std::string* str) {
     return 0;
 }
 
-inline bool end_in(const std::string& str, const std::string& end) {
+inline bool ends_in(const std::string& str, const std::string& end) {
     size_t s1 = end.size();
     size_t s2 = str.size();
     
@@ -67,7 +69,7 @@ inline bool end_in(const std::string& str, const std::string& end) {
     return true;
 }
 
-inline bool start_with(const std::string& str, const std::string& start) {
+inline bool starts_with(const std::string& str, const std::string& start) {
     size_t s1 = start.size();
     size_t s2 = str.size();
     

@@ -52,18 +52,18 @@ struct glShader
     glShader(const char* file_name) {
         fstr(file_name, &str);
         
-        if(end_in(file_name, ".cs")) {
+        if(ends_in(file_name, ".cs")) {
             type = gl_compute_shader;
-        }else if(end_in(file_name, ".fs")) {
+        }else if(ends_in(file_name, ".fs")) {
             type = gl_fragment_shader;
-        }else if(end_in(file_name, ".vs")) {
+        }else if(ends_in(file_name, ".vs")) {
             type = gl_vertex_shader;
-        }else if(end_in(file_name, ".gs")) {
+        }else if(ends_in(file_name, ".gs")) {
             type = gl_geometry_shader;
-        }else if(end_in(file_name, ".glsl")) {
+        }else if(ends_in(file_name, ".glsl")) {
             type = gl_header_shader;
         }else{
-            throw std::invalid_argument("file name has to end in [.cs], [.fs], [.gs], [.vs] or [.glsl]");
+            throw std::invalid_argument("file name has to end in `.cs`, `.fs`, `.gs`, `.vs` or `.glsl`");
         }
         
         file.assign(file_name);

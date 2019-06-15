@@ -62,6 +62,12 @@ public:
             body->step(dt);
         }
     }
+    
+    inline void step(float dt, int its) {
+        dt /= (float) its;
+        for(int i = 0; i < its; ++i)
+            step(dt);
+    }
 };
 
 #endif /* World_hpp */

@@ -14,7 +14,7 @@
 
 struct Body;
 
-static Colorf stick_color(0.3f, 0.1f, 0.0f);
+static Colorf stick_color(0.3f, 0.2f, 0.0f);
 
 struct Stick
 {
@@ -36,8 +36,8 @@ struct Stick
         linearDamping = 0.99f;
         angularDamping = 0.99f;
         
-        /// up
-        normal = vec2(0.0f, 1.0f);
+        /// stick pointing up
+        normal = vec2(1.0f, 0.0f);
     }
     
     void step(float dt) {
