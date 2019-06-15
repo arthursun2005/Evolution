@@ -9,6 +9,7 @@
 #ifndef Stick_h
 #define Stick_h
 
+#include "vec2.h"
 #include "common.h"
 
 struct Body;

@@ -12,7 +12,7 @@
 #include "Stick.h"
 #include "Brain.h"
 
-#define Body_InputSize 256
+#define Body_InputSize (16 * 16)
 
 /// body force, stick force, stick force local position
 #define Body_OutputSize 6
@@ -31,7 +31,7 @@ struct BodyDef
     int brain_inputs;
     int brain_outputs;
     
-    int maxHealth;
+    float maxHealth;
     
     BodyDef() {
         damping = 0.99f;
@@ -44,15 +44,15 @@ struct BodyDef
         
         radius = 1.0f;
         
-        maxHealth = 65536;
+        maxHealth = 65536.0f;
     }
 };
 
 class Body
 {
     
-    int maxHealth;
-    int health;
+    float maxHealth;
+    float health;
     
     Brain* brain;
     

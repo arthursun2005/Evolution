@@ -9,7 +9,7 @@
 #ifndef Neuron_h
 #define Neuron_h
 
-#include "common.h"
+#include "activation_functions.h"
 #include <list>
 
 enum neuron_flags

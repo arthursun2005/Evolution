@@ -95,11 +95,15 @@ public:
         inputs = (Neuron*)Alloc(sizeof(Neuron) * input_size);
         outputs = (Neuron*)Alloc(sizeof(Neuron) * output_size);
         
-        for(int i = 0; i < input_size; ++i)
+        for(int i = 0; i < input_size; ++i) {
             inputs[i].flags = e_neuron_input | e_neuron_computed;
+            Construct(inputs + i);
+        }
         
-        for(int i = 0; i < output_size; ++i)
+        for(int i = 0; i < output_size; ++i) {
             outputs[i].flags = e_neuron_output;
+            Construct(outputs + i);
+        }
     }
     
     Brain(const Brain& brain) = delete;
@@ -196,7 +200,7 @@ public:
         }
     }
     
-    friend void combine(const Brain* brain, Brain* result) {
+    friend void alter(Brain* result, const Brain* brain) {
         copy(result, brain);
         
         /// 1/2 chance of altering
