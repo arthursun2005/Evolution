@@ -9,10 +9,9 @@
 #ifndef Body_hpp
 #define Body_hpp
 
+#include "color.h"
 #include "Stick.h"
 #include "Brain.h"
-
-#define Body_InputSize (16 * 16)
 
 /// body force, stick force, stick force local position
 #define Body_OutputSize 6
@@ -33,6 +32,10 @@ struct BodyDef
     
     float maxHealth;
     
+    Colorf color;
+    
+    int viewDiameter;
+    
     BodyDef() {
         damping = 0.99f;
         
@@ -45,6 +48,10 @@ struct BodyDef
         radius = 1.0f;
         
         maxHealth = 65536.0f;
+        
+        color = Colorf(0.0f);
+        
+        viewDiameter = 16;
     }
 };
 
@@ -69,28 +76,28 @@ class Body
     
 public:
     
-    Body(const BodyDef* def) {
-        velocity = def->velocity;
-        position = def->position;
-        damping = def->damping;
-        
-        stick = def->stick;
-        stick.owner = this;
-        
-        radius = def->radius;
-        
-        health = maxHealth = def->maxHealth;
-        
-        brain = new Brain(Body_InputSize, Body_OutputSize);
-    }
+    Colorf color;
+    
+    Body(const BodyDef* def);
     
     ~Body() {
         delete brain;
         brain = NULL;
     }
     
-    void think() {
+    inline vec2 getPosition() const {
+        return position;
     }
+    
+    inline vec2 getVelocity() const {
+        return velocity;
+    }
+    
+    inline float getRadius() const {
+        return radius;
+    }
+    
+    void think();
     
     void step(float dt) {
         think();

@@ -27,7 +27,7 @@ public:
     
     ~World() {
         for(Body* body : bodies) {
-            Free(body);
+            delete(body);
         }
     }
     
@@ -37,6 +37,24 @@ public:
     
     inline std::list<Body*>::iterator end() {
         return bodies.end();
+    }
+    
+    inline std::list<Body*>::const_iterator cbegin() const {
+        return bodies.cbegin();
+    }
+    
+    inline std::list<Body*>::const_iterator cend() const {
+        return bodies.cend();
+    }
+    
+    inline int size() const {
+        return (int)bodies.size();
+    }
+    
+    inline Body* createBody(const BodyDef* def) {
+        Body* body = new Body(def);
+        bodies.push_back(body);
+        return body;
     }
     
     void step(float dt) {

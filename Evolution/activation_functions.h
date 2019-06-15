@@ -10,16 +10,16 @@
 #define activation_functions_h
 
 enum activation_function_types {
-    e_linear = 0,
-    e_sigmoid,
-    e_tanh,
-    e_step,
-    e_relu,
-    e_gauss,
-    e_sine,
-    e_cosine,
-    e_abs,
-    e_inv,
+    activation_linear = 0,
+    activation_sigmoid,
+    activation_tanh,
+    activation_step,
+    activation_relu,
+    activation_gauss,
+    activation_sine,
+    activation_cosine,
+    activation_abs,
+    activation_inv,
     numberOfActivationFunctions
 };
 
@@ -29,46 +29,46 @@ inline int bit(float x) {
 
 struct ActivationFunction
 {
-    int type = e_linear;
+    int type = activation_linear;
     
     inline float operator () (float x) const {
-        if(type == e_linear) {
+        if(type == activation_linear) {
             return x;
         }
         
-        if(type == e_sigmoid) {
+        if(type == activation_sigmoid) {
             return 1.0f / (1.0f + exp(-x));
         }
         
-        if(type == e_tanh) {
+        if(type == activation_tanh) {
             return tanh(x);
         }
         
-        if(type == e_step) {
+        if(type == activation_step) {
             return bit(x);
         }
         
-        if(type == e_relu) {
+        if(type == activation_relu) {
             return bit(x) * x;
         }
         
-        if(type == e_gauss) {
+        if(type == activation_gauss) {
             return exp(-(x * x) * 0.5f);
         }
         
-        if(type == e_sine) {
+        if(type == activation_sine) {
             return sinf(M_PI * x);
         }
         
-        if(type == e_cosine) {
+        if(type == activation_cosine) {
             return cosf(M_PI * x);
         }
         
-        if(type == e_abs) {
+        if(type == activation_abs) {
             return x < 0.0f ? -x : x;
         }
         
-        if(type == e_inv) {
+        if(type == activation_inv) {
             return -x;
         }
         

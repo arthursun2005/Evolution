@@ -28,8 +28,6 @@ Frame frame;
 float dMouseX = 0.0f;
 float dMouseY = 0.0f;
 
-float timeBtwFrames = 0.016f;
-
 #ifdef DEBUG
 
 int framesPerSecond = 0;
@@ -53,6 +51,15 @@ inline vec2 getMouse() {
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if(action == GLFW_RELEASE) {
+        if(key == GLFW_KEY_A) {
+            BodyDef def;
+            def.position = getMouse();
+            world.createBody(&def);
+        }
+        
+        if(key == GLFW_KEY_N) {
+            printf("%d\n", world.size());
+        }
     }
 }
 
@@ -79,6 +86,9 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#ifdef DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     
@@ -119,14 +129,13 @@ int main(int argc, const char * argv[]) {
     
     renderer.initialize();
     
+    glfwSwapInterval(1);
+
     do {
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-        
         float currentTime = glfwGetTime();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        
+        glfwGetCursorPos(window, &mouseX, &mouseY);
         
 #ifdef DEBUG
         ++framesPerSecond;
@@ -151,17 +160,22 @@ int main(int argc, const char * argv[]) {
         pmouseX = mouseX;
         pmouseY = mouseY;
         
+        {
+            glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            renderer.render(0, frame);
+        }
+        
         glfwPollEvents();
         glfwSwapBuffers(window);
-        
-        float finish = glfwGetTime();
-        
-        float ssecs = std::max(timeBtwFrames - (finish - currentTime), 0.0f);
-        
-        usleep(useconds_t(ssecs * 1000000.0f));
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
+    
     renderer.destory();
+    
+    glfwDestroyWindow(window);
     glfwDestroyCursor(cursor);
     glfwTerminate();
+    
     return EXIT_SUCCESS;
 }

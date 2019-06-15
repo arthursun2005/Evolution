@@ -45,6 +45,10 @@
 		8E88F77222B479E500AD6D5A /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../usr/local/Cellar/glfw/3.3/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		8E88F77422B47B4700AD6D5A /* activation_functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = activation_functions.h; sourceTree = "<group>"; };
 		8E88F77522B47B7400AD6D5A /* vec2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vec2.h; sourceTree = "<group>"; };
+		8E88F77622B4BE3400AD6D5A /* color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
+		8E88F77822B4D34700AD6D5A /* shape.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = shape.vs; sourceTree = "<group>"; };
+		8E88F77922B4D35000AD6D5A /* fill.fs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = fill.fs; sourceTree = "<group>"; };
+		8E88F77A22B4D35700AD6D5A /* common.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = common.glsl; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,9 +95,11 @@
 				8E88F76B22B3939C00AD6D5A /* Stick.h */,
 				8E88F76422B348F900AD6D5A /* Brain.h */,
 				8E88F76322B3035700AD6D5A /* Neuron.h */,
-				8E4113E622A0C29000AD78A2 /* common.h */,
 				8E88F77522B47B7400AD6D5A /* vec2.h */,
 				8E88F77422B47B4700AD6D5A /* activation_functions.h */,
+				8E88F77622B4BE3400AD6D5A /* color.h */,
+				8E4113E622A0C29000AD78A2 /* common.h */,
+				8E88F77722B4D30E00AD6D5A /* glsl */,
 			);
 			path = Evolution;
 			sourceTree = "<group>";
@@ -106,6 +112,16 @@
 				8E88F76E22B479D100AD6D5A /* OpenGL.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8E88F77722B4D30E00AD6D5A /* glsl */ = {
+			isa = PBXGroup;
+			children = (
+				8E88F77822B4D34700AD6D5A /* shape.vs */,
+				8E88F77922B4D35000AD6D5A /* fill.fs */,
+				8E88F77A22B4D35700AD6D5A /* common.glsl */,
+			);
+			path = glsl;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -14,6 +14,8 @@
 
 struct Body;
 
+static Colorf stick_color(0.3f, 0.1f, 0.0f);
+
 struct Stick
 {
     Body* owner;
