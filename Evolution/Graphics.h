@@ -41,7 +41,7 @@ struct Graphics <Stick>
 template <>
 struct Graphics <Body>
 {
-    static const size_t number_of_vertices = 32;
+    static const int number_of_vertices = 32;
     
     GLuint vao[1];
     
@@ -105,7 +105,7 @@ struct Graphics <Body>
     }
     
     template <class It>
-    size_t load(It begin, It end) {
+    int load(It begin, It end) {
         size_t size = std::distance(begin, end);
         vbo0.resize(size);
         vbo1.resize(size);
@@ -125,12 +125,12 @@ struct Graphics <Body>
         glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
         glBufferData(GL_ARRAY_BUFFER, size * sizeof(vbo1_type), vbo1.data(), GL_STREAM_DRAW);
         
-        return size;
+        return (int)size;
     }
     
     template <class It>
     void render(GLuint target, const Frame& frame, It begin, It end) {
-        size_t size = load(begin, end);
+        int size = load(begin, end);
         
         program.bind();
         program.uniform2f("scl", frame.scl/(float)frame.w, frame.scl/(float)frame.h);
@@ -139,7 +139,7 @@ struct Graphics <Body>
         glBindFramebuffer(GL_FRAMEBUFFER, target);
         glBindVertexArray(vao[0]);
         glViewport(frame.x, frame.y, frame.w, frame.h);
-        glDrawArraysInstanced(GL_POINTS, 0, number_of_vertices, (int)size);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, number_of_vertices, size);
         glBindVertexArray(0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }

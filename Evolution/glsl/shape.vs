@@ -9,6 +9,5 @@ uniform vec2 offset;
 
 void main() {
     a = color;
-    gl_Position = vec4(vec2(0.0f), 0.0f, 1.0f);
-    //gl_Position = vec4((position.xy + position.z * shape + offset) * scl, 0.0f, 1.0f);
+    gl_Position = vec4((position.xy + position.z * shape + offset) * scl, 0.0f, 1.0f);
 }

@@ -124,7 +124,7 @@ int main(int argc, const char * argv[]) {
     frame.y = 0;
     frame.w = width * 2;
     frame.h = height * 2;
-    frame.scl = 1.0f;
+    frame.scl = 100.0f;
     frame.offset = vec2(0.0f, 0.0f);
     
     renderer.initialize();

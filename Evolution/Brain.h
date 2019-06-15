@@ -40,18 +40,17 @@ class Brain
     }
     
     void write(std::ofstream& os, Neuron* n) const {
-        size_t index;
-        int input;
+        int index, input;
         
-        size_t size = n->inputs.size();
+        int size = (int)n->inputs.size();
         os.write((char*)&size, sizeof(size));
         for(Neuron::Link& link : n->inputs) {
             input = link.input->flags & e_neuron_input;
             
             if(input != 0) {
-                index = (link.input - inputs);
+                index = (int)(link.input - inputs);
             }else{
-                index = (link.input - *neurons.data());
+                index = (int)(link.input - *neurons.data());
             }
             
             os.write((char*)&index, sizeof(index));
@@ -64,8 +63,7 @@ class Brain
     }
     
     void read(std::ifstream& is, Neuron* n) {
-        size_t index, size;
-        int input;
+        int index, input, size;
         
         is.read((char*)&size, sizeof(size));
         n->inputs.resize(size);
@@ -85,15 +83,15 @@ class Brain
         is.read((char*)&n->f, sizeof(n->f));
     }
     
-    size_t input_size;
-    size_t output_size;
+    int input_size;
+    int output_size;
 
 public:
     
     Neuron* inputs;
     Neuron* outputs;
     
-    Brain(size_t _input_size, size_t _output_size) : input_size(0), output_size(0) {
+    Brain(int _input_size, int _output_size) : input_size(-1), output_size(-1) {
         reset(_input_size, _output_size);
     }
     
@@ -108,29 +106,26 @@ public:
         clear();
     }
     
-    void reset(size_t _input_size, size_t _output_size) {
-        assert(_input_size != 0);
-        assert(_output_size != 0);
-        
+    void reset(int _input_size, int _output_size) {
         clear();
         
         if(_input_size != input_size) {
-            if(input_size != 0) Free(inputs);
+            if(input_size != -1) Free(inputs);
             input_size = _input_size;
             inputs = (Neuron*)Alloc(sizeof(Neuron) * input_size);
             
-            for(size_t i = 0; i < input_size; ++i) {
+            for(int i = 0; i < input_size; ++i) {
                 inputs[i].flags = e_neuron_input | e_neuron_computed;
                 Construct(inputs + i);
             }
         }
         
         if(_output_size != output_size) {
-            if(output_size != 0) Free(outputs);
+            if(output_size != -1) Free(outputs);
             output_size = _output_size;
             outputs = (Neuron*)Alloc(sizeof(Neuron) * output_size);
             
-            for(size_t i = 0; i < output_size; ++i) {
+            for(int i = 0; i < output_size; ++i) {
                 outputs[i].flags = e_neuron_output;
                 Construct(outputs + i);
             }
@@ -138,7 +133,7 @@ public:
     }
     
     inline void write(std::ofstream& os) const {
-        size_t size = neurons.size();
+        int size = (int)neurons.size();
         os.write((char*)&input_size, sizeof(input_size));
         os.write((char*)&output_size, sizeof(output_size));
         os.write((char*)&size, sizeof(size));
@@ -147,8 +142,8 @@ public:
     }
     
     inline void read(std::ifstream& is) {
-        size_t size;
-        size_t i, o;
+        int size;
+        int i, o;
         
         is.read((char*)&i, sizeof(i));
         is.read((char*)&o, sizeof(o));
@@ -173,7 +168,7 @@ public:
         
         neurons.clear();
         
-        for(size_t i = 0; i < output_size; ++i)
+        for(int i = 0; i < output_size; ++i)
             outputs[i].clear();
     }
     
@@ -181,7 +176,7 @@ public:
         for(Neuron* neuron : neurons)
             neuron->flags &= ~ e_neuron_computed;
         
-        for(size_t i = 0; i < output_size; ++i)
+        for(int i = 0; i < output_size; ++i)
             compute_value(outputs + i);
     }
     
@@ -189,7 +184,7 @@ public:
         for(Neuron* neuron : neurons)
             neuron->alter(scl);
         
-        for(size_t i = 0; i < output_size; ++i)
+        for(int i = 0; i < output_size; ++i)
             outputs[i].alter(scl);
     }
     
@@ -201,14 +196,14 @@ public:
         }
         
         for(Neuron* const neuron : src->neurons) {
-            size_t index = (&neuron - src->neurons.data());
+            int index = (int)(&neuron - src->neurons.data());
             dst->neurons[index]->bias = neuron->bias;
             for(const Neuron::Link& link : neuron->inputs) {
                 if((link.input->flags & e_neuron_input) != 0) {
-                    size_t index2 = (link.input - src->inputs);
+                    int index2 = (int)(link.input - src->inputs);
                     dst->neurons[index]->add_link(dst->inputs + index2, link.weight);
                 }else{
-                    size_t index2 = (&link.input - src->neurons.data());
+                    int index2 = (int)(&link.input - src->neurons.data());
                     dst->neurons[index]->add_link(*(dst->neurons.data() + index2), link.weight);
                 }
             }
@@ -228,9 +223,9 @@ public:
             int func_type = rand() % numberOfActivationFunctions;
             
             if((rand() & 0x1)) {
-                size_t size = result->neurons.size();
-                size_t index1 = rand() % (size + result->output_size);
-                size_t index2 = rand() % (size + result->input_size + result->output_size);
+                int size = (int)(result->neurons.size());
+                int index1 = rand() % (size + result->output_size);
+                int index2 = rand() % (size + result->input_size + result->output_size);
                 
                 Neuron* n1 = index1 < size ? result->neurons[index1] : &result->outputs[index1 - size];
                 
@@ -247,7 +242,7 @@ public:
                         n1->add_link(n2);
                 }
             }else{
-                size_t index = rand() % result->neurons.size();
+                int index = rand() % (int)(result->neurons.size());
                 result->neurons[index]->f.type = func_type;
             }
         }
