@@ -10,12 +10,15 @@
 #define World_hpp
 
 #include "Body.hpp"
+#include "DynamicTree.hpp"
 #include <list>
 
 class World
 {
     
     std::list<Body*> bodies;
+    
+    DynamicTree tree;
     
 public:
     

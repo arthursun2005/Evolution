@@ -13,6 +13,7 @@
 		8E88F76F22B479D100AD6D5A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E88F76E22B479D100AD6D5A /* OpenGL.framework */; };
 		8E88F77122B479DB00AD6D5A /* libGLEW.2.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E88F77022B479DB00AD6D5A /* libGLEW.2.1.0.dylib */; };
 		8E88F77322B479E500AD6D5A /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E88F77222B479E500AD6D5A /* libglfw.3.3.dylib */; };
+		8E88F78222B6422C00AD6D5A /* DynamicTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +53,8 @@
 		8E88F77B22B4EFD500AD6D5A /* stick.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = stick.vs; sourceTree = "<group>"; };
 		8E88F77E22B6309400AD6D5A /* Timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		8E88F77F22B63D9300AD6D5A /* bar.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = bar.vs; sourceTree = "<group>"; };
+		8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicTree.cpp; sourceTree = "<group>"; };
+		8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DynamicTree.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +100,8 @@
 				8E88F76622B34AC900AD6D5A /* Body.hpp */,
 				8E88F76B22B3939C00AD6D5A /* Stick.h */,
 				8E88F76422B348F900AD6D5A /* Brain.h */,
+				8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */,
+				8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */,
 				8E88F76322B3035700AD6D5A /* Neuron.h */,
 				8E88F77E22B6309400AD6D5A /* Timer.h */,
 				8E88F77522B47B7400AD6D5A /* vec2.h */,
@@ -187,6 +192,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8E4113E022A0C28500AD78A2 /* main.cpp in Sources */,
+				8E88F78222B6422C00AD6D5A /* DynamicTree.cpp in Sources */,
 				8E88F76722B34AC900AD6D5A /* Body.cpp in Sources */,
 				8E88F76A22B34C0200AD6D5A /* World.cpp in Sources */,
 			);

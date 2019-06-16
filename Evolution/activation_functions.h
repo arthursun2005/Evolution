@@ -26,11 +26,7 @@ enum activation_function_types {
 struct ActivationFunction
 {
     int type = activation_linear;
-    
-    inline int bit(float x) const {
-        return 0b1 & ~(*(int*)&x >> 31);
-    }
-    
+        
     inline float operator () (float x) const {
         if(type == activation_linear) {
             return x;
@@ -45,11 +41,11 @@ struct ActivationFunction
         }
         
         if(type == activation_step) {
-            return bit(x);
+            return firstbit(x);
         }
         
         if(type == activation_relu) {
-            return bit(x) * x;
+            return firstbit(x) * x;
         }
         
         if(type == activation_gauss) {

@@ -81,4 +81,8 @@ inline bool starts_with(const std::string& str, const std::string& start) {
     return true;
 }
 
+inline int firstbit(float x) {
+    return 0b1 & ~(*(int*)&x >> 31);
+}
+
 #endif /* common_h */
