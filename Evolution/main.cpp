@@ -177,6 +177,7 @@ int main(int argc, const char * argv[]) {
     
     glfwDestroyWindow(window);
     glfwDestroyCursor(cursor);
+    
     glfwTerminate();
     
     return EXIT_SUCCESS;

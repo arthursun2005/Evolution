@@ -61,17 +61,27 @@ struct TreeNode
     int child1;
     int child2;
     
-    /// an id to identify for users
-    int id;
-    AABB aabb;
+    /// `next` is only useful if the node is NOT in the tree ...
+    union
+    {
+        /// an id to identify leaves for users
+        int id;
+        
+        /// used as a linked list element ...
+        int next;
+    };
     
-    /// used as a linked list element ...
-    int next;
+    AABB aabb;
     
     inline bool isLeaf() const {
         return child1 == -1;
     }
 };
+
+/**
+ ** Many algorithms came from Box2D
+ ** https://github.com/erincatto/Box2D
+ */
 
 class DynamicTree
 {
@@ -255,8 +265,8 @@ public:
     
     DynamicTree& operator = (const DynamicTree& tree) = delete;
     
-    void insertProxy(const AABB& aabb) {
-        
+    inline int insertProxy(const AABB& aabb, int id) {
+        return insert_proxy(aabb, id);
     }
     
 };
