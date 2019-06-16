@@ -53,9 +53,8 @@ struct Neuron
         static std::default_random_engine generator;
         static std::normal_distribution<float> distribution(0.0f, 1.0f);
         
-        for(Link& link : inputs) {
+        for(Link& link : inputs)
             link.weight += scl * distribution(generator);
-        }
         
         bias += scl * distribution(generator);
     }

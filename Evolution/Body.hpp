@@ -16,6 +16,8 @@
 /// body force, stick force, stick force local position
 #define Body_OutputSize 6
 
+static Colorf health_color(0.0f, 1.0f, 0.2f);
+
 struct BodyDef
 {
     vec2 velocity;
@@ -78,6 +80,18 @@ public:
     
     inline float getRadius() const {
         return radius;
+    }
+    
+    inline float& getHealth() {
+        return health;
+    }
+    
+    inline float& getMaxHealth() {
+        return maxHealth;
+    }
+    
+    inline float getHealthRatio() const {
+        return health/maxHealth;
     }
     
     void think();

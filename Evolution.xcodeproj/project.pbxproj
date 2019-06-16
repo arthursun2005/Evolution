@@ -51,6 +51,7 @@
 		8E88F77A22B4D35700AD6D5A /* common.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = common.glsl; sourceTree = "<group>"; };
 		8E88F77B22B4EFD500AD6D5A /* stick.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = stick.vs; sourceTree = "<group>"; };
 		8E88F77E22B6309400AD6D5A /* Timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		8E88F77F22B63D9300AD6D5A /* bar.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = bar.vs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				8E88F77822B4D34700AD6D5A /* shape.vs */,
+				8E88F77F22B63D9300AD6D5A /* bar.vs */,
 				8E88F77B22B4EFD500AD6D5A /* stick.vs */,
 				8E88F77922B4D35000AD6D5A /* fill.fs */,
 				8E88F77A22B4D35700AD6D5A /* common.glsl */,
