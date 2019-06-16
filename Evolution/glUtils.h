@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "common.h"
+#include "vec2.h"
 
 static GLuint texture_count = 0;
 

@@ -10,6 +10,7 @@
 #define Graphics_h
 
 #include "glUtils.h"
+#include "World.hpp"
 
 template <class T>
 struct Graphics
@@ -49,7 +50,7 @@ struct Graphics <Stick>
     glProgram program;
     
     void initialize() {
-        program.initialize_with_header("glsl/shape2.vs", "glsl/fill.fs", "glsl/common.glsl");
+        program.initialize_with_header("glsl/stick.vs", "glsl/fill.fs", "glsl/common.glsl");
         
         glGenVertexArrays(1, vao);
         glGenBuffers(3, vbo);

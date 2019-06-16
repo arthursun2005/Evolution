@@ -23,13 +23,13 @@ enum activation_function_types {
     numberOfActivationFunctions
 };
 
-inline int bit(float x) {
-    return 0b1 & ~(*(int*)&x >> 31);
-}
-
 struct ActivationFunction
 {
     int type = activation_linear;
+    
+    inline int bit(float x) const {
+        return 0b1 & ~(*(int*)&x >> 31);
+    }
     
     inline float operator () (float x) const {
         if(type == activation_linear) {

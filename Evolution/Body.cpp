@@ -17,7 +17,7 @@ BodyDef::BodyDef() {
     radius = 1.0f;
     
     stick.radius = 0.125f;
-    stick.length = 2.0f;
+    stick.length = 3.0f;
     stick.position = vec2(radius + 1.5f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     

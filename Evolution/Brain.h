@@ -130,6 +130,15 @@ public:
                 Construct(outputs + i);
             }
         }
+        
+        if(rand() & 0x1) {
+            int index1 = rand() % output_size;
+            int index2 = rand() % input_size;
+            
+            Neuron* n1 = outputs + index1;
+            Neuron* n2 = inputs + index2;
+            n1->add_link(n2);
+        }
     }
     
     inline void write(std::ofstream& os) const {
