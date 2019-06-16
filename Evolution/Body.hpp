@@ -53,7 +53,7 @@ class Body
     float damping;
     
     float radius;
-    
+        
     friend class World;
     
 public:

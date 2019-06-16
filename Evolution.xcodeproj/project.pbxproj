@@ -50,6 +50,7 @@
 		8E88F77922B4D35000AD6D5A /* fill.fs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = fill.fs; sourceTree = "<group>"; };
 		8E88F77A22B4D35700AD6D5A /* common.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = common.glsl; sourceTree = "<group>"; };
 		8E88F77B22B4EFD500AD6D5A /* stick.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = stick.vs; sourceTree = "<group>"; };
+		8E88F77E22B6309400AD6D5A /* Timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +97,7 @@
 				8E88F76B22B3939C00AD6D5A /* Stick.h */,
 				8E88F76422B348F900AD6D5A /* Brain.h */,
 				8E88F76322B3035700AD6D5A /* Neuron.h */,
+				8E88F77E22B6309400AD6D5A /* Timer.h */,
 				8E88F77522B47B7400AD6D5A /* vec2.h */,
 				8E88F77422B47B4700AD6D5A /* activation_functions.h */,
 				8E88F77622B4BE3400AD6D5A /* color.h */,

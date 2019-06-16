@@ -9,7 +9,6 @@
 #ifndef common_h
 #define common_h
 
-#include <chrono>
 #include <random>
 #include <fstream>
 #include <sstream>

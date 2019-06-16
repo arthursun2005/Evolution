@@ -29,7 +29,7 @@ struct Graphics
 template <>
 struct Graphics <Stick>
 {
-    static const int number_of_vertices = 32;
+    static const int number_of_vertices = 16;
     
     GLuint vao[1];
     
