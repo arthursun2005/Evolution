@@ -41,24 +41,17 @@ struct BodyDef
     BodyDef();
 };
 
-class Body
+class Body : public Obj
 {
+    
+public:
     
     float maxHealth;
     float health;
     
     Brain* brain;
     
-    vec2 velocity;
-    vec2 position;
-    
     float damping;
-    
-    float radius;
-        
-    friend class World;
-    
-public:
     
     Colorf color;
     
@@ -66,28 +59,8 @@ public:
     
     Body(const BodyDef* def);
     
-    ~Body() {
+    inline ~Body() {
         delete(brain);
-    }
-    
-    inline vec2 getPosition() const {
-        return position;
-    }
-    
-    inline vec2 getVelocity() const {
-        return velocity;
-    }
-    
-    inline float getRadius() const {
-        return radius;
-    }
-    
-    inline float& getHealth() {
-        return health;
-    }
-    
-    inline float& getMaxHealth() {
-        return maxHealth;
     }
     
     inline float getHealthRatio() const {

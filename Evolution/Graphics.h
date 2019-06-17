@@ -243,8 +243,8 @@ struct Graphics <Body>
         
         size_t i = 0;
         while(i != size) {
-            vbo0[i].p = (*begin)->getPosition();
-            vbo0[i].r = (*begin)->getRadius();
+            vbo0[i].p = (*begin)->position;
+            vbo0[i].r = (*begin)->radius;
             vbo1[i] = (*begin)->color;
             vbo3[i] = (*begin)->getHealthRatio();
             ++i;

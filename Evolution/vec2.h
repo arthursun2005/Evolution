@@ -42,10 +42,14 @@ struct vec2
         return vec2(-x, -y);
     }
     
+    /// (x, -y)
+    /// times -1
     inline vec2 T () const {
         return vec2(x, -y);
     }
     
+    /// (y, -x)
+    /// rotate pi/2
     inline vec2 I () const {
         return vec2(y, -x);
     }

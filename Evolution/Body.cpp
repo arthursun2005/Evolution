@@ -51,6 +51,8 @@ Body::Body(const BodyDef* def) {
     color = def->color;
     
     brain = new Brain(def->viewDiameter * def->viewDiameter, Body_OutputSize);
+    
+    type = e_body;
 }
 
 void Body::think() {

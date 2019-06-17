@@ -57,6 +57,8 @@ public:
     inline Body* createBody(const BodyDef* def) {
         Body* body = new Body(def);
         bodies.push_back(body);
+        tree.createProxy(body->aabb(), body);
+        tree.createProxy(body->stick.aabb(), &body->stick);
         return body;
     }
     

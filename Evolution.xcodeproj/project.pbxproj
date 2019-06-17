@@ -29,6 +29,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8E3DE51222B7A8420047504D /* Obj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Obj.h; sourceTree = "<group>"; };
 		8E4113DC22A0C28500AD78A2 /* Evolution */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Evolution; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E4113DF22A0C28500AD78A2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8E4113E622A0C29000AD78A2 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -99,6 +100,7 @@
 				8E88F76522B34AC900AD6D5A /* Body.cpp */,
 				8E88F76622B34AC900AD6D5A /* Body.hpp */,
 				8E88F76B22B3939C00AD6D5A /* Stick.h */,
+				8E3DE51222B7A8420047504D /* Obj.h */,
 				8E88F76422B348F900AD6D5A /* Brain.h */,
 				8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */,
 				8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */,

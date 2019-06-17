@@ -28,10 +28,6 @@ struct Frame
     
     float scl;
     vec2 offset;
-    
-    inline Frame() {}
-    
-    inline Frame(int x, int y, int w, int h, float scl, const vec2& offset) : x(x), y(y), w(w), h(h), scl(scl), offset(offset) {}
 };
 
 enum shader_types
