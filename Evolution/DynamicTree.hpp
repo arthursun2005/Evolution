@@ -200,6 +200,10 @@ public:
         free_node(proxyId);
     }
     
+    void query(std::vector<void*>* list, const AABB& aabb);
+    
+    void query(std::vector<std::pair<void *, void *>>* list);
+    
 };
 
 #endif /* DynamicTree_hpp */

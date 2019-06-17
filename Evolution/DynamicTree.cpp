@@ -8,6 +8,8 @@
 
 #include "DynamicTree.hpp"
 
+#include <stack>
+
 DynamicTree::DynamicTree() {
     capacity = 256;
     count = 0;
@@ -254,4 +256,88 @@ int DynamicTree::balance(int node) {
     }
     
     return node;
+}
+
+void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
+    std::stack<int> stack;
+    
+    stack.push(root);
+    
+    while(!stack.empty()) {
+        int node = stack.top();
+        stack.pop();
+        
+        if(node == -1)
+            continue;
+        
+        if(nodes[node].isLeaf()) {
+            if(touches(aabb, nodes[node].aabb))
+                list->push_back(nodes[node].data);
+            
+            continue;
+        }
+        
+        int child1 = nodes[node].child1;
+        int child2 = nodes[node].child2;
+        
+        if(touches(aabb, nodes[child1].aabb))
+            stack.push(child1);
+        
+        if(touches(aabb, nodes[child2].aabb))
+            stack.push(child2);
+    }
+}
+
+void DynamicTree::query(std::vector<std::pair<void *, void *>> *list) {
+    std::stack<std::pair<int, int>> stack;
+    
+    stack.push(std::pair<int, int>(root, root));
+    
+    while(!stack.empty()) {
+        std::pair<int, int> node = stack.top();
+        stack.pop();
+        
+        if(node.first == -1)
+            continue;
+        
+        if(node.second == -1)
+            continue;
+        
+        bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
+        
+        if(!touch) continue;
+        
+        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
+            list->push_back(std::pair<void*, void*>(nodes[node.first].data, nodes[node.second].data));
+            continue;
+        }
+        
+        int child1 = nodes[node.first].child1;
+        int child2 = nodes[node.first].child2;
+        int child3 = nodes[node.second].child1;
+        int child4 = nodes[node.second].child2;
+        
+        if(nodes[node.first].isLeaf()) {
+            stack.push(std::pair<int, int>(node.first, child3));
+            stack.push(std::pair<int, int>(node.first, child4));
+            continue;
+        }
+        
+        if(nodes[node.second].isLeaf()) {
+            stack.push(std::pair<int, int>(node.second, child1));
+            stack.push(std::pair<int, int>(node.second, child2));
+            continue;
+        }
+        
+        stack.push(std::pair<int, int>(child1, child1));
+        stack.push(std::pair<int, int>(child1, child2));
+        stack.push(std::pair<int, int>(child1, child3));
+        stack.push(std::pair<int, int>(child1, child4));
+        stack.push(std::pair<int, int>(child2, child2));
+        stack.push(std::pair<int, int>(child2, child3));
+        stack.push(std::pair<int, int>(child2, child4));
+        stack.push(std::pair<int, int>(child3, child3));
+        stack.push(std::pair<int, int>(child3, child4));
+        stack.push(std::pair<int, int>(child4, child4));
+    }
 }
