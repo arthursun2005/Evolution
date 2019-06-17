@@ -31,6 +31,10 @@ struct AABB
     inline float perimeter() const {
         return 2.0f * (upperBound.x - lowerBound.x + upperBound.y - lowerBound.y);
     }
+    
+    inline bool contains(const AABB& aabb) const {
+        return lowerBound.x <= aabb.lowerBound.x && lowerBound.y <= aabb.lowerBound.y && upperBound.x >= aabb.upperBound.x && upperBound.y >= aabb.upperBound.y;
+    }
 };
 
 inline vec2 min(const vec2& a, const vec2& b) {
@@ -61,11 +65,16 @@ struct TreeNode
     int child1;
     int child2;
     
+    int height;
+    
+    /// an id to identify leaves for users
+    int id;
+    
     /// `next` is only useful if the node is NOT in the tree ...
     union
     {
-        /// an id to identify leaves for users
-        int id;
+        /// parent
+        int parent;
         
         /// used as a linked list element ...
         int next;
@@ -94,163 +103,71 @@ class DynamicTree
     int next;
     int root;
     
-    int insert_proxy(const AABB& aabb, int id) {
-        int node = allocate_node();
-        nodes[node].aabb = aabb;
-        nodes[node].id = id;
-        
-        if(root == -1) {
-            root = node;
-            return node;
-        }
-        
-        /// find the best sibling
-        int sibling = root;
-        int oldParent = -1;
-        
-        while(!nodes[sibling].isLeaf()) {
-            int child1 = nodes[sibling].child1;
-            int child2 = nodes[sibling].child2;
-            
-            float area = nodes[sibling].aabb.perimeter();
-            
-            AABB combinedAABB = combine_aabb(nodes[sibling].aabb, aabb);
-            
-            float combinedArea = combinedAABB.perimeter();
-            
-            /// Cost of creating a new parent for this node and the new leaf
-            float cost = 2.0f * combinedArea;
-            
-            /// Minimum cost of pushing the leaf further down the tree
-            float inheritanceCost = 2.0f * (combinedArea - area);
-            
-            AABB aabb1 = combine_aabb(nodes[child1].aabb, aabb);
-            AABB aabb2 = combine_aabb(nodes[child2].aabb, aabb);
-            
-            float cost1, cost2;
-            
-            /// Cost of descending into child1
-            if (nodes[child1].isLeaf())
-            {
-                cost1 = aabb1.perimeter() + inheritanceCost;
-            }
-            else
-            {
-                float oldArea = nodes[child1].aabb.perimeter();
-                float newArea = aabb1.perimeter();
-                cost1 = (newArea - oldArea) + inheritanceCost;
-            }
-            
-            /// Cost of descending into child2
-            if (nodes[child2].isLeaf())
-            {
-                cost2 = aabb2.perimeter() + inheritanceCost;
-            }
-            else
-            {
-                float oldArea = nodes[child2].aabb.perimeter();
-                float newArea = aabb2.perimeter();
-                cost2 = newArea - oldArea + inheritanceCost;
-            }
-            
-            /// Descend according to the minimum cost.
-            if (cost < cost1 && cost < cost2)
-            {
-                break;
-            }
-            
-            oldParent = sibling;
-            
-            nodes[oldParent].aabb = combine_aabb(nodes[oldParent].aabb, aabb);
-            
-            /// Descend
-            if (cost1 < cost2)
-            {
-                sibling = child1;
-            }
-            else
-            {
-                sibling = child2;
-            }
-        }
-        
-        /// Create a new parent.
-        int newParent = allocate_node();
-        nodes[newParent].aabb = combine_aabb(aabb, nodes[sibling].aabb);
-        
-        if (oldParent != -1)
-        {
-            /// The sibling was not the root.
-            if (nodes[oldParent].child1 == sibling)
-            {
-                nodes[oldParent].child1 = newParent;
-            }
-            else
-            {
-                nodes[oldParent].child2 = newParent;
-            }
-        }
-        else
-        {
-            /// The sibling was the root.
-            root = newParent;
-        }
-        
-        nodes[newParent].child1 = sibling;
-        nodes[newParent].child2 = node;
-        
-        nodes[newParent].aabb = combine_aabb(aabb, nodes[sibling].aabb);
-        
-        return node;
-    }
+    void insertProxy(int proxyId);
     
     inline void free_node(int node) {
         nodes[node].next = next;
+        nodes[node].height = -1;
         next = node;
     }
     
-    inline int allocate_node() {
-        if(next == -1) {
-            /// not enough space for now ...
-            
-            /// current situation ...
-            
-            /**
-             ** next     1   2   3   4   5 ... capacity - 2     capacity - 1
-             ** index    0   1   2   3   4     capacity - 1     -1
-             **/
-            
-            assert(capacity == count);
-            TreeNode* oldNodes = nodes;
-            
-            /// normally having memory in blocks of powers of 2 is better
-            capacity *= 2;
-            
-            nodes = (TreeNode*)Alloc(sizeof(TreeNode) * capacity);
-            
-            /// copy old memory into new
-            memcpy(nodes, oldNodes, sizeof(TreeNode) * count);
-            
-            /// free old
-            Free(oldNodes);
-            
-            /// we dont't need to reset nodes[count - 1].next to count ...
-            /// because the next we use it, it's going to be called by free_node ...
-            /// which sets the .next member
-            for(int i = count; i != capacity - 1; ++i) {
-                nodes[i].next = i + 1;
-            }
-            
-            nodes[capacity - 1].next = -1;
-            
-            next = count;
+    int allocate_node();
+    
+    inline void freeFrom(int index) {
+        for(int i = 0; i != capacity - 1; ++i) {
+            nodes[i].next = i + 1;
+            nodes[i].height = -1;
         }
         
-        int node = next;
+        nodes[capacity - 1].next = -1;
+        nodes[capacity - 1].height = -1;
+    }
+    
+    /// nodes[node].isLeaf() == false
+    inline void fix(int index) {
+        int child1 = nodes[index].child1;
+        int child2 = nodes[index].child2;
+        nodes[index].aabb = combine_aabb(nodes[child1].aabb, nodes[child2].aabb);
+        nodes[index].height = 1 + std::max(nodes[child1].height, nodes[child2].height);
+    }
+    
+    int balance(int node);
+    
+    inline int rotate_left(int index) {
+        int n = nodes[index].child2;
+        nodes[index].child2 = nodes[n].child1;
+        nodes[n].child1 = index;
         
-        next = nodes[node].next;
+        nodes[n].parent = nodes[index].parent;
+        nodes[nodes[n].child1].parent = index;
+        nodes[index].parent = n;
         
-        return node;
+        fix(index);
+        fix(n);
+        
+        return n;
+    }
+    
+    inline int rotate_right(int index) {
+        int n = nodes[index].child1;
+        nodes[index].child1 = nodes[n].child2;
+        nodes[n].child2 = index;
+        
+        nodes[n].parent = nodes[index].parent;
+        nodes[nodes[n].child2].parent = index;
+        nodes[index].parent = n;
+        
+        fix(index);
+        fix(n);
+        
+        return n;
+    }
+    
+    inline int getBalance(int node) const {
+        int child1 = nodes[node].child1;
+        int child2 = nodes[node].child2;
+        
+        return nodes[child2].height - nodes[child1].height;
     }
     
 public:
@@ -265,9 +182,18 @@ public:
     
     DynamicTree& operator = (const DynamicTree& tree) = delete;
     
-    inline int insertProxy(const AABB& aabb, int id) {
-        return insert_proxy(aabb, id);
+    inline int createProxy(const AABB& aabb, int id) {
+        int node = allocate_node();
+        nodes[node].height = 0;
+        nodes[node].aabb = aabb;
+        nodes[node].id = id;
+        insertProxy(node);
+        return node;
     }
+    
+    bool moveProxy(int nodeId, const AABB& aabb);
+    
+    void removeProxy(int leaf);
     
 };
 
