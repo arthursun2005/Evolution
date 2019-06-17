@@ -56,7 +56,6 @@ int DynamicTree::allocate_node() {
     
     nodes[node].child1 = -1;
     nodes[node].child2 = -1;
-    nodes[node].parent = -1;
     
     next = nodes[node].next;
     
@@ -225,8 +224,6 @@ void DynamicTree::removeProxy(int leaf) {
         nodes[sibling].parent = -1;
         free_node(parent);
     }
-    
-    free_node(leaf);
 }
 
 int DynamicTree::balance(int node) {

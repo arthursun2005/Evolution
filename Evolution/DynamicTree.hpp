@@ -67,8 +67,8 @@ struct TreeNode
     
     int height;
     
-    /// an id to identify leaves for users
-    int id;
+    /// data to identify leaves for users
+    void* data;
     
     /// `next` is only useful if the node is NOT in the tree ...
     union
@@ -182,11 +182,11 @@ public:
     
     DynamicTree& operator = (const DynamicTree& tree) = delete;
     
-    inline int createProxy(const AABB& aabb, int id) {
+    inline int createProxy(const AABB& aabb, void* data) {
         int node = allocate_node();
         nodes[node].height = 0;
         nodes[node].aabb = aabb;
-        nodes[node].id = id;
+        nodes[node].data = data;
         insertProxy(node);
         return node;
     }
@@ -194,6 +194,11 @@ public:
     bool moveProxy(int nodeId, const AABB& aabb);
     
     void removeProxy(int leaf);
+    
+    inline void destoryProxy(int proxyId) {
+        removeProxy(proxyId);
+        free_node(proxyId);
+    }
     
 };
 
