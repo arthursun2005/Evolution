@@ -178,7 +178,7 @@ bool DynamicTree::moveProxy(int nodeId, const AABB &aabb) {
     
     removeProxy(nodeId);
     
-    nodes[nodeId].aabb = aabb;
+    nodes[nodeId].aabb = extendAABB(aabb);
     
     insertProxy(nodeId);
     
