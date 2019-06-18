@@ -31,7 +31,7 @@ BodyDef::BodyDef() {
     viewDiameter = 16;
 }
 
-Body::Body(const BodyDef* def) {
+Body::Body(const BodyDef* def, World* world) {
     position = def->position;
     velocity = def->velocity;
     
@@ -53,7 +53,6 @@ Body::Body(const BodyDef* def) {
     brain = new Brain(def->viewDiameter * def->viewDiameter, Body_OutputSize);
     
     type = e_body;
-}
-
-void Body::think() {
+    
+    this->world = world;
 }

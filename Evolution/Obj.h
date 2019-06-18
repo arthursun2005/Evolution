@@ -38,4 +38,10 @@ public:
     }
 };
 
+class Stick;
+
+class Body;
+
+class World;
+
 #endif /* Obj_h */

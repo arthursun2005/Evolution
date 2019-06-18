@@ -39,6 +39,12 @@ struct TreeNode
     }
 };
 
+struct Contact
+{
+    void* obj1;
+    void* obj2;
+};
+
 /**
  ** Many algorithms came from Box2D
  ** https://github.com/erincatto/Box2D
@@ -154,7 +160,7 @@ public:
     
     void query(std::vector<void*>* list, const AABB& aabb);
     
-    void query(std::vector<std::pair<void *, void *>>* list);
+    void query(std::vector<Contact>* list);
     
 };
 

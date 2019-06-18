@@ -57,7 +57,9 @@ public:
     
     Stick stick;
     
-    Body(const BodyDef* def);
+    World* world;
+    
+    Body(const BodyDef* def, World* world);
     
     inline ~Body() {
         delete(brain);

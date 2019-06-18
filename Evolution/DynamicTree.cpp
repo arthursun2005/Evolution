@@ -288,7 +288,7 @@ void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
     }
 }
 
-void DynamicTree::query(std::vector<std::pair<void *, void *>> *list) {
+void DynamicTree::query(std::vector<Contact> *list) {
     std::stack<std::pair<int, int>> stack;
     
     stack.push(std::pair<int, int>(root, root));
@@ -308,7 +308,10 @@ void DynamicTree::query(std::vector<std::pair<void *, void *>> *list) {
         if(!touch) continue;
         
         if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
-            list->push_back(std::pair<void*, void*>(nodes[node.first].data, nodes[node.second].data));
+            Contact contact;
+            contact.obj1 = nodes[node.first].data;
+            contact.obj2 = nodes[node.second].data;
+            list->push_back(contact);
             continue;
         }
         

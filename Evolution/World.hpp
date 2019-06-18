@@ -20,6 +20,14 @@ class World
     
     DynamicTree tree;
     
+    inline void destoryBody(const std::list<Body*>::iterator& it) {
+        Body* body = *it;
+        bodies.erase(it);
+        delete(body);
+    }
+    
+    std::vector<Contact> contacts;
+    
 public:
     
     const int width;
@@ -54,18 +62,19 @@ public:
         return (int)bodies.size();
     }
     
-    inline Body* createBody(const BodyDef* def) {
-        Body* body = new Body(def);
-        bodies.push_back(body);
-        tree.createProxy(body->aabb(), body);
-        tree.createProxy(body->stick.aabb(), &body->stick);
-        return body;
-    }
+    Body* createBody(const BodyDef* def);
+    
+    void destoryBody(Body* body);
     
     void step(float dt) {
         for(Body* body : bodies) {
             body->step(dt);
         }
+    }
+    
+    inline void getContacts() {
+        contacts.clear();
+        tree.query(&contacts);
     }
     
     inline void step(float dt, int its) {
