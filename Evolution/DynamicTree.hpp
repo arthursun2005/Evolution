@@ -54,28 +54,43 @@ struct Contact
 
 class DynamicTree
 {
+    /**
+     ** allocate    =>      free
+     ** create      =>      destory
+     ** insert      =>      remove
+     **/
     
     TreeNode* nodes;
     
+    /// count of nodes
+    /// pretty much useless
     int count;
+    
+    /// capacity of the pointer nodes
     int capacity;
     
+    /// free list
     int next;
+    
+    /// root node
     int root;
     
+    /// insert a leaf into the tree
     void insertProxy(int proxyId);
     
+    /// free a single node
+    /// it becomes the free list
     inline void free_node(int node) {
         nodes[node].next = next;
         nodes[node].height = -1;
         next = node;
-        
         --count;
     }
     
+    /// allocates a node
     int allocate_node();
     
-    inline void freeFrom(int index) {
+    void freeFrom(int index) {
         for(int i = index; i != capacity - 1; ++i) {
             nodes[i].next = i + 1;
             nodes[i].height = -1;
@@ -85,7 +100,8 @@ class DynamicTree
         nodes[capacity - 1].height = -1;
     }
     
-    /// nodes[node].isLeaf() == false
+    /// assumes nodes[node].isLeaf() == false
+    /// fixes aabb and height
     inline void fix(int index) {
         int child1 = nodes[index].child1;
         int child2 = nodes[index].child2;
@@ -156,9 +172,10 @@ class DynamicTree
     inline int getBalance(int node) const {
         int child1 = nodes[node].child1;
         int child2 = nodes[node].child2;
-        
         return nodes[child2].height - nodes[child1].height;
     }
+    
+    void removeProxy(int leaf);
     
 public:
     
@@ -172,6 +189,7 @@ public:
     
     DynamicTree& operator = (const DynamicTree& tree) = delete;
     
+    /// creates a proxy and inserts it into the tree
     inline int createProxy(const AABB& aabb, void* data) {
         int node = allocate_node();
         nodes[node].height = 0;
@@ -183,8 +201,6 @@ public:
     
     bool moveProxy(int nodeId, const AABB& aabb);
     
-    void removeProxy(int leaf);
-    
     inline void destoryProxy(int proxyId) {
         removeProxy(proxyId);
         free_node(proxyId);
@@ -194,7 +210,7 @@ public:
     
     void validateSizes();
     
-    inline void validate() {
+    void validate() {
         validateStructure();
         validateSizes();
         

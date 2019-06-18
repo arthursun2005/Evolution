@@ -112,7 +112,7 @@ void DynamicTree::insertProxy(int proxyId) {
         }else{
             float oldArea = nodes[child2].aabb.perimeter();
             float newArea = aabb2.perimeter();
-            cost2 = newArea - oldArea + inheritanceCost;
+            cost2 = (newArea - oldArea) + inheritanceCost;
         }
         
         /// Descend according to the minimum cost.
@@ -172,10 +172,9 @@ void DynamicTree::insertProxy(int proxyId) {
 bool DynamicTree::moveProxy(int nodeId, const AABB &aabb) {
     assert(nodes[nodeId].isLeaf());
     
-    if(nodes[nodeId].aabb.contains(aabb)) {
+    if(nodes[nodeId].aabb.contains(aabb))
         return false;
-    }
-    
+
     removeProxy(nodeId);
     
     nodes[nodeId].aabb = extendAABB(aabb);
@@ -214,7 +213,7 @@ void DynamicTree::removeProxy(int leaf) {
         nodes[sibling].parent = grandParent;
         free_node(parent);
         
-        /// Fix
+        /// Fix everything
         int index = grandParent;
         while (index != -1) {
             fix(index);
@@ -229,9 +228,8 @@ void DynamicTree::removeProxy(int leaf) {
 }
 
 int DynamicTree::balance(int node) {
-    if(nodes[node].height < 2) {
+    if(nodes[node].height < 2)
         return node;
-    }
     
     int balance = getBalance(node);
     
@@ -259,6 +257,10 @@ int DynamicTree::balance(int node) {
 }
 
 void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
+#ifdef DEBUG
+    validate();
+#endif
+    
     std::stack<int> stack;
     
     stack.push(root);
@@ -291,7 +293,9 @@ void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
 void DynamicTree::query(std::vector<Contact> *list) {
     if(root == -1) return;
     
+#ifdef DEBUG
     validate();
+#endif
     
     if(nodes[root].isLeaf()) return;
     
@@ -306,26 +310,38 @@ void DynamicTree::query(std::vector<Contact> *list) {
         if(node.first == -1 && node.second == -1)
             continue;
         
+        int child1, child2, child3, child4;
+        
+        if(node.first != -1) {
+            child1 = nodes[node.first].child1;
+            child2 = nodes[node.first].child2;
+        }
+        
+        if(node.second != -1) {
+            child3 = nodes[node.second].child1;
+            child4 = nodes[node.second].child2;
+        }
+        
         if(node.first == -1) {
-            int child3 = nodes[node.second].child1;
-            int child4 = nodes[node.second].child2;
             stack.push(std::pair<int, int>(child3, child4));
             continue;
         }
         
         if(node.second == -1) {
-            int child1 = nodes[node.first].child1;
-            int child2 = nodes[node.first].child2;
             stack.push(std::pair<int, int>(child1, child2));
             continue;
         }
         
-        int child1 = nodes[node.first].child1;
-        int child2 = nodes[node.first].child2;
-        int child3 = nodes[node.second].child1;
-        int child4 = nodes[node.second].child2;
-        
         bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
+        
+        
+        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf() && touch) {
+            Contact contact;
+            contact.obj1 = nodes[node.first].data;
+            contact.obj2 = nodes[node.second].data;
+            list->push_back(contact);
+            continue;
+        }
         
         if(!nodes[node.first].isLeaf())
            stack.push(std::pair<int, int>(child1, child2));
@@ -334,14 +350,6 @@ void DynamicTree::query(std::vector<Contact> *list) {
            stack.push(std::pair<int, int>(child3, child4));
         
         if(!touch) continue;
-        
-        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
-            Contact contact;
-            contact.obj1 = nodes[node.first].data;
-            contact.obj2 = nodes[node.second].data;
-            list->push_back(contact);
-            continue;
-        }
         
         if(nodes[node.first].isLeaf()) {
             stack.push(std::pair<int, int>(node.first, child3));
@@ -422,6 +430,7 @@ void DynamicTree::validateSizes() {
         AABB aabb = combine_aabb(nodes[child1].aabb, nodes[child2].aabb);
         int height = 1 + std::max(nodes[child1].height, nodes[child2].height);
         
+        /// each bit in each float should be the same
         assert(aabb.lowerBound == nodes[node].aabb.lowerBound);
         assert(aabb.upperBound == nodes[node].aabb.upperBound);
         

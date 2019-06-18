@@ -9,13 +9,15 @@
 #ifndef activation_functions_h
 #define activation_functions_h
 
+#include "common.h"
+
 enum activation_function_types {
     activation_linear = 0,
     activation_sigmoid,
     activation_smooth,
     activation_tanh,
     activation_step,
-    activation_relu,
+    activation_swish,
     activation_gauss,
     activation_sine,
     activation_cosine,
@@ -49,8 +51,8 @@ struct ActivationFunction
             return firstbit(x);
         }
         
-        if(type == activation_relu) {
-            return firstbit(x) * x;
+        if(type == activation_swish) {
+            return x / (1.0f + exp(-x));
         }
         
         if(type == activation_gauss) {

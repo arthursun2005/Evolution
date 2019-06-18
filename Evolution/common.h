@@ -19,21 +19,28 @@
 
 /// from std::allocator
 
-inline void* Alloc(size_t size) {
 #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
+
+inline void* Alloc(size_t size) {
     return ::operator new(size);
-#else
-    return __builtin_operator_new(size);
-#endif
 }
 
 inline void Free(void* ptr) {
-#ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
     ::operator delete(ptr);
-#else
-    __builtin_operator_delete(ptr);
-#endif
 }
+
+#else
+
+inline void* Alloc(size_t size) {
+    return __builtin_operator_new(size);
+}
+
+inline void Free(void* ptr) {
+    __builtin_operator_delete(ptr);
+}
+
+#endif
+
 
 template <class T, class... Args>
 inline void Construct(T* ptr, Args&&... args) {
