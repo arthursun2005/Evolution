@@ -335,11 +335,13 @@ void DynamicTree::query(std::vector<Contact> *list) {
         bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
         
         
-        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf() && touch) {
-            Contact contact;
-            contact.obj1 = nodes[node.first].data;
-            contact.obj2 = nodes[node.second].data;
-            list->push_back(contact);
+        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
+            if(touch) {
+                Contact contact;
+                contact.obj1 = nodes[node.first].data;
+                contact.obj2 = nodes[node.second].data;
+                list->push_back(contact);
+            }
             continue;
         }
         
