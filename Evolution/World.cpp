@@ -29,3 +29,6 @@ void World::destoryBody(Body* body) {
 
 void Body::think() {
 }
+
+void World::solveContacts(float dt) {
+}

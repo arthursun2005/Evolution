@@ -28,6 +28,9 @@ class World
     
     std::vector<Contact> contacts;
     
+    /// dynamics
+    void solveContacts(float dt);
+    
 public:
     
     const int width;
@@ -68,7 +71,8 @@ public:
     
     void step(float dt) {
         getContacts();
-        printf("%zu\n", contacts.size());
+        solveContacts();
+        
         for(Body* body : bodies) {
             body->step(dt);
         }

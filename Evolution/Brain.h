@@ -50,7 +50,7 @@ class Brain
             if(input != 0) {
                 index = (int)(link.input - inputs);
             }else{
-                index = (int)(link.input - *neurons.data());
+                index = (int)(&link.input - neurons.data());
             }
             
             os.write((char*)&index, sizeof(index));
@@ -75,7 +75,7 @@ class Brain
             if(input != 0) {
                 link.input = inputs + index;
             }else{
-                link.input = *neurons.data() + index;
+                link.input = *(neurons.data() + index);
             }
         }
         
