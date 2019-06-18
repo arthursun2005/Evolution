@@ -82,7 +82,7 @@ inline bool starts_with(const std::string& str, const std::string& start) {
 }
 
 inline int firstbit(float x) {
-    return 0b1 & ~(*(int*)&x >> 31);
+    return 0b1 & ~((*(int*)&x) >> 31);
 }
 
 #define aabb_extension 0.005f

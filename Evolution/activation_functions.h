@@ -12,6 +12,7 @@
 enum activation_function_types {
     activation_linear = 0,
     activation_sigmoid,
+    activation_smooth,
     activation_tanh,
     activation_step,
     activation_relu,
@@ -34,6 +35,10 @@ struct ActivationFunction
         
         if(type == activation_sigmoid) {
             return 1.0f / (1.0f + exp(-x));
+        }
+        
+        if(type == activation_smooth) {
+            return x / (1.0f + fabs(x));
         }
         
         if(type == activation_tanh) {

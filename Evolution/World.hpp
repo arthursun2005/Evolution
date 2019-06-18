@@ -67,6 +67,8 @@ public:
     void destoryBody(Body* body);
     
     void step(float dt) {
+        getContacts();
+        printf("%zu\n", contacts.size());
         for(Body* body : bodies) {
             body->step(dt);
         }

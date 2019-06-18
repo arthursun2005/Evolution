@@ -12,6 +12,8 @@
 #include "vec2.h"
 #include "common.h"
 
+#include <stack>
+
 struct TreeNode
 {
     int child1;
@@ -67,12 +69,14 @@ class DynamicTree
         nodes[node].next = next;
         nodes[node].height = -1;
         next = node;
+        
+        --count;
     }
     
     int allocate_node();
     
     inline void freeFrom(int index) {
-        for(int i = 0; i != capacity - 1; ++i) {
+        for(int i = index; i != capacity - 1; ++i) {
             nodes[i].next = i + 1;
             nodes[i].height = -1;
         }
@@ -91,13 +95,27 @@ class DynamicTree
     
     int balance(int node);
     
-    inline int rotate_left(int index) {
+    int rotate_left(int index) {
         int n = nodes[index].child2;
-        nodes[index].child2 = nodes[n].child1;
+        int carry = nodes[n].child1;
+        
+        nodes[index].child2 = carry;
         nodes[n].child1 = index;
         
-        nodes[n].parent = nodes[index].parent;
-        nodes[nodes[n].child1].parent = index;
+        int parent = nodes[index].parent;
+        
+        if(parent == -1) {
+            root = n;
+        }else{
+            if(nodes[parent].child1 == index) {
+                nodes[parent].child1 = n;
+            }else{
+                nodes[parent].child2 = n;
+            }
+        }
+        
+        nodes[n].parent = parent;
+        nodes[carry].parent = index;
         nodes[index].parent = n;
         
         fix(index);
@@ -106,13 +124,27 @@ class DynamicTree
         return n;
     }
     
-    inline int rotate_right(int index) {
+    int rotate_right(int index) {
         int n = nodes[index].child1;
-        nodes[index].child1 = nodes[n].child2;
+        int carry = nodes[n].child2;
+        
+        nodes[index].child1 = carry;
         nodes[n].child2 = index;
         
-        nodes[n].parent = nodes[index].parent;
-        nodes[nodes[n].child2].parent = index;
+        int parent = nodes[index].parent;
+        
+        if(parent == -1) {
+            root = n;
+        }else{
+            if(nodes[parent].child1 == index) {
+                nodes[parent].child1 = n;
+            }else{
+                nodes[parent].child2 = n;
+            }
+        }
+        
+        nodes[n].parent = parent;
+        nodes[carry].parent = index;
         nodes[index].parent = n;
         
         fix(index);
@@ -156,6 +188,25 @@ public:
     inline void destoryProxy(int proxyId) {
         removeProxy(proxyId);
         free_node(proxyId);
+    }
+    
+    void validateStructure();
+    
+    void validateSizes();
+    
+    inline void validate() {
+        validateStructure();
+        validateSizes();
+        
+        int freeCount = 0;
+        int freeIndex = next;
+        while (freeIndex != -1) {
+            assert(0 <= freeIndex && freeIndex < capacity);
+            freeIndex = nodes[freeIndex].next;
+            ++freeCount;
+        }
+        
+        assert(count + freeCount == capacity);
     }
     
     void query(std::vector<void*>* list, const AABB& aabb);

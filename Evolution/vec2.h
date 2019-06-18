@@ -80,6 +80,10 @@ inline vec2 operator * (const vec2& a, const vec2& b) {
     return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
 }
 
+inline bool operator == (const vec2& a, const vec2& b) {
+    return a.x == b.x && a.y == b.y;
+}
+
 inline float dot (const vec2& a, const vec2& b) {
     return a.x * b.x + a.y * b.y;
 }
