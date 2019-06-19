@@ -17,7 +17,7 @@ class _Timer
     
     typedef _clock_type clock_type;
     typedef typename clock_type::time_point time_point;
-    static constexpr double time_type_ratio = 1.0f / (double) clock_type::period::den;
+    static constexpr double time_type_ratio = clock_type::period::num / (double) clock_type::period::den;
     
     time_point start;
     
