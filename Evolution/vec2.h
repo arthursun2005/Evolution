@@ -10,6 +10,7 @@
 #define vec2_h
 
 #include <cmath>
+#include <float.h>
 
 struct vec2
 {
@@ -64,7 +65,8 @@ struct vec2
     }
     
     inline float length() const {
-        return sqrtf(lengthSq());
+        float l = sqrtf(lengthSq());
+        return l < FLT_EPSILON ? FLT_EPSILON : l;
     }
 };
 
