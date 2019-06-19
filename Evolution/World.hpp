@@ -71,7 +71,7 @@ public:
     
     void step(float dt) {
         getContacts();
-        solveContacts();
+        solveContacts(dt);
         
         for(Body* body : bodies) {
             body->step(dt);
