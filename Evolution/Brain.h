@@ -24,7 +24,7 @@ class Brain
         
         neuron.flags = 0;
         
-        /// we add the link if not given NULL
+        /// we add the link if not given -1
         if(from != -1) neuron.add_link(from);
         
         if(to != -1) neurons[to].add_link(index);

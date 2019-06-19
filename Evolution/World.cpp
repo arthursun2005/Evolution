@@ -23,6 +23,8 @@ void World::destoryBody(Body* body) {
     std::list<Body*>::iterator end = bodies.end();
     while(begin != end) {
         if((*begin) == body) {
+            tree.destoryProxy((*begin)->node);
+            tree.destoryProxy((*begin)->stick.node);
             destoryBody(begin);
             return;
         }
@@ -60,7 +62,7 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
     if(A == B) return;
     
     vec2 D = B->position - A->position;
-    float M = dot(D, D);
+    float M = D.lengthSq();
     float t = A->radius + B->radius;
     
     float massA = A->area() * A->density;
@@ -68,10 +70,10 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
     float total = massA + massB;
     
     if(M < (t * t)) {
-        M = sqrtf(M);
-        vec2 normal = D.norm();
+        M = D.length();
+        vec2 normal = D / M;
         float depth = t - M;
-
+        
         float fA = point_impulse * depth * massB / total;
         float fB = point_impulse * depth * massA / total;
         
@@ -105,10 +107,10 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
             
             if(pT.y > bT.y) {
                 normal = B->normal;
-                rot = 1.0f / massB * dT.x * depth;
+                rot = massA / total * depth * dT.x;
             }else{
                 normal = -B->normal;
-                rot = -1.0f / massB * dT.x * depth;
+                rot = -massA / total * depth * dT.x;
             }
             
             float fA = point_impulse * depth * massB / total;
@@ -117,6 +119,48 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
             A->velocity -= fA * normal;
             B->velocity += fB * normal;
             B->angularVelocity += rot;
+        }else{
+            vec2 j = B->normal.I();
+            vec2 _l = vec2(B->length * 0.5f, 0.0f);
+            vec2 p1 = _l * j;
+            vec2 p2 = B->position - p1;
+            p1 += B->position;
+            
+            vec2 D1 = p1 - A->position;
+            vec2 D2 = p2 - A->position;
+            
+            float M1 = D1.lengthSq();
+            float M2 = D2.lengthSq();
+            
+            if(M1 < (r * r)) {
+                M1 = D1.length();
+                vec2 normal = D1 / M1;
+                float depth = r - M1;
+                
+                float fA = depth * massB / total;
+                float fB = depth * massA / total;
+                
+                float rot = -dot(A->velocity, B->normal) * massA / total * depth * dT.x;
+                
+                A->velocity -= fA * normal;
+                B->velocity += fB * normal;
+                B->angularVelocity += rot;
+            }
+            
+            if(M2 < (r * r)) {
+                M2 = D2.length();
+                vec2 normal = D2 / M2;
+                float depth = r - M2;
+                
+                float fA = depth * massB / total;
+                float fB = depth * massA / total;
+                
+                float rot = -dot(A->velocity, B->normal) * massA / total * depth * dT.x;
+                
+                A->velocity -= fA * normal;
+                B->velocity += fB * normal;
+                B->angularVelocity += rot;
+            }
         }
     }
 }

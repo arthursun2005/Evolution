@@ -175,7 +175,7 @@ bool DynamicTree::moveProxy(int nodeId, const AABB &aabb) {
     
     if(nodes[nodeId].aabb.contains(aabb))
         return false;
-
+    
     removeProxy(nodeId);
     
     nodes[nodeId].aabb = extendAABB(aabb);

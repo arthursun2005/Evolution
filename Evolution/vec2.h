@@ -86,6 +86,10 @@ inline vec2 operator * (const vec2& a, const vec2& b) {
     return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
 }
 
+inline vec2 operator / (const vec2& a, float b) {
+    return vec2(a.x / b, a.y / b);
+}
+
 inline bool operator == (const vec2& a, const vec2& b) {
     return a.x == b.x && a.y == b.y;
 }
