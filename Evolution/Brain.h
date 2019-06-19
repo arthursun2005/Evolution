@@ -36,11 +36,6 @@ class Brain
         return index;
     }
     
-    inline void alterWeights(float scl) {
-        for(Neuron& neuron : neurons)
-            neuron.alter(scl);
-    }
-    
     void write(std::ofstream& os, const Neuron* n) const {
         int size = (int)n->inputs.size();
         os.write((char*)&size, sizeof(size));
@@ -93,6 +88,9 @@ public:
         input_size = _input_size;
         output_size = _output_size;
         neurons.resize(input_size + output_size);
+        
+        for(Neuron &neuron : neurons)
+            neuron.clear();
 
         if(rand() & 0x1) {
             int index1 = rand() % output_size;
@@ -101,7 +99,7 @@ public:
         }
     }
     
-    inline void write(std::ofstream& os) const {
+    void write(std::ofstream& os) const {
         int total = (int)neurons.size();
         os.write((char*)&input_size, sizeof(input_size));
         os.write((char*)&output_size, sizeof(output_size));
@@ -110,7 +108,7 @@ public:
             write(os, &neuron);
     }
     
-    inline void read(std::ifstream& is) {
+    void read(std::ifstream& is) {
         int total;
         int i, o;
         
@@ -165,10 +163,11 @@ public:
         
         if((rand() & 0x1)) {
             int func_type = rand() % numberOfActivationFunctions;
+            int size = (int)(result->neurons.size());
+            int index1 = result->input_size + (rand() % (size - result->input_size));
             
             if((rand() & 0x1)) {
-                int size = (int)(result->neurons.size());
-                int index1 = result->input_size + (rand() % (size - result->input_size));
+                
                 int index2 = rand() % (size);
                 
                 if((rand() & 0xf) < 0x4) {
@@ -181,8 +180,7 @@ public:
                         result->neurons[index1].add_link(index2);
                 }
             }else{
-                int index = rand() % ((int)(result->neurons.size()) - result->input_size);
-                result->neurons[result->input_size + index].f.type = func_type;
+                result->neurons[index1].f.type = func_type;
             }
         }
         

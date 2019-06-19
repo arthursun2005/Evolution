@@ -130,7 +130,7 @@ int main(int argc, const char * argv[]) {
     renderer.initialize();
     
     glfwSwapInterval(1);
-    
+
     do {
         float currentTime = glfwGetTime();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);

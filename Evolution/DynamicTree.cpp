@@ -312,28 +312,12 @@ void DynamicTree::query(std::vector<Contact> *list) {
         
         int child1, child2, child3, child4;
         
-        if(node.first != -1) {
-            child1 = nodes[node.first].child1;
-            child2 = nodes[node.first].child2;
-        }
-        
-        if(node.second != -1) {
-            child3 = nodes[node.second].child1;
-            child4 = nodes[node.second].child2;
-        }
-        
-        if(node.first == -1) {
-            stack.push(std::pair<int, int>(child3, child4));
-            continue;
-        }
-        
-        if(node.second == -1) {
-            stack.push(std::pair<int, int>(child1, child2));
-            continue;
-        }
+        child1 = nodes[node.first].child1;
+        child2 = nodes[node.first].child2;
+        child3 = nodes[node.second].child1;
+        child4 = nodes[node.second].child2;
         
         bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
-        
         
         if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
             if(touch) {
@@ -342,6 +326,7 @@ void DynamicTree::query(std::vector<Contact> *list) {
                 contact.obj2 = nodes[node.second].data;
                 list->push_back(contact);
             }
+            
             continue;
         }
         
