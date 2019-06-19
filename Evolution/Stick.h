@@ -32,20 +32,21 @@ public:
     
     float linearDamping;
     float angularDamping;
-        
+    
     Stick() : owner(NULL), angularVelocity(0.0f) {
-        linearDamping = 0.99f;
-        angularDamping = 0.99f;
+        linearDamping = 0.994f;
+        angularDamping = 0.992f;
         
         /// stick pointing up
         normal = vec2(1.0f, 0.0f);
         
         type = e_stick;
+        density = 16.0f;
     }
     
     void step(float dt) {
-        angularVelocity *= angularDamping;
-        velocity *= linearDamping;
+        angularVelocity *= powf(angularDamping, dt);
+        velocity *= powf(linearDamping, dt);
         
         float a = dt * angularVelocity;
         normal = normal * vec2(cosf(a), sinf(a));
@@ -60,6 +61,10 @@ public:
         vec2 min_p = min(p1, p2);
         vec2 max_p = max(p1, p2);
         return AABB(position + min_p - ext, position + max_p + ext);
+    }
+    
+    inline float area() const {
+        return radius * (2.0f * length + radius * M_PI);
     }
 };
 

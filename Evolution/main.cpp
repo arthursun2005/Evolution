@@ -130,6 +130,15 @@ int main(int argc, const char * argv[]) {
     renderer.initialize();
     
     glfwSwapInterval(1);
+    
+    BodyDef def;
+    def.position = vec2(-10.0f, 0.0f);
+    def.velocity = vec2(10.0f, 0.0f);
+    world.createBody(&def);
+    
+    def.position = vec2(10.0f, 0.0f);
+    def.velocity = vec2(-10.0f, 0.0f);
+    world.createBody(&def);
 
     do {
         float currentTime = glfwGetTime();
@@ -164,7 +173,7 @@ int main(int argc, const char * argv[]) {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
-            world.step(dt);
+            world.step(dt, 4);
             
             renderer.render(0, frame);
         }

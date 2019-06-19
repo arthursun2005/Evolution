@@ -55,12 +55,16 @@ struct vec2
     }
     
     inline vec2 norm () const {
-        float l = sqrtf(lengthSq());
+        float l = length();
         return vec2(x/l, y/l);
     }
     
     inline float lengthSq() const {
         return x * x + y * y;
+    }
+    
+    inline float length() const {
+        return sqrtf(lengthSq());
     }
 };
 
@@ -86,6 +90,10 @@ inline bool operator == (const vec2& a, const vec2& b) {
 
 inline float dot (const vec2& a, const vec2& b) {
     return a.x * b.x + a.y * b.y;
+}
+
+inline vec2 scl (const vec2& a, const vec2& b) {
+    return vec2(a.x * b.x, a.y * b.y);
 }
 
 #endif /* vec2_h */

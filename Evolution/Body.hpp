@@ -76,7 +76,7 @@ public:
         
         stick.step(dt);
         
-        velocity *= damping;
+        velocity *= powf(damping, dt);
         position += dt * velocity;
     }
     

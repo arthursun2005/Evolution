@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.994f;
+    damping = 0.996f;
     
     brain_inputs = 1;
     brain_outputs = 1;
@@ -28,7 +28,7 @@ BodyDef::BodyDef() {
     position = vec2(0.0f, 0.0f);
     velocity = vec2(0.0f, 0.0f);
     
-    viewDiameter = 16;
+    viewDiameter = 64;
 }
 
 Body::Body(const BodyDef* def, World* world) {

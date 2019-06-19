@@ -161,6 +161,7 @@ void DynamicTree::insertProxy(int proxyId) {
     nodes[sibling].parent = newParent;
     nodes[proxyId].parent = newParent;
     
+    
     /// Walk back up the tree fixing heights and AABBs
     while (oldParent != -1) {
         fix(oldParent);
@@ -306,9 +307,6 @@ void DynamicTree::query(std::vector<Contact> *list) {
     while(!stack.empty()) {
         std::pair<int, int> node = stack.top();
         stack.pop();
-        
-        if(node.first == -1 && node.second == -1)
-            continue;
         
         int child1, child2, child3, child4;
         

@@ -24,6 +24,8 @@ public:
     
     float radius;
     
+    float density = 1.0f;
+    
     int node;
     
     enum type
@@ -35,6 +37,10 @@ public:
     AABB aabb() const {
         vec2 ext = vec2(radius, radius);
         return AABB(position - ext, position + ext);
+    }
+    
+    inline float area() const {
+        return radius * radius * M_PI;
     }
 };
 

@@ -31,6 +31,17 @@ class World
     /// dynamics
     void solveContacts(float dt);
     
+    void solveBodyBody(Body* A, Body* B, float dt);
+    void solveBodyStick(Body* A, Stick* B, float dt);
+    void solveStickStick(Stick* A, Stick* B, float dt);
+    
+    inline void moveProxies() {
+        for(Body* body : bodies) {
+            tree.moveProxy(body->node, body->aabb());
+            tree.moveProxy(body->stick.node, body->stick.aabb());
+        }
+    }
+    
 public:
     
     const int width;
@@ -70,6 +81,8 @@ public:
     void destoryBody(Body* body);
     
     void step(float dt) {
+        moveProxies();
+        
         getContacts();
         solveContacts(dt);
         

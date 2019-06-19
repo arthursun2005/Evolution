@@ -68,7 +68,7 @@ struct ActivationFunction
         }
         
         if(type == activation_abs) {
-            return x < 0.0f ? -x : x;
+            return fabs(x);
         }
         
         if(type == activation_inv) {
