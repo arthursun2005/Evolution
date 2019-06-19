@@ -21,7 +21,7 @@ BodyDef::BodyDef() {
     stick.position = vec2(radius + 1.5f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     
-    maxHealth = 65536.0f;
+    maxHealth = 6000.0f;
     
     color = Colorf(0.0f);
     

@@ -70,7 +70,7 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
     if(M < (t * t)) {
         M = sqrtf(M);
         vec2 normal = D.norm();
-        float depth = 1.0f - M/t;
+        float depth = t - M;
 
         float fA = point_impulse * depth * massB / total;
         float fB = point_impulse * depth * massA / total;
@@ -81,25 +81,42 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
 }
 
 void World::solveBodyStick(Body *A, Stick *B, float dt) {
-    vec2 Q = B->normal.I().T();
+    vec2 Q = B->normal.T().I();
+    
     vec2 pT = A->position * Q;
-    float dy = fabs(B->position.y - pT.y);
+    vec2 bT = B->position * Q;
+    
+    vec2 dT = bT - pT;
+    
     float r = A->radius + B->radius;
-    float l2 = B->length * 0.5f;
     
     float massA = A->area() * A->density;
     float massB = B->area() * B->density;
     float total = massA + massB;
     
+    float dy = fabs(dT.y);
+    
     if(dy < r) {
-        if(pT.x > -l2 + B->position.x && pT.x < l2 + B->position.x) {
-            float depth = 1.0f - dy/r;
+        if(fabs(dT.x) < B->length * 0.5f) {
+            vec2 normal;
+            float rot;
+            
+            float depth = r - dy;
+            
+            if(pT.y > bT.y) {
+                normal = B->normal;
+                rot = 1.0f / massB * dT.x * depth;
+            }else{
+                normal = -B->normal;
+                rot = -1.0f / massB * dT.x * depth;
+            }
             
             float fA = point_impulse * depth * massB / total;
             float fB = point_impulse * depth * massA / total;
             
-            //A->velocity -= fA * Q;
-            //B->velocity += fB * Q;
+            A->velocity -= fA * normal;
+            B->velocity += fB * normal;
+            B->angularVelocity += rot;
         }
     }
 }
