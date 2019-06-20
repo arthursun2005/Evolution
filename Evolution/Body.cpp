@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.996f;
+    damping = 0.99f;
     
     brain_inputs = 1;
     brain_outputs = 1;

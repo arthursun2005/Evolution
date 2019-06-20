@@ -120,7 +120,7 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
             B->velocity += fB * normal;
             B->angularVelocity += rot;
         }else{
-            vec2 j = B->normal.I();
+            vec2 j = B->normal.T().I();
             vec2 _l = vec2(B->length * 0.5f, 0.0f);
             vec2 p1 = _l * j;
             vec2 p2 = B->position - p1;
@@ -140,7 +140,13 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
                 float fA = depth * massB / total;
                 float fB = depth * massA / total;
                 
-                float rot = -dot(A->velocity, B->normal) * massA / total * depth * dT.x;
+                float rot;
+                
+                if(pT.y > bT.y) {
+                    rot = massA / total * depth * dT.x;
+                }else{
+                    rot = -massA / total * depth * dT.x;
+                }
                 
                 A->velocity -= fA * normal;
                 B->velocity += fB * normal;
@@ -155,7 +161,13 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
                 float fA = depth * massB / total;
                 float fB = depth * massA / total;
                 
-                float rot = -dot(A->velocity, B->normal) * massA / total * depth * dT.x;
+                float rot;
+                
+                if(pT.y > bT.y) {
+                    rot = massA / total * depth * dT.x;
+                }else{
+                    rot = -massA / total * depth * dT.x;
+                }
                 
                 A->velocity -= fA * normal;
                 B->velocity += fB * normal;
