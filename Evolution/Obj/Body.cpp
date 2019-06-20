@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.99f;
+    damping = 0.66f;
     
     brain_inputs = 1;
     brain_outputs = 1;
@@ -31,7 +31,7 @@ BodyDef::BodyDef() {
     viewDiameter = 64;
     density = 1.0f;
     
-    maxStickForce = 16.0f;
+    maxStickForce = 8.0f;
     maxForce = 24.0f;
 }
 

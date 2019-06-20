@@ -34,8 +34,8 @@ public:
     float angularDamping;
     
     Stick() : owner(NULL), angularVelocity(0.0f) {
-        linearDamping = 0.98f;
-        angularDamping = 0.95f;
+        linearDamping = 0.66f;
+        angularDamping = 0.5f;
         
         /// stick pointing up
         normal = vec2(1.0f, 0.0f);
