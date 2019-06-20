@@ -112,7 +112,7 @@ public:
     }
     
     inline float getTreeQuality() const {
-        return 1.0f / tree.getAreaRatio();
+        return tree.getAreaRatio();
     }
     
     inline int getTreeMaxBalance() const {

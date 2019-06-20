@@ -304,7 +304,7 @@ void DynamicTree::query(std::vector<Contact> *list) {
     collector.contacts = list;
     
     for(int i = 0; i < capacity; ++i) {
-        if(nodes[i].isLeaf()) {
+        if(nodes[i].height == 0) {
             collector.current = nodes[i].data;
             query(&collector, nodes[i].aabb);
         }

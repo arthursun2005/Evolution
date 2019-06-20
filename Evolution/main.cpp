@@ -57,15 +57,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             world.createBody(&def);
         }
         
-        if(key == GLFW_KEY_S) {
-            BodyDef def;
-            def.position = getMouse();
-            for(int i = 0; i < 50; ++i) {
-                def.position.y += 4.0f;
-                world.createBody(&def);
-            }
-        }
-        
         if(key == GLFW_KEY_Q) {
             printf("%.7f\n", world.getTreeQuality());
         }
@@ -150,11 +141,11 @@ int main(int argc, const char * argv[]) {
     
     BodyDef def;
     def.position = vec2(-4.0f, -0.5f);
-    def.velocity = vec2(2.0f, 0.0f);
+    def.velocity = vec2(8.0f, 0.0f);
     world.createBody(&def);
     
     def.position = vec2(4.0f, 0.5f);
-    def.velocity = vec2(-2.0f, 0.0f);
+    def.velocity = vec2(-8.0f, 0.0f);
     world.createBody(&def);
     
     do {

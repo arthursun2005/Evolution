@@ -44,11 +44,11 @@ void World::solveContacts(float dt) {
             if(type2 == Obj::e_body) {
                 solveBodyBody((Body*)obj1, (Body*)obj2, dt);
             }else{
-                //solveBodyStick((Body*)obj1, (Stick*)obj2, dt);
+                solveBodyStick((Body*)obj1, (Stick*)obj2, dt);
             }
         }else{
             if(type2 == Obj::e_body) {
-                //solveBodyStick((Body*)obj2, (Stick*)obj1, dt);
+                solveBodyStick((Body*)obj2, (Stick*)obj1, dt);
             }else{
                 solveStickStick((Stick*)obj1, (Stick*)obj2, dt);
             }
@@ -70,7 +70,7 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
         vec2 normal = D / M;
         float depth = 1.0f - M/t;
         
-        m.force = total * depth;
+        m.force = 2.0f * total * depth;
 
         m.obj1 = A;
         m.obj2 = B;
@@ -120,7 +120,7 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
             
             m.point = p * Q.T();
             
-            m.solve();
+            //m.solve();
         }else{
         }
     }
