@@ -9,8 +9,7 @@
 #ifndef DynamicTree_hpp
 #define DynamicTree_hpp
 
-#include "vec2.h"
-#include "common.h"
+#include "Collision.h"
 
 #include <stack>
 

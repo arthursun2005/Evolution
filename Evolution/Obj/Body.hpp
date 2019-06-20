@@ -9,7 +9,6 @@
 #ifndef Body_hpp
 #define Body_hpp
 
-#include "color.h"
 #include "Stick.h"
 #include "Brain.h"
 

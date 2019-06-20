@@ -30,6 +30,7 @@
 
 /* Begin PBXFileReference section */
 		8E3DE51222B7A8420047504D /* Obj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Obj.h; sourceTree = "<group>"; };
+		8E3DE51622BB9B770047504D /* Collision.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Collision.h; sourceTree = "<group>"; };
 		8E4113DC22A0C28500AD78A2 /* Evolution */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Evolution; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E4113DF22A0C28500AD78A2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8E4113E622A0C29000AD78A2 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -72,6 +73,57 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8E3DE51322BB9B3F0047504D /* Graphics */ = {
+			isa = PBXGroup;
+			children = (
+				8E88F76D22B4796D00AD6D5A /* Graphics.h */,
+				8E88F76C22B4795400AD6D5A /* glUtils.h */,
+			);
+			path = Graphics;
+			sourceTree = "<group>";
+		};
+		8E3DE51422BB9B520047504D /* common */ = {
+			isa = PBXGroup;
+			children = (
+				8E88F77E22B6309400AD6D5A /* Timer.h */,
+				8E88F77522B47B7400AD6D5A /* vec2.h */,
+				8E88F77422B47B4700AD6D5A /* activation_functions.h */,
+				8E88F77622B4BE3400AD6D5A /* color.h */,
+				8E4113E622A0C29000AD78A2 /* common.h */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		8E3DE51522BB9B600047504D /* Brain */ = {
+			isa = PBXGroup;
+			children = (
+				8E88F76422B348F900AD6D5A /* Brain.h */,
+				8E88F76322B3035700AD6D5A /* Neuron.h */,
+			);
+			path = Brain;
+			sourceTree = "<group>";
+		};
+		8E3DE51722BB9B810047504D /* Collision */ = {
+			isa = PBXGroup;
+			children = (
+				8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */,
+				8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */,
+				8E3DE51622BB9B770047504D /* Collision.h */,
+			);
+			path = Collision;
+			sourceTree = "<group>";
+		};
+		8E3DE51822BB9BD20047504D /* Obj */ = {
+			isa = PBXGroup;
+			children = (
+				8E88F76522B34AC900AD6D5A /* Body.cpp */,
+				8E88F76622B34AC900AD6D5A /* Body.hpp */,
+				8E88F76B22B3939C00AD6D5A /* Stick.h */,
+				8E3DE51222B7A8420047504D /* Obj.h */,
+			);
+			path = Obj;
+			sourceTree = "<group>";
+		};
 		8E4113D322A0C28500AD78A2 = {
 			isa = PBXGroup;
 			children = (
@@ -93,23 +145,13 @@
 			isa = PBXGroup;
 			children = (
 				8E4113DF22A0C28500AD78A2 /* main.cpp */,
-				8E88F76D22B4796D00AD6D5A /* Graphics.h */,
-				8E88F76C22B4795400AD6D5A /* glUtils.h */,
+				8E3DE51322BB9B3F0047504D /* Graphics */,
 				8E88F76822B34C0200AD6D5A /* World.cpp */,
 				8E88F76922B34C0200AD6D5A /* World.hpp */,
-				8E88F76522B34AC900AD6D5A /* Body.cpp */,
-				8E88F76622B34AC900AD6D5A /* Body.hpp */,
-				8E88F76B22B3939C00AD6D5A /* Stick.h */,
-				8E3DE51222B7A8420047504D /* Obj.h */,
-				8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */,
-				8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */,
-				8E88F76422B348F900AD6D5A /* Brain.h */,
-				8E88F76322B3035700AD6D5A /* Neuron.h */,
-				8E88F77E22B6309400AD6D5A /* Timer.h */,
-				8E88F77522B47B7400AD6D5A /* vec2.h */,
-				8E88F77422B47B4700AD6D5A /* activation_functions.h */,
-				8E88F77622B4BE3400AD6D5A /* color.h */,
-				8E4113E622A0C29000AD78A2 /* common.h */,
+				8E3DE51822BB9BD20047504D /* Obj */,
+				8E3DE51722BB9B810047504D /* Collision */,
+				8E3DE51522BB9B600047504D /* Brain */,
+				8E3DE51422BB9B520047504D /* common */,
 				8E88F77722B4D30E00AD6D5A /* glsl */,
 			);
 			path = Evolution;

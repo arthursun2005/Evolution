@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <float.h>
+#include "common.h"
 
 struct vec2
 {
