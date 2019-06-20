@@ -29,6 +29,7 @@ BodyDef::BodyDef() {
     velocity = vec2(0.0f, 0.0f);
     
     viewDiameter = 64;
+    density = 1.0f;
 }
 
 Body::Body(const BodyDef* def, World* world) {
@@ -53,6 +54,7 @@ Body::Body(const BodyDef* def, World* world) {
     brain = new Brain(def->viewDiameter * def->viewDiameter, Body_OutputSize);
     
     type = e_body;
+    density = def->density;
     
     this->world = world;
 }

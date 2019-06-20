@@ -26,6 +26,7 @@ struct BodyDef
     float damping;
     
     float radius;
+    float density;
     
     Stick stick;
     
@@ -78,6 +79,22 @@ public:
         
         velocity *= powf(damping, dt);
         position += dt * velocity;
+    }
+    
+    void applyImpulse(const vec2& world, const vec2& imp) {
+        float invMass = 1.0f / (area() * density);
+        vec2 d = (world - position).norm();
+        d = vec2(fabs(d.x), fabs(d.y));
+        velocity += invMass * scl(d, imp);
+    }
+    
+    inline AABB aabb() const {
+        vec2 ext = vec2(radius, radius);
+        return AABB(position - ext, position + ext);
+    }
+    
+    inline float area() const {
+        return radius * radius * M_PI;
     }
     
 };

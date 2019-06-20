@@ -24,7 +24,7 @@ public:
     
     float radius;
     
-    float density = 1.0f;
+    float density;
     
     int node;
     
@@ -34,13 +34,14 @@ public:
         e_stick
     };
     
-    AABB aabb() const {
-        vec2 ext = vec2(radius, radius);
-        return AABB(position - ext, position + ext);
-    }
+    virtual void applyImpulse(const vec2&, const vec2&) = 0;
     
-    inline float area() const {
-        return radius * radius * M_PI;
+    virtual AABB aabb() const = 0;
+    
+    virtual float area() const = 0;
+    
+    inline float mass() const {
+        return area() * density;
     }
 };
 

@@ -66,6 +66,15 @@ public:
     inline float area() const {
         return radius * (2.0f * length + radius * M_PI);
     }
+    
+    void applyImpulse(const vec2& world, const vec2& imp) {
+        float invMass = 1.0f / (area() * density);
+        float i = imp.length();
+        vec2 n = imp / i;
+        float d = fabs(dot(n, (world - position).norm()));
+        velocity += (invMass * d) * imp;
+        angularVelocity -= (invMass * dot(imp, normal.T()) * (1.0f - d));
+    }
 };
 
 #endif /* Stick_h */

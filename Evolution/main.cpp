@@ -57,6 +57,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             world.createBody(&def);
         }
         
+        if(key == GLFW_KEY_Q) {
+            printf("%.7f\n", world.getTreeQuality());
+        }
+        
+        if(key == GLFW_KEY_B) {
+            printf("%d\n", world.getTreeMaxBalance());
+        }
+        
         if(key == GLFW_KEY_N) {
             printf("%d\n", world.size());
         }
@@ -139,7 +147,7 @@ int main(int argc, const char * argv[]) {
     def.position = vec2(4.0f, 0.5f);
     def.velocity = vec2(-2.0f, 0.0f);
     world.createBody(&def);
-
+    
     do {
         float currentTime = glfwGetTime();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);

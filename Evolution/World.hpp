@@ -13,6 +13,21 @@
 #include "DynamicTree.hpp"
 #include <list>
 
+struct Manifold
+{
+    Obj* obj1;
+    Obj* obj2;
+    
+    vec2 normal;
+    vec2 point;
+    float force;
+    
+    inline void solve() {
+        obj1->applyImpulse(point, -force * normal);
+        obj2->applyImpulse(point, force * normal);
+    }
+};
+
 class World
 {
     
@@ -94,6 +109,14 @@ public:
     inline void getContacts() {
         contacts.clear();
         tree.query(&contacts);
+    }
+    
+    inline float getTreeQuality() const {
+        return 1.0f / tree.getAreaRatio();
+    }
+    
+    inline int getTreeMaxBalance() const {
+        return tree.getMaxBalance();
     }
     
     inline void step(float dt, int its) {
