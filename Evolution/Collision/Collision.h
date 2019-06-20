@@ -34,6 +34,10 @@ struct AABB
     inline bool contains(const AABB& aabb) const {
         return lowerBound.x <= aabb.lowerBound.x && lowerBound.y <= aabb.lowerBound.y && upperBound.x >= aabb.upperBound.x && upperBound.y >= aabb.upperBound.y;
     }
+    
+    inline bool contains(const vec2& p) const {
+        return lowerBound.x <= p.x && lowerBound.y <= p.y && upperBound.x >= p.x && upperBound.y >= p.y;
+    }
 };
 
 inline vec2 min(const vec2& a, const vec2& b) {

@@ -10,8 +10,8 @@
 #include "World.hpp"
 #include "Graphics.h"
 
-#define WIDTH 1024
-#define HEIGHT 1024
+#define WIDTH 64
+#define HEIGHT 64
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);

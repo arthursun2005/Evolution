@@ -34,6 +34,9 @@ struct BodyDef
     
     float maxHealth;
     
+    float maxStickForce;
+    float maxForce;
+    
     Colorf color;
     
     int viewDiameter;
@@ -45,6 +48,9 @@ class Body : public Obj
 {
     
 public:
+    
+    float maxStickForce;
+    float maxForce;
     
     float maxHealth;
     float health;
@@ -94,6 +100,11 @@ public:
     
     inline float area() const {
         return radius * radius * M_PI;
+    }
+    
+    inline void constrain(const AABB& aabb) {
+        ::constrain(&position, &velocity, aabb);
+        ::constrain(&stick.position, &stick.velocity, aabb);
     }
     
 };

@@ -30,6 +30,9 @@ BodyDef::BodyDef() {
     
     viewDiameter = 64;
     density = 1.0f;
+    
+    maxStickForce = 16.0f;
+    maxForce = 24.0f;
 }
 
 Body::Body(const BodyDef* def, World* world) {
@@ -55,6 +58,9 @@ Body::Body(const BodyDef* def, World* world) {
     
     type = e_body;
     density = def->density;
+    
+    maxStickForce = def->maxStickForce;
+    maxForce = def->maxForce;
     
     this->world = world;
 }

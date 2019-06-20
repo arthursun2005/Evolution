@@ -103,12 +103,20 @@ public:
         
         for(Body* body : bodies) {
             body->step(dt);
+            body->constrain(aabb());
         }
     }
     
     inline void getContacts() {
         contacts.clear();
         tree.query(&contacts);
+    }
+    
+    inline AABB aabb() const {
+        AABB aabb;
+        aabb.lowerBound = vec2(-width * 0.5f, -height * 0.5f);
+        aabb.upperBound = vec2(width * 0.5f, height * 0.5f);
+        return aabb;
     }
     
     inline float getTreeQuality() const {

@@ -485,4 +485,4 @@ int DynamicTree::getMaxBalance() const  {
     }
     
     return maxBalance;
-    }
+}

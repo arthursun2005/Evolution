@@ -47,6 +47,28 @@ public:
     }
 };
 
+inline void constrain(vec2* position, vec2* velocity, const AABB& aabb) {
+    if(position->x < aabb.lowerBound.x) {
+        position->x = aabb.lowerBound.x;
+        velocity->x = -0.5f * velocity->x;
+    }
+    
+    if(position->y < aabb.lowerBound.y) {
+        position->y = aabb.lowerBound.y;
+        velocity->y = -0.5f * velocity->y;
+    }
+    
+    if(position->x > aabb.upperBound.x) {
+        position->x = aabb.upperBound.x;
+        velocity->x = -0.5f * velocity->x;
+    }
+    
+    if(position->y > aabb.upperBound.y) {
+        position->y = aabb.upperBound.y;
+        velocity->y = -0.5f * velocity->y;
+    }
+}
+
 class Stick;
 
 class Body;
