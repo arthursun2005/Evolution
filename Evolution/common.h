@@ -140,12 +140,4 @@ inline AABB extendAABB(const AABB& aabb) {
     return AABB(aabb.lowerBound - extension, aabb.upperBound + extension);
 }
 
-template <>
-struct std::hash <std::pair<int, int>>
-{
-    inline size_t operator () (const std::pair<int, int>& pair) const {
-        return (((size_t)pair.first) << 32) | ((size_t)pair.second);
-    }
-};
-
 #endif /* common_h */

@@ -9,7 +9,7 @@
 #include "DynamicTree.hpp"
 
 DynamicTree::DynamicTree() {
-    capacity = 16;
+    capacity = 256;
     count = 0;
     next = 0;
     root = -1;
@@ -80,11 +80,11 @@ void DynamicTree::insertProxy(int proxyId) {
         int child1 = nodes[sibling].child1;
         int child2 = nodes[sibling].child2;
         
-        float area = nodes[sibling].aabb.perimeter();
+        float area = nodes[sibling].aabb.area();
         
         AABB combinedAABB = combine_aabb(nodes[sibling].aabb, aabb);
         
-        float combinedArea = combinedAABB.perimeter();
+        float combinedArea = combinedAABB.area();
         
         /// Cost of creating a new parent for this node and the new leaf
         float cost = 2.0f * combinedArea;
@@ -99,19 +99,19 @@ void DynamicTree::insertProxy(int proxyId) {
         
         /// Cost of descending into child1
         if (nodes[child1].isLeaf()) {
-            cost1 = aabb1.perimeter() + inheritanceCost;
+            cost1 = aabb1.area() + inheritanceCost;
         }else{
-            float oldArea = nodes[child1].aabb.perimeter();
-            float newArea = aabb1.perimeter();
+            float oldArea = nodes[child1].aabb.area();
+            float newArea = aabb1.area();
             cost1 = (newArea - oldArea) + inheritanceCost;
         }
         
         /// Cost of descending into child2
         if (nodes[child2].isLeaf()) {
-            cost2 = aabb2.perimeter() + inheritanceCost;
+            cost2 = aabb2.area() + inheritanceCost;
         }else{
-            float oldArea = nodes[child2].aabb.perimeter();
-            float newArea = aabb2.perimeter();
+            float oldArea = nodes[child2].aabb.area();
+            float newArea = aabb2.area();
             cost2 = (newArea - oldArea) + inheritanceCost;
         }
         
@@ -229,7 +229,7 @@ void DynamicTree::removeProxy(int leaf) {
 int DynamicTree::balance(int node) {
     if(nodes[node].height < 2)
         return node;
-    
+
     int balance = getBalance(node);
     
     if(balance > 1) {
@@ -261,11 +261,8 @@ int DynamicTree::balance(int node) {
     return node;
 }
 
-void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
-#ifdef DEBUG
-    validate();
-#endif
-    
+template <class T>
+void DynamicTree::query(T *callback, const AABB &aabb) {
     std::stack<int> stack;
     
     stack.push(root);
@@ -278,8 +275,10 @@ void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
             continue;
         
         if(nodes[node].isLeaf()) {
-            if(touches(aabb, nodes[node].aabb))
-                list->push_back(nodes[node].data);
+            if(touches(aabb, nodes[node].aabb)) {
+                if(!callback->callback(nodes[node].data))
+                    return;
+            }
             
             continue;
         }
@@ -295,76 +294,19 @@ void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
     }
 }
 
-#include <unordered_set>
-
 void DynamicTree::query(std::vector<Contact> *list) {
     if(root == -1) return;
     
-#ifdef DEBUG
-    validate();
-#endif
-    
     if(nodes[root].isLeaf()) return;
     
-    std::stack<std::pair<int, int>> stack;
+    _PairCollector collector;
     
-    stack.push(std::pair<int, int>(nodes[root].child1, nodes[root].child2));
+    collector.contacts = list;
     
-    std::unordered_set<std::pair<int, int>> cc;
-    
-    while(!stack.empty()) {
-        std::pair<int, int> node = stack.top();
-        stack.pop();
-        
-        bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
-        
-        assert(node.first != -1 && node.second != -1);
-        
-        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
-            if(touch) {
-                Contact contact;
-                contact.obj1 = nodes[node.first].data;
-                contact.obj2 = nodes[node.second].data;
-                list->push_back(contact);
-                assert(cc.find(node) == cc.end());
-                cc.insert(node);
-            }
-            
-            continue;
-        }
-        
-        int child1, child2, child3, child4;
-        
-        child1 = nodes[node.first].child1;
-        child2 = nodes[node.first].child2;
-        child3 = nodes[node.second].child1;
-        child4 = nodes[node.second].child2;
-        
-        //if(!nodes[node.first].isLeaf())
-        //   stack.push(std::pair<int, int>(child1, child2));
-        
-        if(!nodes[node.second].isLeaf())
-           stack.push(std::pair<int, int>(child3, child4));
-        
-        if(!touch)
-            continue;
-        
-        if(nodes[node.first].isLeaf())
-        {
-            //stack.push(std::pair<int, int>(node.first, child3));
-            //stack.push(std::pair<int, int>(node.first, child4));
-        }
-        else if(nodes[node.second].isLeaf())
-        {
-            //stack.push(std::pair<int, int>(node.second, child1));
-            //stack.push(std::pair<int, int>(node.second, child2));
-        }
-        else
-        {
-            //stack.push(std::pair<int, int>(child1, child3));
-            //stack.push(std::pair<int, int>(child1, child4));
-            //stack.push(std::pair<int, int>(child2, child3));
-            stack.push(std::pair<int, int>(child2, child4));
+    for(int i = 0; i < capacity; ++i) {
+        if(nodes[i].isLeaf()) {
+            collector.current = nodes[i].data;
+            query(&collector, nodes[i].aabb);
         }
     }
 }
@@ -444,14 +386,14 @@ float DynamicTree::getAreaRatio() const {
     if (root == -1)
         return 0.0f;
     
-    float rootArea = nodes[root].aabb.perimeter();
+    float rootArea = nodes[root].aabb.area();
     
     float totalArea = 0.0f;
     for (int i = 0; i < capacity; ++i) {
         if (nodes[i].height < 0)
             continue;
         
-        totalArea += nodes[i].aabb.perimeter();
+        totalArea += nodes[i].aabb.area();
     }
     
     return totalArea / rootArea;

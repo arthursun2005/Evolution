@@ -51,11 +51,20 @@ struct Contact
     }
 };
 
-template <>
-struct std::hash <Contact>
+struct _PairCollector
 {
-    inline size_t operator () (const Contact& contact) const {
-        return (*(size_t*)&contact.obj1) ^ (*(size_t*)&contact.obj2);
+    std::vector<Contact>* contacts;
+    
+    void* current;
+    
+    bool callback(void* data) {
+        if(data > current) {
+            Contact contact;
+            contact.obj1 = current;
+            contact.obj2 = data;
+            contacts->push_back(contact);
+        }
+        return true;
     }
 };
 
@@ -269,7 +278,8 @@ public:
     
     float getAreaRatio() const;
     
-    void query(std::vector<void*>* list, const AABB& aabb);
+    template <class T>
+    void query(T* callback, const AABB& aabb);
     
     void query(std::vector<Contact>* list);
     

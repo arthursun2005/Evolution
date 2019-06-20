@@ -56,9 +56,7 @@ void World::solveContacts(float dt) {
     }
 }
 
-void World::solveBodyBody(Body *A, Body *B, float dt) {
-    if(A == B) return;
-    
+void World::solveBodyBody(Body *A, Body *B, float dt) {    
     vec2 D = B->position - A->position;
     float M = D.lengthSq();
     float t = A->radius + B->radius;
@@ -129,5 +127,4 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
 }
 
 void World::solveStickStick(Stick *A, Stick *B, float dt) {
-    if(A == B) return;
 }
