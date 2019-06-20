@@ -41,7 +41,7 @@ public:
         normal = vec2(1.0f, 0.0f);
         
         type = e_stick;
-        density = 16.0f;
+        density = 20.0f;
     }
     
     void step(float dt) {
@@ -71,9 +71,10 @@ public:
         float invMass = 1.0f / (area() * density);
         float i = imp.length();
         vec2 n = imp / i;
-        float d = fabs(dot(n, (world - position).norm()));
+        vec2 q = (world - position).norm();
+        float d = fabs(dot(n, q));
         velocity += (invMass * d) * imp;
-        angularVelocity -= (invMass * dot(imp, normal.T()) * (1.0f - d));
+        angularVelocity -= (invMass * dot(imp, q.I()) * (1.0f - d));
     }
 };
 

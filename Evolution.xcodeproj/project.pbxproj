@@ -317,7 +317,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CDS6RVS6JM;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_SHORT_ENUMS = NO;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
@@ -334,7 +334,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CDS6RVS6JM;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_SHORT_ENUMS = NO;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
