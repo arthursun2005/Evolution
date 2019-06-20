@@ -40,16 +40,6 @@ struct TreeNode
     }
 };
 
-struct Contact
-{
-    void* obj1;
-    void* obj2;
-    
-    friend inline bool operator == (const Contact& A, const Contact& B) {
-        return (A.obj1 == B.obj1 && A.obj2 == B.obj2) || (A.obj1 == B.obj2 && A.obj2 == B.obj1);
-    }
-};
-
 struct _PairCollector
 {
     std::vector<Contact>* contacts;
@@ -122,7 +112,7 @@ class DynamicTree
     
     /// assumes nodes[node].isLeaf() == false
     /// fixes aabb and height
-    void fix(int index) {
+    inline void fix(int index) {
         int child1 = nodes[index].child1;
         int child2 = nodes[index].child2;
         nodes[index].aabb = combine_aabb(nodes[child1].aabb, nodes[child2].aabb);
@@ -131,61 +121,9 @@ class DynamicTree
     
     int balance(int node);
     
-    int rotate_left(int index) {
-        int n = nodes[index].child2;
-        int carry = nodes[n].child1;
-        
-        nodes[index].child2 = carry;
-        nodes[n].child1 = index;
-        
-        int parent = nodes[index].parent;
-        
-        if(parent == -1) {
-            root = n;
-        }else{
-            if(nodes[parent].child1 == index) {
-                nodes[parent].child1 = n;
-            }else{
-                nodes[parent].child2 = n;
-            }
-        }
-        
-        nodes[n].parent = parent;
-        nodes[carry].parent = index;
-        nodes[index].parent = n;
-        
-        fix(index);
-        
-        return n;
-    }
+    int rotate_left(int index);
     
-    int rotate_right(int index) {
-        int n = nodes[index].child1;
-        int carry = nodes[n].child2;
-        
-        nodes[index].child1 = carry;
-        nodes[n].child2 = index;
-        
-        int parent = nodes[index].parent;
-        
-        if(parent == -1) {
-            root = n;
-        }else{
-            if(nodes[parent].child1 == index) {
-                nodes[parent].child1 = n;
-            }else{
-                nodes[parent].child2 = n;
-            }
-        }
-        
-        nodes[n].parent = parent;
-        nodes[carry].parent = index;
-        nodes[index].parent = n;
-        
-        fix(index);
-        
-        return n;
-    }
+    int rotate_right(int index);
     
     inline int getBalance(int node) const {
         int child1 = nodes[node].child1;
@@ -195,15 +133,12 @@ class DynamicTree
     
     void removeProxy(int leaf);
     
-    int computeHeight(int nodeId) const
-    {
+    int computeHeight(int nodeId) const {
         assert(0 <= nodeId && nodeId < capacity);
         TreeNode* node = nodes + nodeId;
         
         if (node->isLeaf())
-        {
             return 0;
-        }
         
         int height1 = computeHeight(node->child1);
         int height2 = computeHeight(node->child2);
@@ -243,37 +178,9 @@ public:
     
     void validateSizes();
     
-    void validate() {
-        validateStructure();
-        validateSizes();
-        
-        int freeCount = 0;
-        int freeIndex = next;
-        while (freeIndex != -1) {
-            assert(0 <= freeIndex && freeIndex < capacity);
-            freeIndex = nodes[freeIndex].next;
-            ++freeCount;
-        }
-        
-        assert(count + freeCount == capacity);
-        
-        if(root != -1)
-            assert(nodes[root].height == computeHeight(root));
-    }
+    void validate();
     
-    int getMaxBalance() const  {
-        int maxBalance = 0;
-        for (int i = 0; i < capacity; ++i) {            
-            if (nodes[i].height <= 1)
-                continue;
-            
-            assert(nodes[i].isLeaf() == false);
-            
-            maxBalance = std::max(maxBalance, getBalance(i));
-        }
-        
-        return maxBalance;
-    }
+    int getMaxBalance() const;
     
     float getAreaRatio() const;
     

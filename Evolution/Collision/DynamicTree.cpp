@@ -398,3 +398,91 @@ float DynamicTree::getAreaRatio() const {
     
     return totalArea / rootArea;
 }
+
+int DynamicTree::rotate_left(int index) {
+    int n = nodes[index].child2;
+    int carry = nodes[n].child1;
+    
+    nodes[index].child2 = carry;
+    nodes[n].child1 = index;
+    
+    int parent = nodes[index].parent;
+    
+    if(parent == -1) {
+        root = n;
+    }else{
+        if(nodes[parent].child1 == index) {
+            nodes[parent].child1 = n;
+        }else{
+            nodes[parent].child2 = n;
+        }
+    }
+    
+    nodes[n].parent = parent;
+    nodes[carry].parent = index;
+    nodes[index].parent = n;
+    
+    fix(index);
+    
+    return n;
+}
+
+int DynamicTree::rotate_right(int index) {
+    int n = nodes[index].child1;
+    int carry = nodes[n].child2;
+    
+    nodes[index].child1 = carry;
+    nodes[n].child2 = index;
+    
+    int parent = nodes[index].parent;
+    
+    if(parent == -1) {
+        root = n;
+    }else{
+        if(nodes[parent].child1 == index) {
+            nodes[parent].child1 = n;
+        }else{
+            nodes[parent].child2 = n;
+        }
+    }
+    
+    nodes[n].parent = parent;
+    nodes[carry].parent = index;
+    nodes[index].parent = n;
+    
+    fix(index);
+    
+    return n;
+}
+
+void DynamicTree::validate() {
+    validateStructure();
+    validateSizes();
+    
+    int freeCount = 0;
+    int freeIndex = next;
+    while (freeIndex != -1) {
+        assert(0 <= freeIndex && freeIndex < capacity);
+        freeIndex = nodes[freeIndex].next;
+        ++freeCount;
+    }
+    
+    assert(count + freeCount == capacity);
+    
+    if(root != -1)
+        assert(nodes[root].height == computeHeight(root));
+}
+
+int DynamicTree::getMaxBalance() const  {
+    int maxBalance = 0;
+    for (int i = 0; i < capacity; ++i) {
+        if (nodes[i].height <= 1)
+            continue;
+        
+        assert(nodes[i].isLeaf() == false);
+        
+        maxBalance = std::max(maxBalance, getBalance(i));
+    }
+    
+    return maxBalance;
+    }

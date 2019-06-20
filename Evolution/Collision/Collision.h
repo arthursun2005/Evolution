@@ -59,4 +59,14 @@ inline AABB extendAABB(const AABB& aabb) {
     return AABB(aabb.lowerBound - extension, aabb.upperBound + extension);
 }
 
+struct Contact
+{
+    void* obj1;
+    void* obj2;
+    
+    friend inline bool operator == (const Contact& A, const Contact& B) {
+        return (A.obj1 == B.obj1 && A.obj2 == B.obj2) || (A.obj1 == B.obj2 && A.obj2 == B.obj1);
+    }
+};
+
 #endif /* Collision_h */
