@@ -45,6 +45,18 @@ struct Contact
 {
     void* obj1;
     void* obj2;
+    
+    friend inline bool operator == (const Contact& A, const Contact& B) {
+        return (A.obj1 == B.obj1 && A.obj2 == B.obj2) || (A.obj1 == B.obj2 && A.obj2 == B.obj1);
+    }
+};
+
+template <>
+struct std::hash <Contact>
+{
+    inline size_t operator () (const Contact& contact) const {
+        return (*(size_t*)&contact.obj1) ^ (*(size_t*)&contact.obj2);
+    }
 };
 
 /**
@@ -102,7 +114,7 @@ class DynamicTree
     
     /// assumes nodes[node].isLeaf() == false
     /// fixes aabb and height
-    inline void fix(int index) {
+    void fix(int index) {
         int child1 = nodes[index].child1;
         int child2 = nodes[index].child2;
         nodes[index].aabb = combine_aabb(nodes[child1].aabb, nodes[child2].aabb);
@@ -135,7 +147,6 @@ class DynamicTree
         nodes[index].parent = n;
         
         fix(index);
-        fix(n);
         
         return n;
     }
@@ -164,7 +175,6 @@ class DynamicTree
         nodes[index].parent = n;
         
         fix(index);
-        fix(n);
         
         return n;
     }
@@ -176,6 +186,21 @@ class DynamicTree
     }
     
     void removeProxy(int leaf);
+    
+    int computeHeight(int nodeId) const
+    {
+        assert(0 <= nodeId && nodeId < capacity);
+        TreeNode* node = nodes + nodeId;
+        
+        if (node->isLeaf())
+        {
+            return 0;
+        }
+        
+        int height1 = computeHeight(node->child1);
+        int height2 = computeHeight(node->child2);
+        return 1 + std::max(height1, height2);
+    }
     
 public:
     
@@ -223,7 +248,26 @@ public:
         }
         
         assert(count + freeCount == capacity);
+        
+        if(root != -1)
+            assert(nodes[root].height == computeHeight(root));
     }
+    
+    int getMaxBalance() const  {
+        int maxBalance = 0;
+        for (int i = 0; i < capacity; ++i) {            
+            if (nodes[i].height <= 1)
+                continue;
+            
+            assert(nodes[i].isLeaf() == false);
+            
+            maxBalance = std::max(maxBalance, getBalance(i));
+        }
+        
+        return maxBalance;
+    }
+    
+    float getAreaRatio() const;
     
     void query(std::vector<void*>* list, const AABB& aabb);
     

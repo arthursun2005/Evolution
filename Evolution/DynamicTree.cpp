@@ -9,7 +9,7 @@
 #include "DynamicTree.hpp"
 
 DynamicTree::DynamicTree() {
-    capacity = 256;
+    capacity = 16;
     count = 0;
     next = 0;
     root = -1;
@@ -72,7 +72,7 @@ void DynamicTree::insertProxy(int proxyId) {
         return;
     }
     
-    const AABB& aabb = nodes[proxyId].aabb;
+    AABB aabb = nodes[proxyId].aabb;
     
     /// find the best sibling
     int sibling = root;
@@ -161,12 +161,11 @@ void DynamicTree::insertProxy(int proxyId) {
     nodes[sibling].parent = newParent;
     nodes[proxyId].parent = newParent;
     
-    
     /// Walk back up the tree fixing heights and AABBs
-    while (oldParent != -1) {
-        fix(oldParent);
-        oldParent = balance(oldParent);
-        oldParent = nodes[oldParent].parent;
+    while (newParent != -1) {
+        newParent = balance(newParent);
+        fix(newParent);
+        newParent = nodes[newParent].parent;
     }
 }
 
@@ -188,7 +187,6 @@ bool DynamicTree::moveProxy(int nodeId, const AABB &aabb) {
 void DynamicTree::removeProxy(int leaf) {    
     if (leaf == root) {
         root = -1;
-        free_node(leaf);
         return;
     }
     
@@ -217,8 +215,8 @@ void DynamicTree::removeProxy(int leaf) {
         /// Fix everything
         int index = grandParent;
         while (index != -1) {
-            fix(index);
             index = balance(index);
+            fix(index);
             index = nodes[index].parent;
         }
     }else{
@@ -234,12 +232,15 @@ int DynamicTree::balance(int node) {
     
     int balance = getBalance(node);
     
-    if(balance > +1) {
+    if(balance > 1) {
         int rightChild = nodes[node].child2;
         int subBalance = getBalance(rightChild);
         
-        if(subBalance < 0)
-            rotate_right(rightChild);
+        if(subBalance < 0) {
+            int q = rotate_right(rightChild);
+            assert(nodes[node].child2 == q);
+            fix(q);
+        }
         
         return rotate_left(node);
     }
@@ -248,8 +249,11 @@ int DynamicTree::balance(int node) {
         int leftChild = nodes[node].child1;
         int subBalance = getBalance(leftChild);
         
-        if(subBalance > 0)
-            rotate_left(leftChild);
+        if(subBalance > 0) {
+            int q = rotate_left(leftChild);
+            assert(nodes[node].child1 == q);
+            fix(q);
+        }
         
         return rotate_right(node);
     }
@@ -291,6 +295,8 @@ void DynamicTree::query(std::vector<void *> *list, const AABB &aabb) {
     }
 }
 
+#include <unordered_set>
+
 void DynamicTree::query(std::vector<Contact> *list) {
     if(root == -1) return;
     
@@ -304,9 +310,28 @@ void DynamicTree::query(std::vector<Contact> *list) {
     
     stack.push(std::pair<int, int>(nodes[root].child1, nodes[root].child2));
     
+    std::unordered_set<std::pair<int, int>> cc;
+    
     while(!stack.empty()) {
         std::pair<int, int> node = stack.top();
         stack.pop();
+        
+        bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
+        
+        assert(node.first != -1 && node.second != -1);
+        
+        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
+            if(touch) {
+                Contact contact;
+                contact.obj1 = nodes[node.first].data;
+                contact.obj2 = nodes[node.second].data;
+                list->push_back(contact);
+                assert(cc.find(node) == cc.end());
+                cc.insert(node);
+            }
+            
+            continue;
+        }
         
         int child1, child2, child3, child4;
         
@@ -315,43 +340,32 @@ void DynamicTree::query(std::vector<Contact> *list) {
         child3 = nodes[node.second].child1;
         child4 = nodes[node.second].child2;
         
-        bool touch = touches(nodes[node.first].aabb, nodes[node.second].aabb);
-        
-        if(nodes[node.first].isLeaf() && nodes[node.second].isLeaf()) {
-            if(touch) {
-                Contact contact;
-                contact.obj1 = nodes[node.first].data;
-                contact.obj2 = nodes[node.second].data;
-                list->push_back(contact);
-            }
-            
-            continue;
-        }
-        
-        if(!nodes[node.first].isLeaf())
-           stack.push(std::pair<int, int>(child1, child2));
+        //if(!nodes[node.first].isLeaf())
+        //   stack.push(std::pair<int, int>(child1, child2));
         
         if(!nodes[node.second].isLeaf())
            stack.push(std::pair<int, int>(child3, child4));
         
-        if(!touch) continue;
-        
-        if(nodes[node.first].isLeaf()) {
-            stack.push(std::pair<int, int>(node.first, child3));
-            stack.push(std::pair<int, int>(node.first, child4));
+        if(!touch)
             continue;
-        }
         
-        if(nodes[node.second].isLeaf()) {
-            stack.push(std::pair<int, int>(node.second, child1));
-            stack.push(std::pair<int, int>(node.second, child2));
-            continue;
+        if(nodes[node.first].isLeaf())
+        {
+            //stack.push(std::pair<int, int>(node.first, child3));
+            //stack.push(std::pair<int, int>(node.first, child4));
         }
-        
-        stack.push(std::pair<int, int>(child1, child3));
-        stack.push(std::pair<int, int>(child1, child4));
-        stack.push(std::pair<int, int>(child2, child3));
-        stack.push(std::pair<int, int>(child2, child4));
+        else if(nodes[node.second].isLeaf())
+        {
+            //stack.push(std::pair<int, int>(node.second, child1));
+            //stack.push(std::pair<int, int>(node.second, child2));
+        }
+        else
+        {
+            //stack.push(std::pair<int, int>(child1, child3));
+            //stack.push(std::pair<int, int>(child1, child4));
+            //stack.push(std::pair<int, int>(child2, child3));
+            stack.push(std::pair<int, int>(child2, child4));
+        }
     }
 }
 
@@ -424,4 +438,21 @@ void DynamicTree::validateSizes() {
         stack.push(child1);
         stack.push(child2);
     }
+}
+
+float DynamicTree::getAreaRatio() const {
+    if (root == -1)
+        return 0.0f;
+    
+    float rootArea = nodes[root].aabb.perimeter();
+    
+    float totalArea = 0.0f;
+    for (int i = 0; i < capacity; ++i) {
+        if (nodes[i].height < 0)
+            continue;
+        
+        totalArea += nodes[i].aabb.perimeter();
+    }
+    
+    return totalArea / rootArea;
 }
