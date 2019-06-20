@@ -23,8 +23,8 @@ struct Manifold
     float force;
     
     inline void solve() {
-        obj1->applyImpulse(point, -force * normal);
-        obj2->applyImpulse(point, force * normal);
+        obj1->applyImpulse(point, -force * 0.5f * normal);
+        obj2->applyImpulse(point, force * 0.5f * normal);
     }
 };
 

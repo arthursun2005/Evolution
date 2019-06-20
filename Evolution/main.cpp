@@ -140,12 +140,12 @@ int main(int argc, const char * argv[]) {
     glfwSwapInterval(1);
     
     BodyDef def;
-    def.position = vec2(-4.0f, -0.5f);
-    def.velocity = vec2(2.0f, 0.0f);
+    def.position = vec2(-10.0f, -0.5f);
+    def.velocity = vec2(10.0f, 0.0f);
     world.createBody(&def);
     
-    def.position = vec2(4.0f, 0.5f);
-    def.velocity = vec2(-2.0f, 0.0f);
+    def.position = vec2(10.0f, 0.5f);
+    def.velocity = vec2(-10.0f, 0.0f);
     world.createBody(&def);
     
     do {

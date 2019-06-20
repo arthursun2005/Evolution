@@ -70,7 +70,7 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
         vec2 normal = D / M;
         float depth = t - M;
         
-        m.force = total * depth;
+        m.force = total * depth / dt;
 
         m.obj1 = A;
         m.obj2 = B;
@@ -113,7 +113,7 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
                 normal = -B->normal;
             }
             
-            m.force = total * depth;
+            m.force = total * depth / dt;
             m.normal = normal;
             
             vec2 p = vec2(pT.x, 0.5f * (pT.y + bT.y + B->radius - A->radius));
@@ -139,7 +139,7 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
                 vec2 normal = D1 / M1;
                 float depth = r - M1;
                 
-                m.force = total * depth;
+                m.force = total * depth / dt;
                 m.normal = normal;
                 
                 m.point = 0.5f * (A->position + p1);
@@ -152,7 +152,7 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
                 vec2 normal = D2 / M2;
                 float depth = r - M2;
                 
-                m.force = total * depth;
+                m.force = total * depth / dt;
                 m.normal = normal;
                 
                 m.point = 0.5f * (A->position + p2);
