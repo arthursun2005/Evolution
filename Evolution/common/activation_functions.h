@@ -29,6 +29,10 @@ enum activation_function_types {
 struct ActivationFunction
 {
     int type = activation_linear;
+    
+    static inline int rand() {
+        return ::rand() % numberOfActivationFunctions;
+    }
         
     inline float operator () (float x) const {
         if(type == activation_linear) {

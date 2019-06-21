@@ -16,7 +16,7 @@ class Brain
     std::vector<Neuron> neurons;
     
     /// creates a neuron that is from -> neuron -> to
-    /// if from or to is NULL, no link is added
+    /// if from or to is -1, no link is added
     inline int create_neuron(int from, int to, int type) {
         int index = (int)neurons.size();
         
@@ -24,10 +24,12 @@ class Brain
         
         neuron.flags = 0;
         
-        /// we add the link if not given -1
-        if(from != -1) neuron.add_link(from);
+        /// we add the links if not given -1
+        if(from != -1)
+            neuron.add_link(from);
         
-        if(to != -1) neurons[to].add_link(index);
+        if(to != -1)
+            neurons[to].add_link(index);
         
         neuron.f.type = type;
         
@@ -84,6 +86,17 @@ public:
         return neurons.data() + input_size;
     }
     
+    inline int size() const {
+        return (int)neurons.size();
+    }
+    
+    inline int totalSize() const {
+        int links = 0;
+        for(const Neuron &neuron : neurons)
+            links += neuron.inputs.size();
+        return size() + links;
+    }
+    
     void reset(int _input_size, int _output_size) {
         input_size = _input_size;
         output_size = _output_size;
@@ -101,10 +114,16 @@ public:
         }
         
         for(int i = 0; i < 8; ++i) {
-            int index1 = input_size + (rand() % output_size);
-            int index2 = rand() % input_size;
-            if(!neurons[index1].has_link(index2))
-                neurons[index1].add_link(index2);
+            if(rand() & 0x1) {
+                int index1 = input_size + (rand() % output_size);
+                int index2 = rand() % input_size;
+                if(rand() & 0x1) {
+                    if(!neurons[index1].has_link(index2))
+                        neurons[index1].add_link(index2);
+                }else{
+                    create_neuron(index2, index1, ActivationFunction::rand());
+                }
+            }
         }
     }
     
@@ -171,7 +190,7 @@ public:
         /// 1/2 chance of adding a link (3/4) or adding a neuron (1/4)
         
         if((rand() & 0x1)) {
-            int func_type = rand() % numberOfActivationFunctions;
+            int func_type = ActivationFunction::rand();
             int size = (int)(result->neurons.size());
             int index1 = result->input_size + (rand() % (size - result->input_size));
             
@@ -180,9 +199,6 @@ public:
                 int index2 = rand() % (size);
                 
                 if((rand() & 0xf) < 0x4) {
-                    /// remove any link
-                    result->neurons[index1].remove_link(index2);
-                    
                     result->create_neuron(index2, index1, func_type);
                 }else{
                     if(!result->neurons[index1].has_link(index2))

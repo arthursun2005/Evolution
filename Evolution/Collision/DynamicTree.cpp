@@ -169,7 +169,7 @@ void DynamicTree::insertProxy(int proxyId) {
     }
 }
 
-bool DynamicTree::moveProxy(int nodeId, const AABB &aabb) {
+bool DynamicTree::moveProxy(int nodeId, const AABB &aabb, const vec2& displacement) {
     assert(nodes[nodeId].isLeaf());
     
     if(nodes[nodeId].aabb.contains(aabb))
@@ -177,7 +177,12 @@ bool DynamicTree::moveProxy(int nodeId, const AABB &aabb) {
     
     removeProxy(nodeId);
     
-    nodes[nodeId].aabb = extendAABB(aabb);
+    vec2 d = 2.0f * vec2(fabs(displacement.x), fabs(displacement.y));
+    
+    AABB proxyAABB = aabb;
+    proxyAABB.lowerBound -= d;
+    proxyAABB.upperBound += d;
+    nodes[nodeId].aabb = extendAABB(proxyAABB);
     
     insertProxy(nodeId);
     

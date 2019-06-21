@@ -10,8 +10,8 @@
 #include "World.hpp"
 #include "Graphics.h"
 
-#define WIDTH 512
-#define HEIGHT 512
+#define WIDTH 400
+#define HEIGHT 400
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);
@@ -67,6 +67,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         
         if(key == GLFW_KEY_R) {
             world.clear();
+        }
+        
+        if(key == GLFW_KEY_C) {
+            printf("%d\n", world.getMaxBrainComplexity());
         }
         
         if(key == GLFW_KEY_Q) {
@@ -182,7 +186,7 @@ int main(int argc, const char * argv[]) {
         {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-                        
+            
             world.step(dt, 6);
             
             renderer.render(0, frame);

@@ -27,13 +27,13 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 20.0f;
-    maxForce = 20.0f;
+    maxStickForce = 40.0f;
+    maxForce = 60.0f;
     
     armLength = 3.0f;
 }
 
-Body::Body(const BodyDef* def, World* world) {
+Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
     position = def->position;
     velocity = def->velocity;
     
@@ -51,9 +51,7 @@ Body::Body(const BodyDef* def, World* world) {
     health = maxHealth = def->maxHealth;
     
     color = def->color;
-    
-    brain = new Brain(input_size, output_size);
-    
+        
     type = e_body;
     density = def->density;
     
@@ -70,44 +68,45 @@ Body::Body(const BodyDef* def, World* world) {
 }
 
 void Body::setInputs(Neuron *in) const {
-    in[0].value = position.x;
-    in[1].value = position.y;
-    in[2].value = velocity.x;
-    in[3].value = velocity.y;
-    in[4].value = stick.position.x;
-    in[5].value = stick.position.y;
-    in[6].value = stick.velocity.x;
-    in[7].value = stick.velocity.y;
-    in[8].value = stick.normal.x;
-    in[9].value = stick.normal.y;
-    in[10].value = stick.angularVelocity;
+    in[0].value = velocity.x;
+    in[1].value = velocity.y;
+    in[2].value = stick.position.x - position.x;
+    in[3].value = stick.position.y - position.y;
+    in[4].value = stick.velocity.x;
+    in[5].value = stick.velocity.y;
+    in[6].value = stick.normal.x;
+    in[7].value = stick.normal.y;
+    in[8].value = stick.angularVelocity;
 }
 
 void Body::setInputs() {
     if(target != NULL) {
-        Neuron* in = brain->inputs();
+        Neuron* in = brain.inputs();
         setInputs(in);
         target->setInputs(in + single_input);
+        in[input_size - 2].value = target->position.x - position.x;
+        in[input_size - 1].value = target->position.y - position.y;
     }
 }
 
 void Body::think(float dt) {
-    brain->compute();
+    brain.compute();
     
-    Neuron* out = brain->outputs();
+    Neuron* out = brain.outputs();
     
     vec2 force = vec2(out[0].value, out[1].value);
     vec2 stick = vec2(out[2].value, out[3].value);
     vec2 local = vec2(out[4].value, out[5].value);
     
+    float sf = maxForce + maxStickForce;
+    
     ::constrain(&force, maxForce * maxForce);
-    ::constrain(&stick, maxStickForce * maxStickForce);
+    ::constrain(&stick, sf * sf);
     
     float arm = radius * (armLength + 1.0f);
     ::constrain(&local, arm * arm);
     
-    float invMass = 1.0f / (area() * density);
-    
-    velocity += dt * invMass * force;
+    velocity += dt * force;
+    stick *= this->stick.mass();
     this->stick.applyImpulse(position + local, dt * stick);
 }

@@ -167,7 +167,7 @@ public:
         return node;
     }
     
-    bool moveProxy(int nodeId, const AABB& aabb);
+    bool moveProxy(int nodeId, const AABB& aabb, const vec2& displacement);
     
     inline void destoryProxy(int proxyId) {
         removeProxy(proxyId);

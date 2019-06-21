@@ -15,7 +15,7 @@
 
 struct Manifold
 {
-    float impulse = 16.0f;
+    float impulse = 8.0f;
     
     Obj* obj1;
     Obj* obj2;
@@ -50,17 +50,15 @@ public:
         bool callback(void* data) {
             Obj* obj = (Obj*)data;
             
-            if(obj->type == Obj::e_stick)
+            if(obj->type == Obj::e_stick || obj != self)
                 return true;
             
-            Body* _body = (Body*)obj;
-            
-            vec2 dir = _body->position - self->position;
+            vec2 dir = obj->position - self->position;
             
             float lengthSq = dir.lengthSq();
             
-            if(lengthSq < shortestLengthSq && _body != self) {
-                body = _body;
+            if(lengthSq < shortestLengthSq) {
+                body = (Body*)obj;
                 shortestLengthSq = lengthSq;
             }
             
@@ -99,10 +97,10 @@ protected:
     
     void solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt);
     
-    inline void moveProxies() {
+    inline void moveProxies(float dt) {
         for(Body* body : bodies) {
-            tree.moveProxy(body->node, body->aabb());
-            tree.moveProxy(body->stick.node, body->stick.aabb());
+            tree.moveProxy(body->node, body->aabb(), dt * body->velocity);
+            tree.moveProxy(body->stick.node, body->stick.aabb(), dt * body->stick.velocity);
         }
     }
     
@@ -131,7 +129,7 @@ public:
     int maxBodies;
     
     World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
-        maxBodies = 1024;
+        maxBodies = (width * height) / (targetRadius * targetRadius);
     }
     
     ~World() {
@@ -158,7 +156,7 @@ public:
             if(bodies.size() >= maxBodies) return;
             def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
             Body* body = createBody(&def);
-            Brain::alter(body->brain, (*begin)->brain);
+            Brain::alter(&body->brain, &(*begin)->brain);
         }
     }
     
@@ -209,6 +207,14 @@ public:
         return tree.getMaxBalance();
     }
     
+    inline int getMaxBrainComplexity() const {
+        int c = 0;
+        
+        for(Body* body : bodies)
+            c = std::max(c, body->brain.totalSize());
+        
+        return c;
+    }
     
     void step(float dt, int its) {
         brainInputs();

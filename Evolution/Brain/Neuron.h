@@ -41,12 +41,12 @@ struct Neuron
     
     ActivationFunction f;
     
-    inline Neuron() : bias(0.0f) {}
+    inline Neuron() : bias(rand()) {}
     
-    inline void add_link(int index, float weight = 1.0f) {
+    inline void add_link(int index) {
         Link link;
         link.index = index;
-        link.weight = weight;
+        link.weight = rand();
         inputs.push_back(link);
     }
     

@@ -144,6 +144,7 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
         
         if(fabs(bT.x - pT.x) < B->length * 0.5f) {
             vec2 n, p;
+            vec2 QT = Q.T();
             
             float depth = r - dy;
             
@@ -156,9 +157,8 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
             }
             
             m.force = total * depth;
-            m.normal = n * (Q.T());
-            
-            m.point = p * (Q.T());
+            m.normal = n * QT;
+            m.point = p * QT;
             
             m.solve();
         }
@@ -166,7 +166,7 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
 }
 
 void World::step(float dt) {
-    moveProxies();
+    moveProxies(dt);
     
     getContacts();
     

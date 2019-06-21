@@ -43,10 +43,10 @@ class Body : public Obj
     
 public:
     
-    /// body position, body velocity, stick position, stick velocity, stick normal, stick angularVel
+    /// body velocity, stick position, stick velocity, stick normal, stick angularVel
     /// '' -> target
-    static const int single_input = 11;
-    static const int input_size = 2 * single_input;
+    static const int single_input = 9;
+    static const int input_size = 2 * single_input + 2;
     
     /// body force, stick force, stick force local position
     static const int output_size = 6;
@@ -61,7 +61,7 @@ public:
     
     float wound;
     
-    Brain* brain;
+    Brain brain;
     
     float damping;
     
@@ -73,11 +73,9 @@ public:
     
     const Body* target;
     
-    Body(const BodyDef* def, World* world);
+    int hits;
     
-    inline ~Body() {
-        delete(brain);
-    }
+    Body(const BodyDef* def, World* world);
     
     inline float getHealthRatio() const {
         return health/maxHealth;
