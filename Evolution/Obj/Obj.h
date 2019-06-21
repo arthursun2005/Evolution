@@ -14,7 +14,7 @@
 #include "Collision.h"
 #include "color.h"
 
-#define max_translation 1.0f
+#define max_translation 0.5f
 
 #define max_translation_squared (max_translation * max_translation)
 

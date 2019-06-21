@@ -298,64 +298,25 @@ struct Graphics <World>
 {
     World* world;
     
-    Texture2D texture;
-    
     Graphics<Stick> stick_renderer;
     
     Graphics<Body> body_renderer;
     
-    Frame frame;
-    
-    float* pixels;
-    
-    Graphics(World* world, float scl = 4.0f) : world(world) {
-        frame.x = 0;
-        frame.y = 0;
-        frame.w = world->width * scl;
-        frame.h = world->height * scl;
-        frame.scl = scl;
-        frame.offset = vec2(0.0f, 0.0f);
-        pixels = NULL;
-    }
-    
-    ~Graphics() {
-        if(pixels)
-            Free(pixels);
-    }
+    Graphics(World* world) : world(world) {}
     
     void initialize() {
-        texture.initialize(GL_LINEAR);
-        texture.image(GL_RGBA32F, GL_RGBA, frame.w, frame.h, GL_FLOAT, 0);
-        
         stick_renderer.initialize();
         body_renderer.initialize();
-        
-        pixels = (float*)Alloc(sizeof(Colorf) * frame.w * frame.h);
     }
     
     void destory() {
-        texture.destory();
-        
         stick_renderer.destory();
         body_renderer.destory();
-        
-        Free(pixels);
-        pixels = NULL;
     }
     
     void render(GLuint target, const Frame& frame) {
         body_renderer.render(target, frame, world->cbegin(), world->cend());
         stick_renderer.render(target, frame, world->cbegin(), world->cend());
-    }
-    
-    void setVision() {
-        /// render to big texture
-        texture.bind();
-        
-        render(texture.fbo, frame);
-        //glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
-        
-        reset_texture_count;
     }
 };
 

@@ -26,9 +26,6 @@ struct BodyDef
     
     Stick stick;
     
-    int brain_inputs;
-    int brain_outputs;
-    
     float maxHealth;
     
     float maxStickForce;
@@ -37,9 +34,7 @@ struct BodyDef
     float armLength;
     
     Colorf color;
-    
-    int viewDiameter;
-    
+        
     BodyDef();
 };
 
@@ -49,10 +44,10 @@ class Body : public Obj
 public:
     
     /// body force, stick force, stick force local position
+    static const int view_diameter = 16;
+    static const int input_size = view_diameter * view_diameter;
     static const int output_size = 6;
-    
-    int viewDiameter;
-    
+        
     float maxStickForce;
     float maxForce;
     
@@ -107,7 +102,7 @@ public:
         velocity *= powf(damping, dt);
         position += dt * velocity;
         
-        float a = 0.2f;
+        float a = 0.01f;
         health -= wound * a;
         wound *= (1.0f - a);
     }

@@ -10,8 +10,8 @@
 #include "World.hpp"
 #include "Graphics.h"
 
-#define WIDTH 200
-#define HEIGHT 200
+#define WIDTH 512
+#define HEIGHT 512
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);
@@ -59,6 +59,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         
         if(key == GLFW_KEY_D) {
             world.alter();
+        }
+        
+        if(key == GLFW_KEY_G) {
+            world.generate(BodyDef());
         }
         
         if(key == GLFW_KEY_R) {
@@ -143,15 +147,6 @@ int main(int argc, const char * argv[]) {
     
     glfwSwapInterval(1);
     
-    BodyDef def;
-    def.position = vec2(-4.0f, -0.5f);
-    def.velocity = vec2(3.0f, 0.0f);
-    world.createBody(&def);
-    
-    def.position = vec2(4.0f, 0.5f);
-    def.velocity = vec2(-6.0f, 0.0f);
-    world.createBody(&def);
-    
     do {
         float currentTime = glfwGetTime();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -184,10 +179,8 @@ int main(int argc, const char * argv[]) {
         {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-            
-            //renderer.setVision();
-            
-            world.step(dt, 5);
+                        
+            world.step(dt, 6);
             
             renderer.render(0, frame);
         }

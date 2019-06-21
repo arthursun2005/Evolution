@@ -104,7 +104,7 @@ public:
     int maxBodies;
     
     World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
-        maxBodies = 512;
+        maxBodies = 1024;
     }
     
     ~World() {

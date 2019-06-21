@@ -11,9 +11,6 @@
 BodyDef::BodyDef() {
     damping = 0.5f;
     
-    brain_inputs = 1;
-    brain_outputs = 1;
-    
     radius = 1.0f;
     
     stick.radius = 0.15f;
@@ -28,7 +25,6 @@ BodyDef::BodyDef() {
     position = vec2(0.0f, 0.0f);
     velocity = vec2(0.0f, 0.0f);
     
-    viewDiameter = 16;
     density = 1.0f;
     
     maxStickForce = 20.0f;
@@ -56,8 +52,7 @@ Body::Body(const BodyDef* def, World* world) {
     
     color = def->color;
     
-    viewDiameter = def->viewDiameter;
-    brain = new Brain(viewDiameter * viewDiameter, output_size);
+    brain = new Brain(input_size, output_size);
     
     type = e_body;
     density = def->density;
