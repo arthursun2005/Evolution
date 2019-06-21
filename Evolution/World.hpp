@@ -31,13 +31,19 @@ struct Manifold
 class World
 {
     
+    typedef std::list<Body*>::iterator iterator_type;
+    
+    typedef std::list<Body*>::const_iterator const_iterator_type;
+    
     std::list<Body*> bodies;
     
     DynamicTree tree;
     
-    inline void destoryBody(const std::list<Body*>::iterator& it) {
+    inline void destoryBody(const iterator_type& it) {
         Body* body = *it;
         bodies.erase(it);
+        tree.destoryProxy(body->node);
+        tree.destoryProxy(body->stick.node);
         delete(body);
     }
     
@@ -50,76 +56,9 @@ class World
     void solveBodyStick(Body* A, Stick* B, float dt);
     void solveStickStick(Stick* A, Stick* B, float dt);
     
-    void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt) {
-        vec2 D = p2 - p1;
-        float M = D.lengthSq();
-        float t = A->radius + B->radius;
-        
-        float total = A->mass() + B->mass();
-        
-        if(M < (t * t)) {
-            Manifold m;
-            
-            M = D.length();
-            vec2 normal = D / M;
-            float depth = t - M;
-            
-            m.force = total * depth / dt;
-            
-            m.obj1 = A;
-            m.obj2 = B;
-            
-            m.normal = normal;
-            m.point = 0.5f * (p1 + p2);
-            
-            m.solve();
-        }
-    }
+    void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt);
     
-    void solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& p2, float dt) {
-        vec2 normal = B->normal;
-        
-        vec2 Q = normal.T().I();
-        
-        vec2 pT = p1 * Q;
-        vec2 bT = p2 * Q;
-        
-        vec2 dT = bT - pT;
-        
-        float r = A->radius + B->radius;
-        
-        float total = A->mass() + B->mass();
-        
-        float dy = fabs(dT.y);
-        
-        if(dy < r) {
-            Manifold m;
-            
-            m.obj1 = A;
-            m.obj2 = B;
-            
-            if(fabs(dT.x) < B->length * 0.5f) {
-                vec2 n;
-                
-                float depth = r - dy;
-                
-                if(pT.y > bT.y) {
-                    n = normal;
-                }else{
-                    n = -normal;
-                }
-                
-                m.force = total * depth / dt;
-                m.normal = n;
-                
-                vec2 p = vec2(pT.x, 0.5f * (pT.y + bT.y + B->radius - A->radius));
-                
-                m.point = p * Q.T();
-                
-                m.solve();
-            }
-        }
-    }
+    void solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& p2, float dt);
     
     inline void moveProxies() {
         for(Body* body : bodies) {
@@ -135,9 +74,21 @@ class World
         
         solveContacts(dt);
         
-        for(Body* body : bodies) {
+        iterator_type begin = bodies.begin();
+        while(begin != bodies.end()) {
+            Body* body = *begin;
+            
             body->step(dt);
             body->constrain(aabb());
+            
+            if(body->health <= 0.0f) {
+                iterator_type it = begin;
+                ++begin;
+                destoryBody(it);
+                continue;
+            }
+            
+            ++begin;
         }
     }
     
@@ -155,19 +106,19 @@ public:
         }
     }
     
-    inline std::list<Body*>::iterator begin() {
+    inline iterator_type begin() {
         return bodies.begin();
     }
     
-    inline std::list<Body*>::iterator end() {
+    inline iterator_type end() {
         return bodies.end();
     }
     
-    inline std::list<Body*>::const_iterator cbegin() const {
+    inline const_iterator_type cbegin() const {
         return bodies.cbegin();
     }
     
-    inline std::list<Body*>::const_iterator cend() const {
+    inline const_iterator_type cend() const {
         return bodies.cend();
     }
     

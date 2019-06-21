@@ -55,6 +55,8 @@ public:
     float maxHealth;
     float health;
     
+    float wound;
+    
     Brain* brain;
     
     float damping;
@@ -90,13 +92,19 @@ public:
         
         velocity *= powf(damping, dt);
         position += dt * velocity;
+        
+        float a = 0.33f;
+        health -= wound * a;
+        wound *= (1.0f - a);
     }
     
     void applyImpulse(const vec2& world, const vec2& imp) {
         float invMass = 1.0f / (area() * density);
         vec2 d = (world - position).norm();
         d = vec2(fabs(d.x), fabs(d.y));
-        velocity += invMass * scl(d, imp);
+        vec2 accel = invMass * scl(d, imp);
+        velocity += accel;
+        wound += accel.lengthSq();
     }
     
     inline AABB aabb() const {

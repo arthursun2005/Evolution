@@ -21,7 +21,7 @@ BodyDef::BodyDef() {
     stick.position = vec2(radius + 1.5f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     
-    maxHealth = 6000.0f;
+    maxHealth = 1000.0f;
     
     color = Colorf(0.0f);
     
@@ -61,6 +61,8 @@ Body::Body(const BodyDef* def, World* world) {
     
     maxStickForce = def->maxStickForce;
     maxForce = def->maxForce;
+    
+    wound = 0.0f;
     
     this->world = world;
 }

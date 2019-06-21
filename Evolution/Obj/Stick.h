@@ -41,11 +41,22 @@ public:
         normal = vec2(1.0f, 0.0f);
         
         type = e_stick;
-        density = 7.0f;
+        density = 5.0f;
     }
     
     void step(float dt) {
-        constrain(dt);
+        float cv2 = max_translation_squared / (dt * dt);
+        float ca2 = max_rotation_squared / (dt * dt);
+        
+        float v2 = velocity.lengthSq();
+        if(v2 > cv2) {
+            velocity *= sqrtf(cv2/v2);
+        }
+        
+        float a2 = angularVelocity * angularVelocity;
+        if(a2 > ca2) {
+            angularVelocity *= sqrtf(ca2/v2);
+        }
         
         angularVelocity *= powf(angularDamping, dt);
         velocity *= powf(linearDamping, dt);
@@ -69,21 +80,6 @@ public:
         return radius * (2.0f * length + radius * M_PI);
     }
     
-    inline void constrain(float dt) {
-        float cv2 = max_translation_squared / (dt * dt);
-        float ca2 = max_rotation_squared / (dt * dt);
-        
-        float v2 = velocity.lengthSq();
-        if(v2 > cv2) {
-            velocity *= sqrtf(cv2/v2);
-        }
-        
-        float a2 = angularVelocity * angularVelocity;
-        if(a2 > ca2) {
-            angularVelocity *= sqrtf(ca2/v2);
-        }
-    }
-    
     void applyImpulse(const vec2& world, const vec2& imp) {
         float invMass = 1.0f / (area() * density);
         float i = imp.length();
@@ -91,7 +87,7 @@ public:
         vec2 q = (world - position).norm();
         float d = fabs(dot(n, q));
         velocity += (invMass * d) * imp;
-        angularVelocity -= (invMass * dot(imp, q.I()) * (1.0f - d));
+        angularVelocity -= (invMass * M_1_PI * dot(imp, q.I()) * (1.0f - d));
     }
 };
 
