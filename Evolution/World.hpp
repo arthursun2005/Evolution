@@ -15,7 +15,7 @@
 
 struct Manifold
 {
-    float impulse = 8.0f;
+    float impulse = 16.0f;
     
     Obj* obj1;
     Obj* obj2;
@@ -121,7 +121,7 @@ protected:
     
 public:
     
-    float targetRadius = 8.0f;
+    float targetRadius = 12.0f;
     
     const int width;
     const int height;

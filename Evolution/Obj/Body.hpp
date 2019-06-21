@@ -99,14 +99,14 @@ public:
         
         float v2 = diff.lengthSq();
         if(v2 > c2)
-            stick.applyImpulse(position, 0.5f * sqrt(v2/c2) * (position - stick.position));
+            stick.applyImpulse(position, (sqrt(v2/c2) - 1.0f) * (position - stick.position));
         
         stick.step(dt);
         
         velocity *= powf(damping, dt);
         position += dt * velocity;
         
-        float a = 0.01f;
+        float a = 0.005f;
         health -= wound * a;
         wound *= (1.0f - a);
     }
