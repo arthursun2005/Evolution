@@ -15,6 +15,8 @@
 
 struct Manifold
 {
+    float impulse = 8.0f;
+    
     Obj* obj1;
     Obj* obj2;
     
@@ -23,8 +25,8 @@ struct Manifold
     float force;
     
     inline void solve() {
-        obj1->applyImpulse(point, -2.0f * force * normal);
-        obj2->applyImpulse(point, 2.0f * force * normal);
+        obj1->applyImpulse(point, -impulse * force * normal);
+        obj2->applyImpulse(point, impulse * force * normal);
     }
 };
 
@@ -35,8 +37,8 @@ public:
     
     struct NearestBody
     {
-        vec2 position;
         Body* body;
+        Body* self;
         
         float shortestLengthSq;
         
@@ -53,11 +55,11 @@ public:
             
             Body* _body = (Body*)obj;
             
-            vec2 dir = _body->position - position;
+            vec2 dir = _body->position - self->position;
             
             float lengthSq = dir.lengthSq();
             
-            if(lengthSq < shortestLengthSq) {
+            if(lengthSq < shortestLengthSq && _body != self) {
                 body = _body;
                 shortestLengthSq = lengthSq;
             }
@@ -109,7 +111,7 @@ protected:
     void brainInputs() {
         for(Body* body : bodies) {
             NearestBody collector;
-            collector.position = body->position;
+            collector.self = body;
             AABB fatAABB = body->box(targetRadius);
             tree.query(&collector, fatAABB);
             body->target = collector.body;
@@ -119,7 +121,7 @@ protected:
     
 public:
     
-    float targetRadius = 16.0f;
+    float targetRadius = 8.0f;
     
     const int width;
     const int height;
@@ -139,7 +141,7 @@ public:
     }
     
     void generate(BodyDef def) {
-        float stride = def.radius * 8.0f;
+        float stride = def.radius * targetRadius;
         for(float x = aabb.lowerBound.x + stride; x < aabb.upperBound.x; x += stride) {
             for(float y = aabb.lowerBound.y + stride; y < aabb.upperBound.y; y += stride) {
                 if(bodies.size() >= maxBodies) return;

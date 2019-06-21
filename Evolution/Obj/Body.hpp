@@ -98,12 +98,8 @@ public:
         float c2 = arm * arm;
         
         float v2 = diff.lengthSq();
-        if(v2 > c2) {
-            diff *= sqrtf(c2/v2);
-            stick.velocity = velocity;
-        }
-        
-        stick.position = position + diff;
+        if(v2 > c2)
+            stick.applyImpulse(position, 0.5f * sqrt(v2/c2) * (position - stick.position));
         
         stick.step(dt);
         
@@ -130,7 +126,7 @@ public:
     }
     
     inline AABB box(float _radius) const {
-        vec2 ext = vec2(_radius, _radius);
+        vec2 ext = vec2(_radius * radius, _radius * radius);
         return AABB(position - ext, position + ext);
     }
     

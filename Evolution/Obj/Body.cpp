@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.5f;
+    damping = 0.33f;
     
     radius = 1.0f;
     
@@ -27,8 +27,8 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 20.0f;
-    maxForce = 60.0f;
+    maxStickForce = 40.0f;
+    maxForce = 40.0f;
     
     armLength = 3.0f;
 }
