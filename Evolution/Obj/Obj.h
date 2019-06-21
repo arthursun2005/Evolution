@@ -55,6 +55,11 @@ public:
     }
 };
 
+inline void constrain(vec2* A, float V2) {
+    float v2 = A->lengthSq();
+    if(v2 > V2) (*A) *= sqrtf(V2/v2);
+}
+
 inline void constrain(vec2* position, vec2* velocity, const AABB& aabb) {
     if(position->x < aabb.lowerBound.x) {
         position->x = aabb.lowerBound.x;

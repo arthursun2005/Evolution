@@ -64,7 +64,7 @@ struct vec2
     inline float lengthSq() const {
         return x * x + y * y;
     }
-    
+        
     inline float length() const {
         float l = sqrtf(lengthSq());
         return l < FLT_EPSILON ? FLT_EPSILON : l;

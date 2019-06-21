@@ -34,7 +34,7 @@ public:
     float angularDamping;
     
     Stick() : owner(NULL), angularVelocity(0.0f) {
-        linearDamping = 0.66f;
+        linearDamping = 0.5f;
         angularDamping = 0.5f;
         
         /// stick pointing up
@@ -45,17 +45,13 @@ public:
     }
     
     void step(float dt) {
-        float cv2 = max_translation_squared / (dt * dt);
         float ca2 = max_rotation_squared / (dt * dt);
         
-        float v2 = velocity.lengthSq();
-        if(v2 > cv2) {
-            velocity *= sqrtf(cv2/v2);
-        }
+        constrain(&velocity, max_translation_squared / (dt * dt));
         
         float a2 = angularVelocity * angularVelocity;
         if(a2 > ca2) {
-            angularVelocity *= sqrtf(ca2/v2);
+            angularVelocity *= sqrtf(ca2/a2);
         }
         
         angularVelocity *= powf(angularDamping, dt);

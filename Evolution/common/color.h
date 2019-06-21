@@ -37,8 +37,7 @@ struct Colorf
     }
     
     inline float compress() const {
-        uint32_t _hex = hex();
-        return *(float*)&_hex;
+        return r * g + g * b + b * a + a * r;
     }
 };
 

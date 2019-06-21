@@ -29,6 +29,12 @@ struct Neuron
         float weight;
     };
     
+    static inline float rand() {
+        static std::default_random_engine generator;
+        static std::normal_distribution<float> distribution(0.0f, 1.0f);
+        return distribution(generator);
+    }
+    
     std::list<Link> inputs;
     
     int flags;
@@ -50,13 +56,10 @@ struct Neuron
     }
     
     inline void alter(float scl) {
-        static std::default_random_engine generator;
-        static std::normal_distribution<float> distribution(0.0f, 1.0f);
-        
         for(Link& link : inputs)
-            link.weight += scl * distribution(generator);
+            link.weight += scl * rand();
         
-        bias += scl * distribution(generator);
+        bias += scl * rand();
     }
     
     inline void remove_link(int index) {
@@ -93,14 +96,27 @@ struct Neuron
     }
 };
 
-inline void compute_value(int index, Neuron* neurons) {
-    for(Neuron::Link& link : neurons[index].inputs) {
-        if((neurons[link.index].flags & e_neuron_computed) == 0)
-            compute_value(link.index, neurons);
+inline void compute_value(int index, Neuron* neurons, int caller) {
+    if((neurons[index].flags & e_neuron_computed) != 0) return;
+    
+    std::list<Neuron::Link>::iterator begin = neurons[index].inputs.begin();
+    
+    while(begin != neurons[index].inputs.end()) {
+        Neuron::Link link = *begin;
+        if((neurons[link.index].flags & e_neuron_computed) == 0) {
+            if(link.index == caller) {
+                /// dead loop
+                std::list<Neuron::Link>::iterator it = begin;
+                ++begin;
+                neurons[index].inputs.erase(it);
+                continue;
+            }
+            compute_value(link.index, neurons, caller);
+        }
+        ++begin;
     }
     
-    if((neurons[index].flags & e_neuron_computed) == 0)
-        neurons[index].compute(neurons);
+    neurons[index].compute(neurons);
 }
 
 #endif /* Neuron_h */

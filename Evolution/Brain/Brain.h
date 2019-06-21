@@ -91,11 +91,12 @@ public:
         
         for(Neuron &neuron : neurons)
             neuron.clear();
-
-        if(rand() & 0x1) {
-            int index1 = rand() % output_size;
+        
+        for(int i = 0; i < 8; ++i) {
+            int index1 = input_size + (rand() % output_size);
             int index2 = rand() % input_size;
-            neurons[input_size + index1].add_link(index2);
+            if(!neurons[index1].has_link(index2))
+                neurons[index1].add_link(index2);
         }
     }
     
@@ -133,7 +134,7 @@ public:
             neurons[i].flags &= ~ e_neuron_computed;
         
         for(int i = 0; i < output_size; ++i)
-            compute_value(i, neurons.data());
+            compute_value(input_size + i, neurons.data(), input_size + i);
     }
     
     inline void alter(float scl) {

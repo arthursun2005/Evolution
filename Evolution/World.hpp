@@ -79,7 +79,7 @@ class World
             Body* body = *begin;
             
             body->step(dt);
-            body->constrain(aabb());
+            body->constrain(aabb);
             
             if(body->health <= 0.0f) {
                 iterator_type it = begin;
@@ -97,12 +97,25 @@ public:
     const int width;
     const int height;
     
-    World(int width, int height) : width(width), height(height), bodies(NULL) {
+    const AABB aabb;
+    
+    int maxBodies;
+    
+    World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
+        maxBodies = 256;
     }
     
     ~World() {
         for(Body* body : bodies) {
             delete(body);
+        }
+    }
+    
+    void generate() {
+        BodyDef def;
+        while(bodies.size() < maxBodies) {
+            def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
+            createBody(&def);
         }
     }
     
@@ -133,13 +146,6 @@ public:
     inline void getContacts() {
         contacts.clear();
         tree.query(&contacts);
-    }
-    
-    inline AABB aabb() const {
-        AABB aabb;
-        aabb.lowerBound = vec2(-width * 0.5f, -height * 0.5f);
-        aabb.upperBound = vec2(width * 0.5f, height * 0.5f);
-        return aabb;
     }
     
     inline float getTreeQuality() const {

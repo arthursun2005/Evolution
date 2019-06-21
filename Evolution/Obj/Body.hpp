@@ -12,9 +12,6 @@
 #include "Stick.h"
 #include "Brain.h"
 
-/// body force, stick force, stick force local position
-#define Body_OutputSize 6
-
 static Colorf health_color(0.0f, 1.0f, 0.2f);
 
 struct BodyDef
@@ -37,6 +34,8 @@ struct BodyDef
     float maxStickForce;
     float maxForce;
     
+    float armLength;
+    
     Colorf color;
     
     int viewDiameter;
@@ -49,11 +48,18 @@ class Body : public Obj
     
 public:
     
+    /// body force, stick force, stick force local position
+    static const int output_size = 6;
+    
+    int viewDiameter;
+    
     float maxStickForce;
     float maxForce;
     
     float maxHealth;
     float health;
+    
+    float armLength;
     
     float wound;
     
@@ -77,23 +83,31 @@ public:
         return health/maxHealth;
     }
     
-    void think();
+    void think(float dt);
     
     void step(float dt) {
-        think();
+        think(dt);
         
-        float cv2 = max_translation_squared / (dt * dt);
-        float v2 = velocity.lengthSq();
-        if(v2 > cv2) {
-            velocity *= sqrtf(cv2/v2);
+        ::constrain(&velocity, max_translation_squared / (dt * dt));
+        
+        float arm = radius * (armLength + 1.0f);
+        vec2 diff = stick.position - position;
+        float c2 = arm * arm;
+        
+        float v2 = diff.lengthSq();
+        if(v2 > c2) {
+            diff *= sqrtf(c2/v2);
+            stick.velocity = velocity;
         }
+        
+        stick.position = position + diff;
         
         stick.step(dt);
         
         velocity *= powf(damping, dt);
         position += dt * velocity;
         
-        float a = 0.33f;
+        float a = 0.2f;
         health -= wound * a;
         wound *= (1.0f - a);
     }
@@ -104,7 +118,7 @@ public:
         d = vec2(fabs(d.x), fabs(d.y));
         vec2 accel = invMass * scl(d, imp);
         velocity += accel;
-        wound += accel.lengthSq();
+        wound += accel.length();
     }
     
     inline AABB aabb() const {

@@ -92,4 +92,8 @@ inline int firstbit(float x) {
     return 0b1 & ~((*(int*)&x) >> 31);
 }
 
+inline float randf(float a, float b) {
+    return rand() / (float) RAND_MAX * (b - a) + a;
+}
+
 #endif /* common_h */

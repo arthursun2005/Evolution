@@ -296,7 +296,7 @@ struct Graphics <Body>
 template <>
 struct Graphics <World>
 {
-    const World* world;
+    World* world;
     
     Texture2D texture;
     
@@ -304,7 +304,16 @@ struct Graphics <World>
     
     Graphics<Body> body_renderer;
     
-    Graphics(World* world) : world(world) {}
+    Frame frame;
+    
+    Graphics(World* world) : world(world) {
+        frame.x = 0;
+        frame.y = 0;
+        frame.w = world->width;
+        frame.h = world->height;
+        frame.scl = 1.0f;
+        frame.offset = vec2(0.0f, 0.0f);
+    }
     
     void initialize() {
         texture.initialize(GL_LINEAR);
@@ -324,6 +333,15 @@ struct Graphics <World>
     void render(GLuint target, const Frame& frame) {
         body_renderer.render(target, frame, world->cbegin(), world->cend());
         stick_renderer.render(target, frame, world->cbegin(), world->cend());
+    }
+    
+    void setVision() {
+        /// render to big texture
+        texture.bind();
+        render(texture.fbo, frame);
+        reset_texture_count;
+        
+        
     }
 };
 
