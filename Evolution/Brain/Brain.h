@@ -100,7 +100,9 @@ public:
     void reset(int _input_size, int _output_size) {
         input_size = _input_size;
         output_size = _output_size;
-        neurons.resize(input_size + output_size);
+        
+        int size = input_size + output_size;
+        neurons.resize(size);
         
         for(Neuron &neuron : neurons)
             neuron.clear();
@@ -116,7 +118,7 @@ public:
         for(int i = 0; i < 8; ++i) {
             if(rand() & 0x1) {
                 int index1 = input_size + (rand() % output_size);
-                int index2 = rand() % input_size;
+                int index2 = rand() % size;
                 if(rand() & 0x1) {
                     if(!neurons[index1].has_link(index2))
                         neurons[index1].add_link(index2);
@@ -160,8 +162,10 @@ public:
         for(int i = input_size; i < size; ++i)
             neurons[i].flags &= ~ e_neuron_computed;
         
-        for(int i = 0; i < output_size; ++i)
-            compute_value(input_size + i, neurons.data(), input_size + i);
+        for(int i = 0; i < output_size; ++i) {
+            std::unordered_set<int> set;
+            compute_value(input_size + i, neurons.data(), &set);
+        }
     }
     
     inline void alter(float scl) {

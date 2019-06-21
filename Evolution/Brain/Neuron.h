@@ -11,6 +11,7 @@
 
 #include "activation_functions.h"
 #include <list>
+#include <unordered_set>
 
 enum neuron_flags
 {
@@ -88,29 +89,35 @@ struct Neuron
     inline void compute(const Neuron* neurons) {
         float sum = 0.0f;
         
-        for(Link& link : inputs)
+        for(const Link& link : inputs)
             sum += link.weight * neurons[link.index].value;
         
         value = f(sum + bias);
-        flags |= e_neuron_computed;
+        //flags |= e_neuron_computed;
     }
 };
 
-inline void compute_value(int index, Neuron* neurons, int caller) {
+inline void compute_value(int index, Neuron* neurons, std::unordered_set<int>* caller) {
     if((neurons[index].flags & e_neuron_computed) != 0) return;
     
     std::list<Neuron::Link>::iterator begin = neurons[index].inputs.begin();
     
+    //caller->insert(index);
+    
+    neurons[index].flags |= e_neuron_computed;
+    
     while(begin != neurons[index].inputs.end()) {
         Neuron::Link link = *begin;
         if((neurons[link.index].flags & e_neuron_computed) == 0) {
-            if(link.index == caller) {
+            /*
+            if(caller->find(link.index) != caller->end()) {
                 /// dead loop
                 std::list<Neuron::Link>::iterator it = begin;
                 ++begin;
                 neurons[index].inputs.erase(it);
                 continue;
             }
+             */
             compute_value(link.index, neurons, caller);
         }
         ++begin;
