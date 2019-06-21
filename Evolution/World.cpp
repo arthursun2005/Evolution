@@ -165,27 +165,6 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
     }
 }
 
-void Body::think(float dt) {
-    brain->compute();
-    
-    Neuron* out = brain->outputs();
-    
-    vec2 force = vec2(out[0].value, out[1].value);
-    vec2 stick = vec2(out[2].value, out[3].value);
-    vec2 local = vec2(out[4].value, out[5].value);
-    
-    ::constrain(&force, maxForce * maxForce);
-    ::constrain(&stick, maxStickForce * maxStickForce);
-    
-    float arm = radius * (armLength + 1.0f);
-    ::constrain(&local, arm * arm);
-    
-    float invMass = 1.0f / (area() * density);
-    
-    velocity += dt * invMass * force;
-    this->stick.applyImpulse(position + local, dt * stick);
-}
-
 void World::step(float dt) {
     moveProxies();
     

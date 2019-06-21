@@ -27,8 +27,8 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 40.0f;
-    maxForce = 40.0f;
+    maxStickForce = 20.0f;
+    maxForce = 20.0f;
     
     armLength = 3.0f;
 }
@@ -89,4 +89,25 @@ void Body::setInputs() {
         setInputs(in);
         target->setInputs(in + single_input);
     }
+}
+
+void Body::think(float dt) {
+    brain->compute();
+    
+    Neuron* out = brain->outputs();
+    
+    vec2 force = vec2(out[0].value, out[1].value);
+    vec2 stick = vec2(out[2].value, out[3].value);
+    vec2 local = vec2(out[4].value, out[5].value);
+    
+    ::constrain(&force, maxForce * maxForce);
+    ::constrain(&stick, maxStickForce * maxStickForce);
+    
+    float arm = radius * (armLength + 1.0f);
+    ::constrain(&local, arm * arm);
+    
+    float invMass = 1.0f / (area() * density);
+    
+    velocity += dt * invMass * force;
+    this->stick.applyImpulse(position + local, dt * stick);
 }
