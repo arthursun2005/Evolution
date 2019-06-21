@@ -299,7 +299,7 @@ void DynamicTree::query(std::vector<Contact> *list) {
     
     if(nodes[root].isLeaf()) return;
     
-    _PairCollector collector;
+    Collector collector;
     
     collector.contacts = list;
     

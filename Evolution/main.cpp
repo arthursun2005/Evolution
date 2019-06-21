@@ -10,8 +10,8 @@
 #include "World.hpp"
 #include "Graphics.h"
 
-#define WIDTH 64
-#define HEIGHT 64
+#define WIDTH 128
+#define HEIGHT 128
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);
@@ -181,7 +181,7 @@ int main(int argc, const char * argv[]) {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
-            world.step(dt, 4);
+            world.step(dt, 8);
             
             renderer.render(0, frame);
         }

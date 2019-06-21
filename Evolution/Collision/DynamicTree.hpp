@@ -40,23 +40,6 @@ struct TreeNode
     }
 };
 
-struct _PairCollector
-{
-    std::vector<Contact>* contacts;
-    
-    void* current;
-    
-    bool callback(void* data) {
-        if(data > current) {
-            Contact contact;
-            contact.obj1 = current;
-            contact.obj2 = data;
-            contacts->push_back(contact);
-        }
-        return true;
-    }
-};
-
 /**
  ** Many algorithms came from Box2D
  ** https://github.com/erincatto/Box2D
@@ -146,6 +129,23 @@ class DynamicTree
     }
     
 public:
+    
+    struct Collector
+    {
+        std::vector<Contact>* contacts;
+        
+        void* current;
+        
+        bool callback(void* data) {
+            if(data > current) {
+                Contact contact;
+                contact.obj1 = current;
+                contact.obj2 = data;
+                contacts->push_back(contact);
+            }
+            return true;
+        }
+    };
     
     DynamicTree();
     

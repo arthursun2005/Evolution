@@ -80,6 +80,12 @@ public:
     void step(float dt) {
         think();
         
+        float cv2 = max_translation_squared / (dt * dt);
+        float v2 = velocity.lengthSq();
+        if(v2 > cv2) {
+            velocity *= sqrtf(cv2/v2);
+        }
+        
         stick.step(dt);
         
         velocity *= powf(damping, dt);

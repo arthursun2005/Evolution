@@ -57,111 +57,47 @@ void World::solveContacts(float dt) {
 }
 
 void World::solveBodyBody(Body *A, Body *B, float dt) {    
-    vec2 D = B->position - A->position;
-    float M = D.lengthSq();
-    float t = A->radius + B->radius;
-    
-    float total = A->mass() + B->mass();
-    
-    if(M < (t * t)) {
-        Manifold m;
-        
-        M = D.length();
-        vec2 normal = D / M;
-        float depth = t - M;
-        
-        m.force = total * depth / dt;
-
-        m.obj1 = A;
-        m.obj2 = B;
-        
-        m.normal = normal;
-        m.point = 0.5f * (A->position + B->position);
-        
-        m.solve();
-    }
+    solveCircleCircle(A, B, A->position, B->position, dt);
 }
 
 void World::solveBodyStick(Body *A, Stick *B, float dt) {
-    vec2 Q = B->normal.T().I();
+    solveCircleLine(A, B, A->position, B->position, dt);
     
-    vec2 pT = A->position * Q;
-    vec2 bT = B->position * Q;
+    vec2 j = B->normal.I();
+    vec2 _l = vec2(B->length * 0.5f, 0.0f);
+    vec2 p1 = _l * j;
+    vec2 p2 = B->position - p1;
+    p1 += B->position;
     
-    vec2 dT = bT - pT;
-    
-    float r = A->radius + B->radius;
-    
-    float total = A->mass() + B->mass();
-    
-    float dy = fabs(dT.y);
-    
-    if(dy < r) {
-        Manifold m;
-        
-        m.obj1 = A;
-        m.obj2 = B;
-        
-        if(fabs(dT.x) < B->length * 0.5f) {
-            vec2 normal;
-            
-            float depth = r - dy;
-            
-            if(pT.y > bT.y) {
-                normal = B->normal;
-            }else{
-                normal = -B->normal;
-            }
-            
-            m.force = total * depth / dt;
-            m.normal = normal;
-            
-            vec2 p = vec2(pT.x, 0.5f * (pT.y + bT.y + B->radius - A->radius));
-            
-            m.point = p * Q.T();
-            
-            m.solve();
-        }else{
-            vec2 j = B->normal.I();
-            vec2 _l = vec2(B->length * 0.5f, 0.0f);
-            vec2 p1 = _l * j;
-            vec2 p2 = B->position - p1;
-            p1 += B->position;
-            
-            vec2 D1 = p1 - A->position;
-            vec2 D2 = p2 - A->position;
-            
-            float M1 = D1.lengthSq();
-            float M2 = D2.lengthSq();
-            
-            if(M1 < (r * r)) {
-                M1 = D1.length();
-                vec2 normal = D1 / M1;
-                float depth = r - M1;
-                
-                m.force = total * depth / dt;
-                m.normal = normal;
-                
-                m.point = 0.5f * (A->position + p1);
-                
-                m.solve();
-            }
-            
-            if(M2 < (r * r)) {
-                M2 = D2.length();
-                vec2 normal = D2 / M2;
-                float depth = r - M2;
-                
-                m.force = total * depth / dt;
-                m.normal = normal;
-                
-                m.point = 0.5f * (A->position + p2);
-                
-                m.solve();
-            }
-        }
-    }
+    solveCircleCircle(A, B, A->position, p1, dt);
+    solveCircleCircle(A, B, A->position, p2, dt);
 }
 
 void World::solveStickStick(Stick *A, Stick *B, float dt) {
+    vec2 j, _l;
+    
+    j = A->normal.I();
+    _l = vec2(A->length * 0.5f, 0.0f);
+    vec2 p1 = _l * j;
+    vec2 p2 = A->position - p1;
+    p1 += A->position;
+    
+    j = B->normal.I();
+    _l = vec2(B->length * 0.5f, 0.0f);
+    vec2 p3 = _l * j;
+    vec2 p4 = B->position - p3;
+    p3 += B->position;
+    
+    solveCircleLine(A, B, p1, B->position, dt);
+    solveCircleLine(A, B, p2, B->position, dt);
+    
+    solveCircleLine(B, A, p3, A->position, dt);
+    solveCircleLine(B, A, p4, A->position, dt);
+    
+    
+    solveCircleCircle(A, B, p1, p3, dt);
+    solveCircleCircle(A, B, p1, p4, dt);
+    
+    solveCircleCircle(A, B, p2, p3, dt);
+    solveCircleCircle(A, B, p2, p4, dt);
 }

@@ -14,6 +14,14 @@
 #include "Collision.h"
 #include "color.h"
 
+#define max_translation 2.0f
+
+#define max_translation_squared (max_translation * max_translation)
+
+#define max_rotation (0.5f * M_PI)
+
+#define max_rotation_squared (max_rotation * max_rotation)
+
 class Obj
 {
     

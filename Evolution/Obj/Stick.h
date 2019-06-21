@@ -45,6 +45,8 @@ public:
     }
     
     void step(float dt) {
+        constrain(dt);
+        
         angularVelocity *= powf(angularDamping, dt);
         velocity *= powf(linearDamping, dt);
         
@@ -65,6 +67,21 @@ public:
     
     inline float area() const {
         return radius * (2.0f * length + radius * M_PI);
+    }
+    
+    inline void constrain(float dt) {
+        float cv2 = max_translation_squared / (dt * dt);
+        float ca2 = max_rotation_squared / (dt * dt);
+        
+        float v2 = velocity.lengthSq();
+        if(v2 > cv2) {
+            velocity *= sqrtf(cv2/v2);
+        }
+        
+        float a2 = angularVelocity * angularVelocity;
+        if(a2 > ca2) {
+            angularVelocity *= sqrtf(ca2/v2);
+        }
     }
     
     void applyImpulse(const vec2& world, const vec2& imp) {
