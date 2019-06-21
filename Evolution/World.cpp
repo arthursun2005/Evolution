@@ -56,7 +56,7 @@ void World::solveBodyBody(Body *A, Body *B, float dt) {
 }
 
 void World::solveBodyStick(Body *A, Stick *B, float dt) {
-    solveCircleLine(A, B, A->position, B->position, dt);
+    solveCircleLine(A, B, A->position, dt);
     
     vec2 j = B->normal.I();
     vec2 _l = vec2(B->length * 0.5f, 0.0f);
@@ -83,12 +83,11 @@ void World::solveStickStick(Stick *A, Stick *B, float dt) {
     vec2 p4 = B->position - p3;
     p3 += B->position;
     
-    solveCircleLine(A, B, p1, B->position, dt);
-    solveCircleLine(A, B, p2, B->position, dt);
+    solveCircleLine(A, B, p1, dt);
+    solveCircleLine(A, B, p2, dt);
     
-    solveCircleLine(B, A, p3, A->position, dt);
-    solveCircleLine(B, A, p4, A->position, dt);
-    
+    solveCircleLine(B, A, p3, dt);
+    solveCircleLine(B, A, p4, dt);
     
     solveCircleCircle(A, B, p1, p3, dt);
     solveCircleCircle(A, B, p1, p4, dt);
@@ -123,21 +122,19 @@ void World::solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, fl
     }
 }
 
-void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& p2, float dt) {
+void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
     vec2 normal = B->normal;
     
     vec2 Q = normal.T().I();
     
     vec2 pT = p1 * Q;
-    vec2 bT = p2 * Q;
-    
-    vec2 dT = bT - pT;
+    vec2 bT = B->position * Q;
     
     float r = A->radius + B->radius;
     
     float total = A->mass() + B->mass();
     
-    float dy = fabs(dT.y);
+    float dy = fabs(bT.y - pT.y);
     
     if(dy < r) {
         Manifold m;
@@ -145,23 +142,23 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& p2, fl
         m.obj1 = A;
         m.obj2 = B;
         
-        if(fabs(dT.x) < B->length * 0.5f) {
-            vec2 n;
+        if(fabs(bT.x - pT.x) < B->length * 0.5f) {
+            vec2 n, p;
             
             float depth = r - dy;
             
             if(pT.y > bT.y) {
-                n = normal;
+                n = vec2(0.0f, -1.0f);
+                p = vec2(pT.x, bT.y + B->radius);
             }else{
-                n = -normal;
+                n = vec2(0.0f, 1.0f);
+                p = vec2(pT.x, bT.y - B->radius);
             }
             
             m.force = total * depth / dt;
-            m.normal = n;
+            m.normal = n * (Q.T());
             
-            vec2 p = vec2(pT.x, 0.5f * (pT.y + bT.y + B->radius - A->radius));
-            
-            m.point = p * Q.T();
+            m.point = p * (Q.T());
             
             m.solve();
         }
@@ -170,7 +167,7 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& p2, fl
 
 void Body::think(float dt) {
     Neuron* in = brain->inputs();
-
+    
     brain->compute();
     
     Neuron* out = brain->outputs();

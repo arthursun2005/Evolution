@@ -92,6 +92,14 @@ public:
         for(Neuron &neuron : neurons)
             neuron.clear();
         
+        for(int i = 0; i < input_size; ++i) {
+            neurons[i].flags |= e_neuron_computed | e_neuron_input;
+        }
+        
+        for(int i = 0; i < output_size; ++i) {
+            neurons[input_size + i].flags |= e_neuron_output;
+        }
+        
         for(int i = 0; i < 8; ++i) {
             int index1 = input_size + (rand() % output_size);
             int index2 = rand() % input_size;
@@ -144,7 +152,7 @@ public:
             neurons[i].alter(scl);
     }
     
-    inline friend void copy(Brain* dst, const Brain* src) {
+    inline static void copy(Brain* dst, const Brain* src) {
         int size = (int)src->neurons.size();
         dst->neurons.resize(size);
         
@@ -153,7 +161,7 @@ public:
         }
     }
     
-    friend void alter(Brain* result, const Brain* brain) {
+    static void alter(Brain* result, const Brain* brain) {
         copy(result, brain);
         
         /// 1/2 chance of altering

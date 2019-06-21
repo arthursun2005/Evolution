@@ -14,7 +14,7 @@
 #include "Collision.h"
 #include "color.h"
 
-#define max_translation 2.0f
+#define max_translation 1.0f
 
 #define max_translation_squared (max_translation * max_translation)
 
@@ -52,6 +52,10 @@ public:
     
     inline float mass() const {
         return area() * density;
+    }
+    
+    inline float invMass() const {
+        return 1.0f / mass();
     }
 };
 

@@ -86,7 +86,7 @@ public:
     void think(float dt);
     
     void step(float dt) {
-        think(dt);
+        //think(dt);
         
         ::constrain(&velocity, max_translation_squared / (dt * dt));
         
@@ -113,7 +113,7 @@ public:
     }
     
     void applyImpulse(const vec2& world, const vec2& imp) {
-        float invMass = 1.0f / (area() * density);
+        float invMass = Obj::invMass();
         vec2 d = (world - position).norm();
         d = vec2(fabs(d.x), fabs(d.y));
         vec2 accel = invMass * scl(d, imp);

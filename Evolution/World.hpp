@@ -15,6 +15,8 @@
 
 struct Manifold
 {
+    static constexpr float impulse = 0.25f;
+    
     Obj* obj1;
     Obj* obj2;
     
@@ -23,8 +25,8 @@ struct Manifold
     float force;
     
     inline void solve() {
-        obj1->applyImpulse(point, -force * 0.5f * normal);
-        obj2->applyImpulse(point, force * 0.5f * normal);
+        obj1->applyImpulse(point, -force * impulse * normal);
+        obj2->applyImpulse(point, force * impulse * normal);
     }
 };
 
@@ -58,7 +60,7 @@ class World
     
     void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt);
     
-    void solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& p2, float dt);
+    void solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt);
     
     inline void moveProxies() {
         for(Body* body : bodies) {
@@ -102,7 +104,7 @@ public:
     int maxBodies;
     
     World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
-        maxBodies = 256;
+        maxBodies = 512;
     }
     
     ~World() {
@@ -111,11 +113,35 @@ public:
         }
     }
     
-    void generate() {
+    void generate(BodyDef def) {
+        float stride = def.radius * 8.0f;
+        for(float x = aabb.lowerBound.x + stride; x < aabb.upperBound.x; x += stride) {
+            for(float y = aabb.lowerBound.y + stride; y < aabb.upperBound.y; y += stride) {
+                if(bodies.size() >= maxBodies) return;
+                def.position = vec2(x, y);
+                createBody(&def);
+            }
+        }
+    }
+    
+    void alter() {
         BodyDef def;
-        while(bodies.size() < maxBodies) {
+        iterator_type begin = bodies.begin();
+        while(begin != bodies.end()) {
+            if(bodies.size() >= maxBodies) return;
             def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
-            createBody(&def);
+            Body* body = createBody(&def);
+            Brain::alter(body->brain, (*begin)->brain);
+        }
+    }
+    
+    void clear() {
+        iterator_type begin = bodies.begin();
+        
+        while(begin != bodies.end()) {
+            iterator_type it = begin;
+            ++begin;
+            destoryBody(it);
         }
     }
     

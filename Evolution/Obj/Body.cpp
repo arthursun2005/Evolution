@@ -16,9 +16,9 @@ BodyDef::BodyDef() {
     
     radius = 1.0f;
     
-    stick.radius = 0.125f;
-    stick.length = 3.0f;
-    stick.position = vec2(radius + 1.5f * stick.radius, 0.0f);
+    stick.radius = 0.15f;
+    stick.length = 4.0f;
+    stick.position = vec2(radius + 2.0f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     
     maxHealth = 100.0f;
@@ -28,7 +28,7 @@ BodyDef::BodyDef() {
     position = vec2(0.0f, 0.0f);
     velocity = vec2(0.0f, 0.0f);
     
-    viewDiameter = 64;
+    viewDiameter = 16;
     density = 1.0f;
     
     maxStickForce = 20.0f;

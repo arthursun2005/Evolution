@@ -63,8 +63,7 @@ public:
     }
     
     AABB aabb() const {
-        vec2 rot = normal.I();
-        vec2 p1 = vec2(length, 0.0f) * rot;
+        vec2 p1 = vec2(0.0f, length * 0.5f) * normal;
         vec2 p2 = -p1;
         vec2 ext = vec2(radius, radius);
         vec2 min_p = min(p1, p2);
@@ -77,13 +76,10 @@ public:
     }
     
     void applyImpulse(const vec2& world, const vec2& imp) {
-        float invMass = 1.0f / (area() * density);
-        float i = imp.length();
-        vec2 n = imp / i;
+        float invMass = Obj::invMass();
         vec2 q = (world - position).norm();
-        float d = fabs(dot(n, q));
-        velocity += (invMass * d) * imp;
-        angularVelocity -= (invMass * M_1_PI * dot(imp, q.I()) * (1.0f - d));
+        velocity += invMass * scl(vec2(fabs(q.x), fabs(q.y)), imp);
+        angularVelocity -= (invMass * M_1_PI * 0.5f * dot(imp, q.I()));
     }
 };
 

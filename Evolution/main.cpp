@@ -10,8 +10,8 @@
 #include "World.hpp"
 #include "Graphics.h"
 
-#define WIDTH 128
-#define HEIGHT 128
+#define WIDTH 200
+#define HEIGHT 200
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);
@@ -57,12 +57,16 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             world.createBody(&def);
         }
         
-        if(key == GLFW_KEY_Q) {
-            printf("%.7f\n", world.getTreeQuality());
+        if(key == GLFW_KEY_D) {
+            world.alter();
         }
         
-        if(key == GLFW_KEY_B) {
-            printf("%d\n", world.getTreeMaxBalance());
+        if(key == GLFW_KEY_R) {
+            world.clear();
+        }
+        
+        if(key == GLFW_KEY_Q) {
+            printf("%.7f\n", world.getTreeQuality());
         }
         
         if(key == GLFW_KEY_N) {
@@ -139,8 +143,15 @@ int main(int argc, const char * argv[]) {
     
     glfwSwapInterval(1);
     
-    world.generate();
-
+    BodyDef def;
+    def.position = vec2(-4.0f, -0.5f);
+    def.velocity = vec2(3.0f, 0.0f);
+    world.createBody(&def);
+    
+    def.position = vec2(4.0f, 0.5f);
+    def.velocity = vec2(-6.0f, 0.0f);
+    world.createBody(&def);
+    
     do {
         float currentTime = glfwGetTime();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -174,9 +185,9 @@ int main(int argc, const char * argv[]) {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
-            renderer.setVision();
+            //renderer.setVision();
             
-            world.step(dt, 4);
+            world.step(dt, 5);
             
             renderer.render(0, frame);
         }
