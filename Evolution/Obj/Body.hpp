@@ -43,11 +43,14 @@ class Body : public Obj
     
 public:
     
+    /// body position, body velocity, stick position, stick velocity, stick normal, stick angularVel
+    /// '' -> target
+    static const int single_input = 11;
+    static const int input_size = 2 * single_input;
+    
     /// body force, stick force, stick force local position
-    static const int view_diameter = 16;
-    static const int input_size = view_diameter * view_diameter;
     static const int output_size = 6;
-        
+    
     float maxStickForce;
     float maxForce;
     
@@ -68,6 +71,8 @@ public:
     
     World* world;
     
+    const Body* target;
+    
     Body(const BodyDef* def, World* world);
     
     inline ~Body() {
@@ -80,9 +85,12 @@ public:
     
     void think(float dt);
     
+    inline void stepBrain(float dt) {
+        if(target != NULL)
+            think(dt);
+    }
+    
     void step(float dt) {
-        //think(dt);
-        
         ::constrain(&velocity, max_translation_squared / (dt * dt));
         
         float arm = radius * (armLength + 1.0f);
@@ -121,6 +129,11 @@ public:
         return AABB(position - ext, position + ext);
     }
     
+    inline AABB box(float _radius) const {
+        vec2 ext = vec2(_radius, _radius);
+        return AABB(position - ext, position + ext);
+    }
+    
     inline float area() const {
         return radius * radius * M_PI;
     }
@@ -129,6 +142,10 @@ public:
         ::constrain(&position, &velocity, aabb);
         ::constrain(&stick.position, &stick.velocity, aabb);
     }
+    
+    void setInputs(Neuron* in) const;
+    
+    void setInputs();
     
 };
 

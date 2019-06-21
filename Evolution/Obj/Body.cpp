@@ -65,5 +65,28 @@ Body::Body(const BodyDef* def, World* world) {
     armLength = def->armLength;
     
     this->world = world;
+    
+    target = NULL;
 }
 
+void Body::setInputs(Neuron *in) const {
+    in[0].value = position.x;
+    in[1].value = position.y;
+    in[2].value = velocity.x;
+    in[3].value = velocity.y;
+    in[4].value = stick.position.x;
+    in[5].value = stick.position.y;
+    in[6].value = stick.velocity.x;
+    in[7].value = stick.velocity.y;
+    in[8].value = stick.normal.x;
+    in[9].value = stick.normal.y;
+    in[10].value = stick.angularVelocity;
+}
+
+void Body::setInputs() {
+    if(target != NULL) {
+        Neuron* in = brain->inputs();
+        setInputs(in);
+        target->setInputs(in + single_input);
+    }
+}

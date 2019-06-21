@@ -255,39 +255,6 @@ int DynamicTree::balance(int node) {
     return node;
 }
 
-template <class T>
-void DynamicTree::query(T *callback, const AABB &aabb) {
-    std::stack<int> stack;
-    
-    stack.push(root);
-    
-    while(!stack.empty()) {
-        int node = stack.top();
-        stack.pop();
-        
-        if(node == -1)
-            continue;
-        
-        if(nodes[node].isLeaf()) {
-            if(touches(aabb, nodes[node].aabb)) {
-                if(!callback->callback(nodes[node].data))
-                    return;
-            }
-            
-            continue;
-        }
-        
-        int child1 = nodes[node].child1;
-        int child2 = nodes[node].child2;
-        
-        if(touches(aabb, nodes[child1].aabb))
-            stack.push(child1);
-        
-        if(touches(aabb, nodes[child2].aabb))
-            stack.push(child2);
-    }
-}
-
 void DynamicTree::query(std::vector<Contact> *list) {
     if(root == -1) return;
     

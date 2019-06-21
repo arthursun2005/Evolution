@@ -176,6 +176,9 @@ int main(int argc, const char * argv[]) {
         pmouseX = mouseX;
         pmouseY = mouseY;
         
+        if(world.size() < (world.maxBodies >> 1))
+            world.alter();
+        
         {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);

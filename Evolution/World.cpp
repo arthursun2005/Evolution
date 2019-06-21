@@ -166,8 +166,6 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
 }
 
 void Body::think(float dt) {
-    Neuron* in = brain->inputs();
-    
     brain->compute();
     
     Neuron* out = brain->outputs();
@@ -186,4 +184,29 @@ void Body::think(float dt) {
     
     velocity += dt * invMass * force;
     this->stick.applyImpulse(position + local, dt * stick);
+}
+
+void World::step(float dt) {
+    moveProxies();
+    
+    getContacts();
+    
+    solveContacts(dt);
+    
+    iterator_type begin = bodies.begin();
+    while(begin != bodies.end()) {
+        Body* body = *begin;
+        
+        body->step(dt);
+        body->constrain(aabb);
+        
+        if(body->health <= 0.0f) {
+            iterator_type it = begin;
+            ++begin;
+            destoryBody(it);
+            continue;
+        }
+        
+        ++begin;
+    }
 }
