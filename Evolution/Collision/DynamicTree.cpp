@@ -236,11 +236,8 @@ int DynamicTree::balance(int node) {
         int rightChild = nodes[node].child2;
         int subBalance = getBalance(rightChild);
         
-        if(subBalance < 0) {
-            int q = rotate_right(rightChild);
-            assert(nodes[node].child2 == q);
-            fix(q);
-        }
+        if(subBalance < 0)
+            fix(rotate_right(rightChild));
         
         return rotate_left(node);
     }
@@ -249,11 +246,8 @@ int DynamicTree::balance(int node) {
         int leftChild = nodes[node].child1;
         int subBalance = getBalance(leftChild);
         
-        if(subBalance > 0) {
-            int q = rotate_left(leftChild);
-            assert(nodes[node].child1 == q);
-            fix(q);
-        }
+        if(subBalance > 0)
+            fix(rotate_left(leftChild));
         
         return rotate_right(node);
     }

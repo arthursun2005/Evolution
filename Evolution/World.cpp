@@ -110,7 +110,7 @@ void World::solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, fl
         vec2 normal = D / M;
         float depth = t - M;
         
-        m.force = total * depth / dt;
+        m.force = total * depth;
         
         m.obj1 = A;
         m.obj2 = B;
@@ -155,7 +155,7 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
                 p = vec2(pT.x, bT.y - B->radius);
             }
             
-            m.force = total * depth / dt;
+            m.force = total * depth;
             m.normal = n * (Q.T());
             
             m.point = p * (Q.T());

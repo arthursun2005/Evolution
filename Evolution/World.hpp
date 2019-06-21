@@ -15,8 +15,6 @@
 
 struct Manifold
 {
-    static constexpr float impulse = 0.25f;
-    
     Obj* obj1;
     Obj* obj2;
     
@@ -25,8 +23,8 @@ struct Manifold
     float force;
     
     inline void solve() {
-        obj1->applyImpulse(point, -force * impulse * normal);
-        obj2->applyImpulse(point, force * impulse * normal);
+        obj1->applyImpulse(point, -2.0f * force * normal);
+        obj2->applyImpulse(point, 2.0f * force * normal);
     }
 };
 
@@ -94,6 +92,48 @@ class World
         }
     }
     
+    Colorf *pixels;
+    float drawScale = 4.0f;
+    
+    int pixelWidth;
+    int pixelHeight;
+    
+    inline void clearPixels() {
+        memset(pixels, 0, sizeof(Colorf) * pixelWidth * pixelHeight);
+    }
+    
+    void drawCircle(const vec2& position, float radius, const Colorf& color) {
+        int rx = roundf(position.x * drawScale);
+        int ry = roundf(position.y * drawScale);
+        int r = roundf(radius * drawScale);
+        float r2 = radius * radius;
+        for(int x = -r; x <= r; ++x) {
+            for(int y = -r; y <= r; ++y) {
+                int ix = rx + x;
+                int iy = ry + y;
+                vec2 j = vec2(rx + x + 0.5f, ry + y + 0.5f);
+                vec2 d = position - j;
+                if(d.lengthSq() < r2) {
+                    pixels[ix + iy * pixelWidth] = color;
+                }
+            }
+        }
+    }
+    
+    void drawRect(const vec2& position, float length, float radius, const vec2& dir) {
+    }
+    
+    void drawBody(const Body* body) {
+        drawCircle(body->position, body->radius, body->color);
+    }
+    
+    inline void draw() {
+        clearPixels();
+        
+        for(Body* body : bodies)
+            drawBody(body);
+    }
+
 public:
     
     const int width;
@@ -105,9 +145,13 @@ public:
     
     World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
         maxBodies = 1024;
+        pixelWidth = width * drawScale;
+        pixelHeight = height * drawScale;
+        pixels = (Colorf*)Alloc(sizeof(Colorf) * pixelWidth * pixelHeight);
     }
     
     ~World() {
+        Free(pixels);
         for(Body* body : bodies) {
             delete(body);
         }
@@ -182,7 +226,10 @@ public:
         return tree.getMaxBalance();
     }
     
-    inline void step(float dt, int its) {
+    
+    
+    
+    void step(float dt, int its) {        
         dt /= (float) its;
         for(int i = 0; i < its; ++i)
             step(dt);
