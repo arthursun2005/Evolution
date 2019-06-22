@@ -13,7 +13,7 @@ BodyDef::BodyDef() {
     
     radius = 1.0f;
     
-    stick.radius = 0.15f;
+    stick.radius = 0.2f;
     stick.length = 4.0f;
     stick.position = vec2(radius + 2.0f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
@@ -28,7 +28,7 @@ BodyDef::BodyDef() {
     density = 1.0f;
     
     maxStickForce = 40.0f;
-    maxForce = 60.0f;
+    maxForce = 40.0f;
     
     armLength = 3.0f;
 }
@@ -47,7 +47,7 @@ Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
     stick.owner = this;
     
     radius = def->radius;
-    
+        
     health = maxHealth = def->maxHealth;
     
     color = def->color;
@@ -65,6 +65,8 @@ Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
     this->world = world;
     
     target = NULL;
+    
+    hits = 0;
 }
 
 void Body::setInputs(Neuron *in) const {

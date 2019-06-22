@@ -34,6 +34,8 @@ struct BodyDef
     float armLength;
     
     Colorf color;
+    
+    float centerForce;
         
     BodyDef();
 };
@@ -86,6 +88,9 @@ public:
     inline void stepBrain(float dt) {
         if(target != NULL)
             think(dt);
+        else {
+            velocity -= dt * position.norm();
+        }
     }
     
     void step(float dt) {

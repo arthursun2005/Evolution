@@ -24,9 +24,22 @@ struct Manifold
     vec2 point;
     float force;
     
-    inline void solve() {
+    void incHit(Obj* obj, Obj* obj2) {
+        if(obj->type == Obj::e_stick) {
+            if(obj2->type == Obj::e_body && ((Stick*)obj)->owner != obj2)
+                ++((Stick*)obj)->owner->hits;
+        }else{
+            if(obj2->type == Obj::e_stick && ((Stick*)obj2)->owner != obj)
+                ++((Body*)obj)->hits;
+        }
+    }
+    
+    void solve() {
         obj1->applyImpulse(point, -impulse * force * normal);
         obj2->applyImpulse(point, impulse * force * normal);
+        
+        incHit(obj1, obj2);
+        incHit(obj2, obj1);
     }
 };
 
@@ -50,7 +63,7 @@ public:
         bool callback(void* data) {
             Obj* obj = (Obj*)data;
             
-            if(obj->type == Obj::e_stick || obj != self)
+            if(obj->type == Obj::e_stick || obj == self)
                 return true;
             
             vec2 dir = obj->position - self->position;
@@ -119,7 +132,7 @@ protected:
     
 public:
     
-    float targetRadius = 12.0f;
+    float targetRadius = 8.0f;
     
     const int width;
     const int height;
@@ -129,7 +142,7 @@ public:
     int maxBodies;
     
     World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
-        maxBodies = (width * height) / (targetRadius * targetRadius);
+        maxBodies = (width * height) / (targetRadius * targetRadius) * 0.25f;
     }
     
     ~World() {
@@ -139,7 +152,7 @@ public:
     }
     
     void generate(BodyDef def) {
-        float stride = def.radius * targetRadius;
+        float stride = 2.0f * def.radius * targetRadius;
         for(float x = aabb.lowerBound.x + stride; x < aabb.upperBound.x; x += stride) {
             for(float y = aabb.lowerBound.y + stride; y < aabb.upperBound.y; y += stride) {
                 if(bodies.size() >= maxBodies) return;
@@ -157,6 +170,21 @@ public:
             def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
             Body* body = createBody(&def);
             Brain::alter(&body->brain, &(*begin)->brain);
+        }
+    }
+    
+    void wipe(int l) {
+        iterator_type begin = bodies.begin();
+        
+        while(begin != bodies.end()) {
+            if((*begin)->hits < l) {
+                iterator_type it = begin;
+                ++begin;
+                destoryBody(it);
+            }else{
+                (*begin)->hits = 0;
+                ++begin;
+            }
         }
     }
     

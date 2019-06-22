@@ -41,7 +41,7 @@ public:
         normal = vec2(1.0f, 0.0f);
         
         type = e_stick;
-        density = 4.0f;
+        density = 5.0f;
     }
     
     void step(float dt) {
@@ -79,7 +79,7 @@ public:
         float invMass = Obj::invMass();
         vec2 q = (world - position).norm();
         velocity += invMass * scl(vec2(fabs(q.x), fabs(q.y)), imp);
-        angularVelocity -= (invMass * M_1_PI * 0.5f * dot(imp, q.I()));
+        angularVelocity -= (invMass * dot(imp, q.I()));
     }
 };
 

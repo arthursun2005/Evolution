@@ -10,8 +10,8 @@
 #include "World.hpp"
 #include "Graphics.h"
 
-#define WIDTH 360
-#define HEIGHT 360
+#define WIDTH 512
+#define HEIGHT 512
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);
@@ -22,6 +22,9 @@ double pmouseX = mouseX, pmouseY = mouseY;
 int width = 1280;
 int height = 840;
 float dt = 0.016f;
+
+bool paused = false;
+int generation = 0;
 
 Frame frame;
 
@@ -67,6 +70,18 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         
         if(key == GLFW_KEY_R) {
             world.clear();
+        }
+        
+        if(key == GLFW_KEY_W) {
+            world.wipe(8);
+        }
+        
+        if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
+            paused = !paused;
+        }
+        
+        if(key == GLFW_KEY_B) {
+            printf("%d\n", generation);
         }
         
         if(key == GLFW_KEY_C) {
@@ -180,14 +195,18 @@ int main(int argc, const char * argv[]) {
         pmouseX = mouseX;
         pmouseY = mouseY;
         
-        if(world.size() < (world.maxBodies >> 1))
+        if(world.size() < (world.maxBodies >> 1)) {
+            world.wipe(8);
             world.alter();
+            ++generation;
+        }
         
         {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
-            world.step(dt, 6);
+            if(!paused)
+                world.step(dt, 6);
             
             renderer.render(0, frame);
         }

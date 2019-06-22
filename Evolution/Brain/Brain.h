@@ -163,8 +163,7 @@ public:
             neurons[i].flags &= ~ e_neuron_computed;
         
         for(int i = 0; i < output_size; ++i) {
-            std::unordered_set<int> set;
-            compute_value(input_size + i, neurons.data(), &set);
+            compute_value(input_size + i, neurons.data());
         }
     }
     
