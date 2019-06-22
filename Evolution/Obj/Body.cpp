@@ -33,7 +33,7 @@ BodyDef::BodyDef() {
     armLength = 2.0f;
 }
 
-Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
+Body::Body(const BodyDef* def) : brain(input_size, output_size) {
     position = def->position;
     velocity = def->velocity;
     
@@ -47,7 +47,7 @@ Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
     stick.owner = this;
     
     radius = def->radius;
-        
+    
     health = maxHealth = def->maxHealth;
     
     color = def->color;
@@ -61,9 +61,7 @@ Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
     wound = 0.0f;
     
     armLength = def->armLength;
-    
-    this->world = world;
-    
+        
     target = NULL;
     
     hits = 0;
@@ -141,9 +139,8 @@ void Body::step(float dt) {
     velocity *= powf(damping, dt);
     position += dt * velocity;
     
-    float a = dt * 0.02f;
-    health -= wound * a;
-    wound *= (1.0f - a);
+    health -= wound * dt;
+    wound *= (1.0f - dt);
 }
 
 void Body::applyImpulse(const vec2& world, const vec2& imp) {

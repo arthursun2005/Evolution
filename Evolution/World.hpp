@@ -9,21 +9,23 @@
 #ifndef World_hpp
 #define World_hpp
 
-#include "Body.hpp"
-#include "DynamicTree.hpp"
-#include "Timer.h"
-#include <list>
+#include "BodySystem.h"
+
+#define impulse_pressure 0.05f
 
 struct Manifold
 {
-    float step = 0.25f;
-    
     Obj* obj1;
     Obj* obj2;
     
     vec2 normal;
     vec2 point;
+    
     float force;
+    float mass;
+    float impulse;
+    
+    inline Manifold(float totalMass, float dt) : mass(totalMass), impulse(impulse_pressure/dt) {}
     
     void incHit(Obj* obj, Obj* obj2) {
         if(obj->type == Obj::e_stick) {
@@ -33,15 +35,17 @@ struct Manifold
     }
     
     void solve() {
-        obj1->applyImpulse(point, -step * force * normal);
-        obj2->applyImpulse(point, step * force * normal);
+        float I = force * impulse * mass;
+        
+        obj1->applyImpulse(point, -I * normal);
+        obj2->applyImpulse(point, I * normal);
         
         incHit(obj1, obj2);
         incHit(obj2, obj1);
     }
 };
 
-class World
+class World : public BodySystem
 {
     
 public:
@@ -77,13 +81,15 @@ public:
         }
     };
     
+    static void solveBodyBody(Body* A, Body* B, float dt);
+    static void solveBodyStick(Body* A, Stick* B, float dt);
+    static void solveStickStick(Stick* A, Stick* B, float dt);
+    
+    static void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt);
+    
+    static void solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt);
+    
 protected:
-    
-    typedef std::list<Body*>::iterator iterator_type;
-    
-    typedef std::list<Body*>::const_iterator const_iterator_type;
-    
-    std::list<Body*> bodies;
     
     DynamicTree tree;
     
@@ -99,14 +105,6 @@ protected:
     
     /// dynamics
     void solveContacts(float dt);
-    
-    static void solveBodyBody(Body* A, Body* B, float dt);
-    static void solveBodyStick(Body* A, Stick* B, float dt);
-    static void solveStickStick(Stick* A, Stick* B, float dt);
-    
-    static void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt);
-    
-    static void solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt);
     
     inline void moveProxies(float dt) {
         for(Body* body : bodies) {
@@ -139,7 +137,7 @@ public:
     
     int maxBodies;
     
-    World(float width, float height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
+    World(float width, float height) : width(width), height(height), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
         maxBodies = (width * height) / (targetRadius * targetRadius) * 0.25f;
     }
     
@@ -196,26 +194,6 @@ public:
         }
     }
     
-    inline iterator_type begin() {
-        return bodies.begin();
-    }
-    
-    inline iterator_type end() {
-        return bodies.end();
-    }
-    
-    inline const_iterator_type cbegin() const {
-        return bodies.cbegin();
-    }
-    
-    inline const_iterator_type cend() const {
-        return bodies.cend();
-    }
-    
-    inline int size() const {
-        return (int)bodies.size();
-    }
-    
     Body* createBody(const BodyDef* def);
     
     void destoryBody(Body* body);
@@ -231,15 +209,6 @@ public:
     
     inline int getTreeMaxBalance() const {
         return tree.getMaxBalance();
-    }
-    
-    inline int getMaxBrainComplexity() const {
-        int c = 0;
-        
-        for(Body* body : bodies)
-            c = std::max(c, body->brain.totalSize());
-        
-        return c;
     }
     
     void step(float dt, int its) {

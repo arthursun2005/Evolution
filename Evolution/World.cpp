@@ -9,7 +9,7 @@
 #include "World.hpp"
 
 Body* World::createBody(const BodyDef* def) {
-    Body* body = new Body(def, this);
+    Body* body = new Body(def);
     body->node = tree.createProxy(body->aabb(), body);
     body->stick.node = tree.createProxy(body->stick.aabb(), &body->stick);
     bodies.push_back(body);
@@ -102,13 +102,14 @@ void World::solveCircleCircle(Obj *A, Obj *B, const vec2 &p1, const vec2 &p2, fl
     float t = A->radius + B->radius;
     
     if(M < (t * t)) {
-        Manifold m;
+        float total = A->mass() + B->mass();
+        
+        Manifold m(total, dt);
         
         M = D.length();
         vec2 normal = D / M;
-        float depth = t - M;
-        float total = A->mass() + B->mass();
-        m.force = total * depth * depth / dt;
+        
+        m.force = t - M;
         
         m.obj1 = A;
         m.obj2 = B;
@@ -130,16 +131,17 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
     
     float r = A->radius + B->radius;
     
-    float dx = (bT.x - pT.x);
     float dy = fabs(bT.y - pT.y);
     
     if(dy < r) {
-        Manifold m;
-        
-        m.obj1 = A;
-        m.obj2 = B;
-        
-        if(fabs(dx) < B->length * 0.5f) {
+        if(fabs(bT.x - pT.x) < B->length * 0.5f) {
+            float total = A->mass() + B->mass();
+            
+            Manifold m(total, dt);
+            
+            m.obj1 = A;
+            m.obj2 = B;
+            
             vec2 n, p;
             vec2 QT = Q.T();
             
@@ -154,11 +156,8 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
             }
             
             m.normal = n * QT;
-            
-            float total = A->mass() + B->mass();
-            
             m.point = p * QT;
-            m.force = total * depth * depth / dt;
+            m.force = depth;
             
             m.solve();
         }

@@ -38,9 +38,7 @@ struct BodyDef
     float armLength;
     
     Colorf color;
-    
-    float centerForce;
-        
+            
     BodyDef();
 };
 
@@ -75,13 +73,11 @@ public:
     
     Stick stick;
     
-    World* world;
-    
     const Body* target;
     
     int hits;
     
-    Body(const BodyDef* def, World* world);
+    Body(const BodyDef* def);
     
     inline float getHealthRatio() const {
         return health/maxHealth;
@@ -127,6 +123,10 @@ public:
     void setInputs(Neuron* in) const;
     
     void setInputs();
+    
+    inline static bool to_best (const Body* a, const Body* b) {
+        return a->hits < b->hits;
+    }
     
 };
 

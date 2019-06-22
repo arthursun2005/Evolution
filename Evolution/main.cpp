@@ -14,15 +14,30 @@
 #define WIDTH 512.0f
 #define HEIGHT 512.0f
 
+#define TRAINING true
+
 GLFWwindow *window;
-World world(WIDTH, HEIGHT);
-Graphics<World> renderer(&world);
 
 double mouseX, mouseY;
 double pmouseX = mouseX, pmouseY = mouseY;
 int width = 1280;
 int height = 840;
+
+#if TRAINING
+Builder builder(20, 20, 20.0f, 20.0f, BodyDef());
+Graphics<BodySystem> renderer(&builder);
+float dt1 = 0.016f;
+float dt2 = 1.0f;
+int colSteps = 6;
+int subSteps1 = 1;
+int subSteps2 = subSteps1 * (dt2/dt1);
+int mode = 1;
+#else
+World world(WIDTH, HEIGHT);
+Graphics<BodySystem> renderer(&world);
 float dt = 0.016f;
+int subSteps = 8;
+#endif
 
 bool paused = false;
 int generation = 0;
@@ -55,6 +70,7 @@ inline vec2 getMouse() {
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if(action == GLFW_RELEASE) {
+#if !TRAINING
         if(key == GLFW_KEY_A) {
             BodyDef def;
             def.position = getMouse();
@@ -77,16 +93,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             world.wipe(32);
         }
         
-        if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
-            paused = !paused;
-        }
-        
         if(key == GLFW_KEY_B) {
             printf("%d\n", generation);
-        }
-        
-        if(key == GLFW_KEY_C) {
-            printf("%d\n", world.getMaxBrainComplexity());
         }
         
         if(key == GLFW_KEY_Q) {
@@ -95,6 +103,23 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         
         if(key == GLFW_KEY_N) {
             printf("%d\n", world.size());
+        }
+        
+        if(key == GLFW_KEY_C) {
+            printf("%d\n", world.getMaxBrainComplexity());
+        }
+#else
+        if(key == GLFW_KEY_F) {
+            mode = 0x1 ^ mode;
+        }
+        
+        if(key == GLFW_KEY_C) {
+            printf("%d\n", builder.getMaxBrainComplexity());
+        }
+#endif
+        
+        if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
+            paused = !paused;
         }
     }
 }
@@ -178,7 +203,7 @@ int main(int argc, const char * argv[]) {
 #ifdef DEBUG
         ++framesPerSecond;
         if(currentTime - lastSecondTime >= 1.0f) {
-            printf("%f ms/frame \n", 1000.0f * (currentTime - lastSecondTime)/(float)framesPerSecond);
+            printf("%f s/frame \n", (currentTime - lastSecondTime)/(float)framesPerSecond);
             framesPerSecond = 0;
             lastSecondTime = currentTime;
         }
@@ -198,18 +223,30 @@ int main(int argc, const char * argv[]) {
         pmouseX = mouseX;
         pmouseY = mouseY;
         
+#if !TRAINING
+        
         if(world.size() != 0 && world.size() < (world.maxBodies >> 1) && GLFW_PRESS == glfwGetKey(window, GLFW_KEY_CAPS_LOCK)) {
             world.wipe(32);
             world.alter();
             ++generation;
         }
         
+#endif
+        
         {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
-            if(!paused)
-                world.step(dt, 6);
+            if(!paused) {
+#if TRAINING
+                if(mode == 1)
+                    builder.step(dt1, colSteps, subSteps1);
+                else
+                    builder.step(dt2, colSteps, subSteps2);
+#else
+                world.step(dt, subSteps);
+#endif
+            }
             
             renderer.render(0, frame);
         }
@@ -219,8 +256,17 @@ int main(int argc, const char * argv[]) {
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
     
     printf("%.3f\n", timer.now());
+    
+#if !TRAINING
+    
     printf("%d\n", generation);
     printf("%d\n", world.getMaxBrainComplexity());
+    
+#else
+    
+    printf("%d\n", builder.getMaxBrainComplexity());
+    
+#endif
     
     renderer.destory();
     

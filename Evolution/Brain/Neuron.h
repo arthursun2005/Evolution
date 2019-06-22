@@ -12,7 +12,7 @@
 #include "activation_functions.h"
 #include <list>
 
-#define brain_alter_scale 1.0f
+#define brain_alter_scale 0.5f
 
 enum neuron_flags
 {
