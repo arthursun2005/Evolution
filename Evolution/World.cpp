@@ -17,8 +17,8 @@ Body* World::createBody(const BodyDef* def) {
 }
 
 void World::destoryBody(Body* body) {
-    std::list<Body*>::iterator begin = bodies.begin();
-    std::list<Body*>::iterator end = bodies.end();
+    iterator_type begin = bodies.begin();
+    iterator_type end = bodies.end();
     while(begin != end) {
         if((*begin) == body) {
             destoryBody(begin);

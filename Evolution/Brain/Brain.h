@@ -75,16 +75,7 @@ public:
     inline Brain(int _input_size, int _output_size) {
         reset(_input_size, _output_size);
     }
-    
-    inline Brain(const Brain& brain) {
-        copy(this, &brain);
-    }
-    
-    inline Brain& operator = (const Brain& brain) {
-        copy(this, &brain);
-        return *this;
-    }
-    
+
     inline Neuron* inputs() {
         return neurons.data();
     }
@@ -141,6 +132,7 @@ public:
         os.write((char*)&input_size, sizeof(input_size));
         os.write((char*)&output_size, sizeof(output_size));
         os.write((char*)&total, sizeof(total));
+        
         for(const Neuron &neuron : neurons)
             write(os, &neuron);
     }
@@ -166,7 +158,7 @@ public:
     inline void compute() {
         int size = (int)neurons.size();
         
-        for(int i = input_size; i < size; ++i)
+        for(int i = 0; i < size; ++i)
             neurons[i].flags &= ~ e_neuron_computed;
         
         for(int i = 0; i < output_size; ++i) {
@@ -175,38 +167,23 @@ public:
     }
     
     inline void alter(float scl) {
-        int size = (int)neurons.size();
-        
-        for(int i = input_size; i < size; ++i)
-            neurons[i].alter(scl);
+        for(Neuron& n : neurons)
+            n.alter(scl);
     }
     
-    inline void alter() {
-        alter(brain_alter_scale);
-    }
-    
-    inline static void copy(Brain* dst, const Brain* src) {
-        int size = (int)src->neurons.size();
-        dst->neurons.resize(size);
-        
-        for(int i = 0; i < size; ++i) {
-            dst->neurons[i] = src->neurons[i];
-        }
+    inline void resetNeurons(float scl) {
+        for(Neuron& n : neurons)
+            n.reset(scl);
     }
     
     static void alter(Brain* result, const Brain* brain) {
-        copy(result, brain);
-        
-        /// 1/2 chance of changing function type of a random neuron
-        
-        /// 1/2 chance of adding a link (3/4) or adding a neuron (1/4)
+        *result = *brain;
         
         int func_type = ActivationFunction::rand();
         int size = (int)(result->neurons.size());
-        int index1 = result->input_size + (rand() % (size - result->input_size));
         
-        if((rand() & 0x1)) {
-            
+        if((rand() & 0xf) < 0x4) {
+            int index1 = result->input_size + (rand() % (size - result->input_size));
             int index2 = rand() % size;
             
             if((rand() & 0xf) < 0x4) {
@@ -216,7 +193,8 @@ public:
                     result->neurons[index1].add_link(index2);
             }
         }else{
-            result->neurons[index1].f.type = func_type;
+            int index = rand() % size;
+            result->neurons[index].f.type = func_type;
         }
     }
     

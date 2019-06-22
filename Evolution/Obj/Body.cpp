@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.2f;
+    damping = 0.1f;
     
     radius = 1.0f;
     
@@ -27,8 +27,8 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 8.0f;
-    maxForce = 12.0f;
+    maxStickForce = 24.0f;
+    maxForce = 32.0f;
     
     armLength = 2.0f;
 }
@@ -114,6 +114,8 @@ void Body::think(float dt) {
     ::constrain(&local, arm * arm);
     
     velocity += dt * force;
+    //this->stick.velocity += dt * stick;
+    //this->stick.angularVelocity += dt * local.x;
     stick *= this->stick.mass();
     this->stick.applyImpulse(position + local, dt * stick);
 }

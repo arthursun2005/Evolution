@@ -16,6 +16,8 @@
 
 #define body_arm_force 8.0f
 
+#define complexity_tolerence 16
+
 static Colorf health_color(0.0f, 1.0f, 0.2f);
 
 struct BodyDef
@@ -125,7 +127,7 @@ public:
     void setInputs();
     
     inline static bool to_best (const Body* a, const Body* b) {
-        return a->hits < b->hits;
+        return (abs(b->hits - a->hits) < complexity_tolerence && a->brain.totalSize() > b->brain.totalSize()) || a->hits < b->hits;
     }
     
 };

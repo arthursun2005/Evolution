@@ -12,9 +12,13 @@
 #include "World.hpp"
 #include <thread>
 
-#define builder_threads 32
+#define builder_threads 8
 
 struct Room {
+    static const int killScore = 32;
+    
+    static const int winScore = 16;
+    
     AABB aabb;
     
     Body* A;
@@ -33,7 +37,7 @@ struct Room {
         time = 0.0f;
     }
     
-    inline void solve(float dt) {
+    void solve(float dt) {
         World::solveBodyBody(A, B, dt);
         World::solveBodyStick(A, &A->stick, dt);
         World::solveBodyStick(B, &B->stick, dt);
@@ -44,6 +48,27 @@ struct Room {
     
     void step(float dt, int its) {
         time += dt;
+        
+        if(A->health <= 0.0f) {
+            reset();
+            smallAlter();
+            B->hits += killScore * (1.0f - time/threshold);
+            time = 0.0f;
+        }else if(B->health <= 0.0f) {
+            reset();
+            smallAlter();
+            A->hits += killScore * (1.0f - time/threshold);
+            time = 0.0f;
+        }else if(time >= threshold) {
+            if(A->health > B->health)
+                A->hits += winScore * ((A->health - B->health) / A->maxHealth);
+            else
+                B->hits += winScore * ((B->health - A->health) / B->maxHealth);
+            
+            reset();
+            smallAlter();
+            time = 0.0f;
+        }
         
         A->setInputs();
         B->setInputs();
@@ -61,52 +86,30 @@ struct Room {
         
         A->constrain(aabb);
         B->constrain(aabb);
-        
-        if(A->health <= 0.0f) {
-            Brain brainA = A->brain;
-            Brain brainB = B->brain;
-            reset();
-            A->brain = brainA;
-            B->brain = brainB;
-            smallAlter();
-            ++B->hits;
-        }else if(B->health <= 0.0f) {
-            Brain brainA = A->brain;
-            Brain brainB = B->brain;
-            reset();
-            A->brain = brainA;
-            B->brain = brainB;
-            smallAlter();
-            ++A->hits;
-        }else if(time >= threshold) {
-            Brain brainA = A->brain;
-            Brain brainB = B->brain;
-            
-            if(A->health > B->health)
-                ++A->hits;
-            else
-                ++B->hits;
-            
-            reset();
-            
-            A->brain = brainA;
-            B->brain = brainB;
-            
-            smallAlter();
-        }
     }
     
     inline void smallAlter() {
-        A->brain.alter();
-        B->brain.alter();
+        A->brain.alter(0.5f);
+        B->brain.alter(0.5f);
+    }
+    
+    void copyStatistics(Body* body, const BodyDef* def) {
+        body->position = def->position;
+        body->velocity = def->velocity;
+        
+        body->stick = def->stick;
+        body->stick.owner = body;
+        
+        body->stick.position += body->position;
+        body->stick.velocity += body->velocity;
+        
+        body->health = def->maxHealth;
+        body->wound = 0.0f;
     }
     
     inline void reset() {
-        (*A) = Body(&dA);
-        (*B) = Body(&dB);
-        A->stick.owner = A;
-        B->stick.owner = B;
-        initialize();
+        copyStatistics(A, &dA);
+        copyStatistics(B, &dB);
     }
     
 };
@@ -116,10 +119,14 @@ class Builder : public BodySystem
     
 public:
     
-    float threshold = 100.0f;
+    float threshold = 300.0f;
     float time = 0.0f;
     
+    int generation = 0;
+    
     Builder(int x, int y, float w, float h, const BodyDef& clone) {
+        assert(x != 0 && y != 0);
+        
         float hx = x * 0.5f;
         float hy = y * 0.5f;
         vec2 hd = vec2(w * 0.5f, h * 0.5f);
@@ -149,6 +156,9 @@ public:
                 rooms.push_back(room);
             }
         }
+        
+        last = bodies.back();
+        next = bodies.back()->color;
     }
     
     ~Builder() {
@@ -172,6 +182,50 @@ public:
     void step(float dt, int col, int its) {
         time += dt;
         
+        if(time >= threshold) {
+            last->color = next;
+            bodies.sort(Body::to_best);
+
+            last = bodies.back();
+            last->color = best;
+            
+            iterator_type begin = this->begin();
+            iterator_type end = this->end();
+            
+            int n = size();
+
+            int i = n / 2;
+            
+            while(i-- > 0) {
+                --end;
+                Body* A = *begin;
+                const Body* B = *end;
+                Brain::alter(&A->brain, &B->brain);
+                A->brain.resetNeurons(1.0f);
+                ++begin;
+            }
+            
+            assert((n % 2) == 0);
+            
+            begin = this->begin();
+            
+            for(Room& room : rooms) {
+                room.A = *begin;
+                ++begin;
+                
+                room.B = *begin;
+                ++begin;
+                
+                room.initialize();
+                room.reset();
+                room.A->hits = 0;
+                room.B->hits = 0;
+            }
+            
+            time = 0.0f;
+            ++generation;
+        }
+        
         int work = (int)rooms.size();
         int i = 0;
         
@@ -186,29 +240,19 @@ public:
         for(int j = 0; j != i; ++j)
             threads[j].join();
         
-        if(time >= threshold) {
-            bodies.sort(Body::to_best);
-            
-            for(Room& room : rooms) {
-                room.reset();
-            }
-            
-            iterator_type begin = this->begin();
-            iterator_type end = this->end();
-            
-            int i = size() / 2;
-            
-            while(i-- > 0) {
-                --end;
-                Body* A = *begin;
-                Body* B = *end;
-                Brain::alter(&A->brain, &B->brain);
-                ++begin;
-            }
-            
-            time = 0.0f;
-        }
     }
+    
+    inline void write(std::ofstream& os) const {
+        bodies.back()->brain.write(os);
+    }
+    
+    inline void read(std::ifstream& is) {
+        bodies.back()->brain.read(is);
+    }
+    
+    Body* last;
+    Colorf next;
+    Colorf best = Colorf(1.0f, 0.0f, 0.0f);
     
 private:
     

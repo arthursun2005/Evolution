@@ -11,10 +11,13 @@
 #include "Builder.h"
 #include "Graphics.h"
 
-#define WIDTH 512.0f
-#define HEIGHT 512.0f
+const char* hexFile = "brain.hex";
 
 #define TRAINING true
+
+#define WRITING true
+
+#define READING false
 
 GLFWwindow *window;
 
@@ -24,23 +27,24 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(20, 20, 20.0f, 20.0f, BodyDef());
+Builder builder(16, 16, 15.0f, 15.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
-float dt2 = 1.0f;
+float dt2 = 10.0f;
 int colSteps = 6;
 int subSteps1 = 1;
 int subSteps2 = subSteps1 * (dt2/dt1);
 int mode = 1;
 #else
-World world(WIDTH, HEIGHT);
+World world(500.0f, 500.0f);
 Graphics<BodySystem> renderer(&world);
 float dt = 0.016f;
 int subSteps = 8;
+int generation = 0;
 #endif
 
 bool paused = false;
-int generation = 0;
+
 
 Frame frame;
 
@@ -89,10 +93,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             world.clear();
         }
         
-        if(key == GLFW_KEY_W) {
-            world.wipe(32);
-        }
-        
         if(key == GLFW_KEY_B) {
             printf("%d\n", generation);
         }
@@ -116,11 +116,21 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if(key == GLFW_KEY_C) {
             printf("%d\n", builder.getMaxBrainComplexity());
         }
+        
+        if(key == GLFW_KEY_T) {
+            printf("%.3f\n", builder.time);
+        }
+        
+        if(key == GLFW_KEY_B) {
+            printf("%d\n", builder.generation);
+        }
 #endif
         
         if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
             paused = !paused;
         }
+        
+        
     }
 }
 
@@ -194,6 +204,12 @@ int main(int argc, const char * argv[]) {
     
     Timer timer;
     
+#if READING
+    std::ifstream is;
+    is.open(hexFile);
+    builder.read(is);
+#endif
+    
     do {
         float currentTime = timer.now();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -226,7 +242,6 @@ int main(int argc, const char * argv[]) {
 #if !TRAINING
         
         if(world.size() != 0 && world.size() < (world.maxBodies >> 1) && GLFW_PRESS == glfwGetKey(window, GLFW_KEY_CAPS_LOCK)) {
-            world.wipe(32);
             world.alter();
             ++generation;
         }
@@ -264,8 +279,15 @@ int main(int argc, const char * argv[]) {
     
 #else
     
+    printf("%d\n", builder.generation);
     printf("%d\n", builder.getMaxBrainComplexity());
     
+#endif
+    
+#if WRITING
+    std::ofstream os;
+    os.open(hexFile);
+    builder.write(os);
 #endif
     
     renderer.destory();

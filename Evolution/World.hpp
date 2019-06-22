@@ -27,21 +27,11 @@ struct Manifold
     
     inline Manifold(float totalMass, float dt) : mass(totalMass), impulse(impulse_pressure/dt) {}
     
-    void incHit(Obj* obj, Obj* obj2) {
-        if(obj->type == Obj::e_stick) {
-            if(obj2->type == Obj::e_body && ((Stick*)obj)->owner != obj2)
-                ++((Stick*)obj)->owner->hits;
-        }
-    }
-    
     void solve() {
         float I = force * impulse * mass;
         
         obj1->applyImpulse(point, -I * normal);
         obj2->applyImpulse(point, I * normal);
-        
-        incHit(obj1, obj2);
-        incHit(obj2, obj1);
     }
 };
 
@@ -166,21 +156,6 @@ public:
             def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
             Body* body = createBody(&def);
             Brain::alter(&body->brain, &(*begin)->brain);
-        }
-    }
-    
-    void wipe(int l) {
-        iterator_type begin = bodies.begin();
-        
-        while(begin != bodies.end()) {
-            if((*begin)->hits < l) {
-                iterator_type it = begin;
-                ++begin;
-                destoryBody(it);
-            }else{
-                (*begin)->hits = 0;
-                ++begin;
-            }
         }
     }
     

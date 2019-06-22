@@ -13,6 +13,7 @@
 #include "DynamicTree.hpp"
 #include "Timer.h"
 #include <list>
+#include <algorithm>
 
 class BodySystem
 {

@@ -12,8 +12,6 @@
 #include "activation_functions.h"
 #include <list>
 
-#define brain_alter_scale 0.5f
-
 enum neuron_flags
 {
     e_neuron_computed = 0b1,
@@ -52,6 +50,13 @@ struct Neuron
         inputs.push_back(link);
     }
     
+    inline void reset(float scl) {
+        for(Link& link : inputs)
+            link.weight = scl * rand();
+        
+        bias = scl * rand();
+    }
+    
     inline void clear() {
         inputs.clear();
         bias = rand();
@@ -76,11 +81,8 @@ struct Neuron
     }
     
     inline bool has_link(int index) const {
-        std::list<Neuron::Link>::const_iterator begin = inputs.cbegin();
-        std::list<Neuron::Link>::const_iterator end = inputs.cend();
-        
-        for(; begin != end; ++begin) {
-            if(begin->index == index)
+        for(const Link& link : inputs) {
+            if(link.index == index)
                 return true;
         }
         
@@ -88,24 +90,30 @@ struct Neuron
     }
     
     inline void compute(const Neuron* neurons) {
-        float sum = 0.0f;
-        
-        for(const Link& link : inputs)
-            sum += link.weight * neurons[link.index].value;
-        
-        value = f(sum + bias);
+        if((flags & e_neuron_input) != 0) {
+            value = f(value + bias);
+        }else{
+            float sum = 0.0f;
+            
+            for(const Link& link : inputs)
+                sum += link.weight * neurons[link.index].value;
+            
+            value = f(sum + bias);
+        }
     }
 };
 
 inline void compute_value(int index, Neuron* neurons) {
-    if((neurons[index].flags & e_neuron_computed) != 0) return;
+    if((neurons[index].flags & e_neuron_computed) != 0)
+        return;
     
     std::list<Neuron::Link>::iterator begin = neurons[index].inputs.begin();
+    std::list<Neuron::Link>::iterator end = neurons[index].inputs.end();
     
     neurons[index].flags |= e_neuron_computed;
     neurons[index].value = 0.0f;
     
-    while(begin != neurons[index].inputs.end()) {
+    while(begin != end) {
         Neuron::Link link = *begin;
         if((neurons[link.index].flags & e_neuron_computed) == 0)
             compute_value(link.index, neurons);
