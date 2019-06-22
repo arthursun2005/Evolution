@@ -52,7 +52,7 @@ void World::solveContacts(float dt) {
 }
 
 void World::solveBodyBody(Body *A, Body *B, float dt) {    
-    solveCircleCircle(A, B, A->position, B->position, A->velocity, B->velocity, dt);
+    solveCircleCircle(A, B, A->position, B->position, dt);
 }
 
 void World::solveBodyStick(Body *A, Stick *B, float dt) {
@@ -61,14 +61,11 @@ void World::solveBodyStick(Body *A, Stick *B, float dt) {
     vec2 p1 = _l * j;
     vec2 p2 = B->position - p1;
     p1 += B->position;
+
+    solveCircleLine(A, B, A->position, dt);
     
-    vec2 v1 = B->velocity + 0.5f * B->length * B->angularVelocity * B->normal;
-    vec2 v2 = B->velocity - 0.5f * B->length * B->angularVelocity * B->normal;
-    
-    solveCircleLine(A, B, A->position, A->velocity, dt);
-    
-    solveCircleCircle(A, B, A->position, p1, A->velocity, v1, dt);
-    solveCircleCircle(A, B, A->position, p2, A->velocity, v2, dt);
+    solveCircleCircle(A, B, A->position, p1, dt);
+    solveCircleCircle(A, B, A->position, p2, dt);
 }
 
 void World::solveStickStick(Stick *A, Stick *B, float dt) {
@@ -85,26 +82,21 @@ void World::solveStickStick(Stick *A, Stick *B, float dt) {
     vec2 p3 = _l * j;
     vec2 p4 = B->position - p3;
     p3 += B->position;
+
+    solveCircleLine(A, B, p1, dt);
+    solveCircleLine(A, B, p2, dt);
     
-    vec2 v1 = A->velocity + 0.5f * A->length * A->angularVelocity * A->normal;
-    vec2 v2 = A->velocity - 0.5f * A->length * A->angularVelocity * A->normal;
-    vec2 v3 = B->velocity + 0.5f * B->length * B->angularVelocity * B->normal;
-    vec2 v4 = B->velocity - 0.5f * B->length * B->angularVelocity * B->normal;
+    solveCircleLine(B, A, p3, dt);
+    solveCircleLine(B, A, p4, dt);
     
-    solveCircleLine(A, B, p1, v1, dt);
-    solveCircleLine(A, B, p2, v2, dt);
+    solveCircleCircle(A, B, p1, p3, dt);
+    solveCircleCircle(A, B, p1, p4, dt);
     
-    solveCircleLine(B, A, p3, v3, dt);
-    solveCircleLine(B, A, p4, v4, dt);
-    
-    solveCircleCircle(A, B, p1, p3, v1, v3, dt);
-    solveCircleCircle(A, B, p1, p4, v1, v4, dt);
-    
-    solveCircleCircle(A, B, p2, p3, v2, v3, dt);
-    solveCircleCircle(A, B, p2, p4, v2, v4, dt);
+    solveCircleCircle(A, B, p2, p3, dt);
+    solveCircleCircle(A, B, p2, p4, dt);
 }
 
-void World::solveCircleCircle(Obj *A, Obj *B, const vec2 &p1, const vec2 &p2, const vec2 &v1, const vec2 &v2, float dt) {
+void World::solveCircleCircle(Obj *A, Obj *B, const vec2 &p1, const vec2 &p2, float dt) {
     vec2 D = p2 - p1;
     float M = D.lengthSq();
     float t = A->radius + B->radius;
@@ -115,8 +107,8 @@ void World::solveCircleCircle(Obj *A, Obj *B, const vec2 &p1, const vec2 &p2, co
         M = D.length();
         vec2 normal = D / M;
         float depth = t - M;
-        float total = std::max(dot(v1, normal), 0.0f) * A->mass() + std::max(dot(-v2, normal), 0.0f) * B->mass();
-        m.force = total * depth;
+        float total = A->mass() + B->mass();
+        m.force = total * depth * depth / dt;
         
         m.obj1 = A;
         m.obj2 = B;
@@ -128,7 +120,7 @@ void World::solveCircleCircle(Obj *A, Obj *B, const vec2 &p1, const vec2 &p2, co
     }
 }
 
-void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& v1, float dt) {
+void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt) {
     vec2 normal = B->normal;
     
     vec2 Q = normal.T().I();
@@ -163,12 +155,10 @@ void World::solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& v1, fl
             
             m.normal = n * QT;
             
-            vec2 vAt = B->velocity + (dx * vec2(0.0f, B->angularVelocity)) * QT;
-            
-            float total = std::max(dot(v1, m.normal), 0.0f) * A->mass() + std::max(dot(-vAt, m.normal), 0.0f) * B->mass();
+            float total = A->mass() + B->mass();
             
             m.point = p * QT;
-            m.force = 16.0f * total * depth;
+            m.force = total * depth * depth / dt;
             
             m.solve();
         }

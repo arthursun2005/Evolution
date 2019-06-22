@@ -18,9 +18,16 @@ public:
     
     struct Room
     {
+        AABB aabb;
+        Body* A;
+        Body* B;
     };
     
+    Builder(int x, int y, float w, float h) {}
+    
 private:
+    
+    std::list<Body*> bodies;
     
 };
 

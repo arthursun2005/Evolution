@@ -11,6 +11,7 @@
 
 #include "glUtils.h"
 #include "World.hpp"
+#include "Builder.h"
 
 template <class T>
 struct Graphics
@@ -317,6 +318,31 @@ struct Graphics <World>
     void render(GLuint target, const Frame& frame) {
         body_renderer.render(target, frame, world->cbegin(), world->cend());
         stick_renderer.render(target, frame, world->cbegin(), world->cend());
+    }
+};
+
+template <>
+struct Graphics <Builder>
+{
+    Builder* builder;
+    
+    Graphics<Stick> stick_renderer;
+    
+    Graphics<Body> body_renderer;
+    
+    Graphics(Builder* builder) : builder(builder) {}
+    
+    void initialize() {
+        stick_renderer.initialize();
+        body_renderer.initialize();
+    }
+    
+    void destory() {
+        stick_renderer.destory();
+        body_renderer.destory();
+    }
+    
+    void render(GLuint target, const Frame& frame) {
     }
 };
 

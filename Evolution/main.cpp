@@ -8,10 +8,11 @@
 
 #include <iostream>
 #include "World.hpp"
+#include "Builder.h"
 #include "Graphics.h"
 
-#define WIDTH 512
-#define HEIGHT 512
+#define WIDTH 512.0f
+#define HEIGHT 512.0f
 
 GLFWwindow *window;
 World world(WIDTH, HEIGHT);
@@ -167,17 +168,6 @@ int main(int argc, const char * argv[]) {
     glfwSwapInterval(1);
     
     Timer timer;
-    
-    BodyDef bd;
-    bd.position = vec2(0.0f, 20.0f);
-    bd.velocity = vec2(0.0f, -60.0f);
-    world.createBody(&bd);
-    
-    bd.position = vec2(-2.0f, 0.0f);
-    bd.velocity = vec2(0.0f, 0.0f);
-    bd.stick.position = vec2(4.0f, 0.0f);
-    bd.stick.normal = vec2(0.0f, 1.0f);
-    world.createBody(&bd);
     
     do {
         float currentTime = timer.now();

@@ -15,7 +15,9 @@
 #include <list>
 
 struct Manifold
-{    
+{
+    float step = 0.25f;
+    
     Obj* obj1;
     Obj* obj2;
     
@@ -31,8 +33,8 @@ struct Manifold
     }
     
     void solve() {
-        obj1->applyImpulse(point, -force * normal);
-        obj2->applyImpulse(point, force * normal);
+        obj1->applyImpulse(point, -step * force * normal);
+        obj2->applyImpulse(point, step * force * normal);
         
         incHit(obj1, obj2);
         incHit(obj2, obj1);
@@ -102,9 +104,9 @@ protected:
     static void solveBodyStick(Body* A, Stick* B, float dt);
     static void solveStickStick(Stick* A, Stick* B, float dt);
     
-    static void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, const vec2& v1, const vec2& v2, float dt);
+    static void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt);
     
-    static void solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& v1, float dt);
+    static void solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt);
     
     inline void moveProxies(float dt) {
         for(Body* body : bodies) {
@@ -130,14 +132,14 @@ public:
     
     float targetRadius = 8.0f;
     
-    const int width;
-    const int height;
+    float width;
+    float height;
     
-    const AABB aabb;
+    AABB aabb;
     
     int maxBodies;
     
-    World(int width, int height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
+    World(float width, float height) : width(width), height(height), bodies(NULL), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
         maxBodies = (width * height) / (targetRadius * targetRadius) * 0.25f;
     }
     
@@ -241,10 +243,10 @@ public:
     }
     
     void step(float dt, int its) {
-        //brainInputs();
+        brainInputs();
         
-        //for(Body* body : bodies)
-        //    body->stepBrain(dt);
+        for(Body* body : bodies)
+            body->stepBrain(dt);
         
         dt /= (float) its;
         for(int i = 0; i < its; ++i)
