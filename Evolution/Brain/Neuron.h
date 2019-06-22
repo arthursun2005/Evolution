@@ -11,7 +11,8 @@
 
 #include "activation_functions.h"
 #include <list>
-#include <unordered_set>
+
+#define brain_alter_scale 1.0f
 
 enum neuron_flags
 {
@@ -53,7 +54,7 @@ struct Neuron
     
     inline void clear() {
         inputs.clear();
-        bias = 0.0f;
+        bias = rand();
     }
     
     inline void alter(float scl) {

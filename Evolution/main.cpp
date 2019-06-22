@@ -73,7 +73,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         
         if(key == GLFW_KEY_W) {
-            world.wipe(8);
+            world.wipe(32);
         }
         
         if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
@@ -166,8 +166,21 @@ int main(int argc, const char * argv[]) {
     
     glfwSwapInterval(1);
     
+    Timer timer;
+    
+    BodyDef bd;
+    bd.position = vec2(0.0f, 20.0f);
+    bd.velocity = vec2(0.0f, -60.0f);
+    world.createBody(&bd);
+    
+    bd.position = vec2(-2.0f, 0.0f);
+    bd.velocity = vec2(0.0f, 0.0f);
+    bd.stick.position = vec2(4.0f, 0.0f);
+    bd.stick.normal = vec2(0.0f, 1.0f);
+    world.createBody(&bd);
+    
     do {
-        float currentTime = glfwGetTime();
+        float currentTime = timer.now();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         
         glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -195,8 +208,8 @@ int main(int argc, const char * argv[]) {
         pmouseX = mouseX;
         pmouseY = mouseY;
         
-        if(world.size() < (world.maxBodies >> 1)) {
-            world.wipe(8);
+        if(world.size() != 0 && world.size() < (world.maxBodies >> 1) && GLFW_PRESS == glfwGetKey(window, GLFW_KEY_CAPS_LOCK)) {
+            world.wipe(32);
             world.alter();
             ++generation;
         }
@@ -214,6 +227,10 @@ int main(int argc, const char * argv[]) {
         glfwPollEvents();
         glfwSwapBuffers(window);
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
+    
+    printf("%.3f\n", timer.now());
+    printf("%d\n", generation);
+    printf("%d\n", world.getMaxBrainComplexity());
     
     renderer.destory();
     

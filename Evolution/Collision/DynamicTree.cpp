@@ -177,7 +177,7 @@ bool DynamicTree::moveProxy(int nodeId, const AABB &aabb, const vec2& displaceme
     
     removeProxy(nodeId);
     
-    vec2 d = 2.0f * vec2(fabs(displacement.x), fabs(displacement.y));
+    vec2 d = aabb_multipiler * vec2(fabs(displacement.x), fabs(displacement.y));
     
     AABB proxyAABB = aabb;
     proxyAABB.lowerBound -= d;

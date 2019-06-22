@@ -11,6 +11,8 @@
 
 #define aabb_extension 0.005f
 
+#define aabb_multipiler 2.0f
+
 #include "vec2.h"
 
 /// axis aligned bounding box

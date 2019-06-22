@@ -11,12 +11,11 @@
 
 #include "Body.hpp"
 #include "DynamicTree.hpp"
+#include "Timer.h"
 #include <list>
 
 struct Manifold
-{
-    float impulse = 8.0f;
-    
+{    
     Obj* obj1;
     Obj* obj2;
     
@@ -28,15 +27,12 @@ struct Manifold
         if(obj->type == Obj::e_stick) {
             if(obj2->type == Obj::e_body && ((Stick*)obj)->owner != obj2)
                 ++((Stick*)obj)->owner->hits;
-        }else{
-            if(obj2->type == Obj::e_stick && ((Stick*)obj2)->owner != obj)
-                ++((Body*)obj)->hits;
         }
     }
     
     void solve() {
-        obj1->applyImpulse(point, -impulse * force * normal);
-        obj2->applyImpulse(point, impulse * force * normal);
+        obj1->applyImpulse(point, -force * normal);
+        obj2->applyImpulse(point, force * normal);
         
         incHit(obj1, obj2);
         incHit(obj2, obj1);
@@ -55,9 +51,9 @@ public:
         
         float shortestLengthSq;
         
-        NearestBody() {
+        NearestBody(float radius) {
             body = NULL;
-            shortestLengthSq = FLT_MAX;
+            shortestLengthSq = radius * radius;
         }
         
         bool callback(void* data) {
@@ -102,13 +98,13 @@ protected:
     /// dynamics
     void solveContacts(float dt);
     
-    void solveBodyBody(Body* A, Body* B, float dt);
-    void solveBodyStick(Body* A, Stick* B, float dt);
-    void solveStickStick(Stick* A, Stick* B, float dt);
+    static void solveBodyBody(Body* A, Body* B, float dt);
+    static void solveBodyStick(Body* A, Stick* B, float dt);
+    static void solveStickStick(Stick* A, Stick* B, float dt);
     
-    void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, float dt);
+    static void solveCircleCircle(Obj* A, Obj* B, const vec2& p1, const vec2& p2, const vec2& v1, const vec2& v2, float dt);
     
-    void solveCircleLine(Obj* A, Stick* B, const vec2& p1, float dt);
+    static void solveCircleLine(Obj* A, Stick* B, const vec2& p1, const vec2& v1, float dt);
     
     inline void moveProxies(float dt) {
         for(Body* body : bodies) {
@@ -121,7 +117,7 @@ protected:
     
     void brainInputs() {
         for(Body* body : bodies) {
-            NearestBody collector;
+            NearestBody collector(targetRadius);
             collector.self = body;
             AABB fatAABB = body->box(targetRadius);
             tree.query(&collector, fatAABB);
@@ -245,10 +241,10 @@ public:
     }
     
     void step(float dt, int its) {
-        brainInputs();
+        //brainInputs();
         
-        for(Body* body : bodies)
-            body->stepBrain(dt);
+        //for(Body* body : bodies)
+        //    body->stepBrain(dt);
         
         dt /= (float) its;
         for(int i = 0; i < its; ++i)

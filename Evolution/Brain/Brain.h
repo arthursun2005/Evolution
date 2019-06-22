@@ -199,7 +199,7 @@ public:
             
             if((rand() & 0x1)) {
                 
-                int index2 = rand() % (size);
+                int index2 = rand() % size;
                 
                 if((rand() & 0xf) < 0x4) {
                     result->create_neuron(index2, index1, func_type);
@@ -212,7 +212,7 @@ public:
             }
         }
         
-        result->alter(0.5f);
+        result->alter(brain_alter_scale);
     }
     
 };

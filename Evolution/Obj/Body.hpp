@@ -12,6 +12,10 @@
 #include "Stick.h"
 #include "Brain.h"
 
+#define body_center_force 6.0f
+
+#define body_arm_force 8.0f
+
 static Colorf health_color(0.0f, 1.0f, 0.2f);
 
 struct BodyDef
@@ -45,9 +49,9 @@ class Body : public Obj
     
 public:
     
-    /// body velocity, stick position, stick velocity, stick normal, stick angularVel
+    /// body velocity, stick position, stick velocity, stick normal, stick angularVel, radius, stick length, stick radius, density, stick density
     /// '' -> target
-    static const int single_input = 9;
+    static const int single_input = 14;
     static const int input_size = 2 * single_input + 2;
     
     /// body force, stick force, stick force local position
@@ -89,39 +93,17 @@ public:
         if(target != NULL)
             think(dt);
         else {
-            velocity -= dt * position.norm();
+            velocity -= dt * body_center_force * position.norm();
         }
     }
     
-    void step(float dt) {
-        ::constrain(&velocity, max_translation_squared / (dt * dt));
-        
-        float arm = radius * (armLength + 1.0f);
-        vec2 diff = stick.position - position;
-        float c2 = arm * arm;
-        
-        float v2 = diff.lengthSq();
-        if(v2 > c2)
-            stick.applyImpulse(position, (sqrt(v2/c2) - 1.0f) * (position - stick.position));
-        
-        stick.step(dt);
-        
-        velocity *= powf(damping, dt);
-        position += dt * velocity;
-        
-        float a = 0.005f;
-        health -= wound * a;
-        wound *= (1.0f - a);
+    inline float absArmLength() const {
+        return radius * (armLength + 1.0f);
     }
     
-    void applyImpulse(const vec2& world, const vec2& imp) {
-        float invMass = Obj::invMass();
-        vec2 d = (world - position).norm();
-        d = vec2(fabs(d.x), fabs(d.y));
-        vec2 accel = invMass * scl(d, imp);
-        velocity += accel;
-        wound += accel.length();
-    }
+    void step(float dt);
+    
+    void applyImpulse(const vec2& world, const vec2& imp);
     
     inline AABB aabb() const {
         vec2 ext = vec2(radius, radius);

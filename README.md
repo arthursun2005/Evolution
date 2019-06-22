@@ -6,4 +6,4 @@
 
 ![Image](img1.png)
 
-## Dynamic Trees for collision detection
+## Self balancing binary trees for collision detection

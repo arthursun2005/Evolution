@@ -9,16 +9,16 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.33f;
+    damping = 0.2f;
     
     radius = 1.0f;
     
-    stick.radius = 0.2f;
+    stick.radius = 0.15f;
     stick.length = 4.0f;
     stick.position = vec2(radius + 2.0f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     
-    maxHealth = 100.0f;
+    maxHealth = 200.0f;
     
     color = Colorf(0.0f);
     
@@ -27,10 +27,10 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 40.0f;
-    maxForce = 40.0f;
+    maxStickForce = 8.0f;
+    maxForce = 12.0f;
     
-    armLength = 3.0f;
+    armLength = 2.0f;
 }
 
 Body::Body(const BodyDef* def, World* world) : brain(input_size, output_size) {
@@ -79,6 +79,11 @@ void Body::setInputs(Neuron *in) const {
     in[6].value = stick.normal.x;
     in[7].value = stick.normal.y;
     in[8].value = stick.angularVelocity;
+    in[9].value = radius;
+    in[10].value = stick.length;
+    in[11].value = stick.radius;
+    in[12].value = density;
+    in[13].value = stick.density;
 }
 
 void Body::setInputs() {
@@ -100,15 +105,52 @@ void Body::think(float dt) {
     vec2 stick = vec2(out[2].value, out[3].value);
     vec2 local = vec2(out[4].value, out[5].value);
     
-    float sf = maxForce + maxStickForce;
+    float arm = absArmLength();
+    
+    force *= maxForce;
+    stick *= maxStickForce;
+    local *= arm;
     
     ::constrain(&force, maxForce * maxForce);
-    ::constrain(&stick, sf * sf);
-    
-    float arm = radius * (armLength + 1.0f);
+    ::constrain(&stick, maxStickForce * maxStickForce);
     ::constrain(&local, arm * arm);
     
     velocity += dt * force;
     stick *= this->stick.mass();
     this->stick.applyImpulse(position + local, dt * stick);
+}
+
+void Body::step(float dt) {
+    ::constrain(&velocity, max_translation_squared / (dt * dt));
+    
+    float arm = absArmLength();
+    float c2 = arm * arm;
+    
+    vec2 d = stick.position - position;
+    vec2 n = d.norm();
+    
+    float m = d.lengthSq();
+    float w = 1.0f - m/c2;
+    float ms = mass();
+    
+    stick.applyImpulse(position, ms * dt * body_arm_force * w * n);
+    applyImpulse(position, -ms * dt * body_arm_force * w * n);
+    
+    stick.step(dt);
+    
+    velocity *= powf(damping, dt);
+    position += dt * velocity;
+    
+    float a = dt * 0.02f;
+    health -= wound * a;
+    wound *= (1.0f - a);
+}
+
+void Body::applyImpulse(const vec2& world, const vec2& imp) {
+    float invMass = Obj::invMass();
+    vec2 d = (world - position).norm();
+    d = vec2(fabs(d.x), fabs(d.y));
+    vec2 accel = invMass * scl(d, imp);
+    velocity += accel;
+    wound += accel.length();
 }
