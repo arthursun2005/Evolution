@@ -15,9 +15,7 @@
 #define builder_threads 8
 
 struct Room {
-    static const int killScore = 32;
-    
-    static const int winScore = 16;
+    static const int winScore = 1024;
     
     AABB aabb;
     
@@ -50,14 +48,14 @@ struct Room {
         time += dt;
         
         if(A->health <= 0.0f) {
+            B->hits += winScore * ((B->health - A->health) / B->maxHealth);
             reset();
             smallAlter();
-            B->hits += killScore * (1.0f - time/threshold);
             time = 0.0f;
         }else if(B->health <= 0.0f) {
+            A->hits += winScore * ((A->health - B->health) / A->maxHealth);
             reset();
             smallAlter();
-            A->hits += killScore * (1.0f - time/threshold);
             time = 0.0f;
         }else if(time >= threshold) {
             if(A->health > B->health)
@@ -89,8 +87,8 @@ struct Room {
     }
     
     inline void smallAlter() {
-        A->brain.alter(0.5f);
-        B->brain.alter(0.5f);
+        A->brain.alter(1.0f);
+        B->brain.alter(1.0f);
     }
     
     void copyStatistics(Body* body, const BodyDef* def) {
@@ -196,10 +194,13 @@ public:
 
             int i = n / 2;
             
+            Body* A;
             while(i-- > 0) {
                 --end;
-                Body* A = *begin;
+                
+                A = *begin;
                 const Body* B = *end;
+                
                 Brain::alter(&A->brain, &B->brain);
                 A->brain.resetNeurons(1.0f);
                 ++begin;
@@ -242,12 +243,19 @@ public:
         
     }
     
+    inline int getBestBrainComplexity() const {
+        return bodies.back()->brain.totalSize();
+    }
+    
     inline void write(std::ofstream& os) const {
         bodies.back()->brain.write(os);
     }
     
     inline void read(std::ifstream& is) {
-        bodies.back()->brain.read(is);
+        Brain B;
+        B.read(is);
+        for(Body* A : bodies)
+            A->brain = B;
     }
     
     Body* last;

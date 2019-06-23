@@ -11,7 +11,7 @@
 
 #include "BodySystem.h"
 
-#define impulse_pressure 0.05f
+#define impulse_pressure 0.2f
 
 struct Manifold
 {

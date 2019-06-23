@@ -27,8 +27,8 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 24.0f;
-    maxForce = 32.0f;
+    maxStickForce = 48.0f;
+    maxForce = 64.0f;
     
     armLength = 2.0f;
 }
@@ -56,7 +56,7 @@ Body::Body(const BodyDef* def) : brain(input_size, output_size) {
     density = def->density;
     
     maxForce = def->maxForce;
-    maxStickForce = maxForce + def->maxStickForce;
+    maxStickForce = def->maxStickForce;
     
     wound = 0.0f;
     
@@ -103,21 +103,17 @@ void Body::think(float dt) {
     vec2 stick = vec2(out[2].value, out[3].value);
     vec2 local = vec2(out[4].value, out[5].value);
     
-    float arm = absArmLength();
-    
     force *= maxForce;
     stick *= maxStickForce;
-    local *= arm;
+    local *= this->stick.length;
     
     ::constrain(&force, maxForce * maxForce);
     ::constrain(&stick, maxStickForce * maxStickForce);
-    ::constrain(&local, arm * arm);
+    ::constrain(&local, this->stick.length * this->stick.length);
     
     velocity += dt * force;
-    //this->stick.velocity += dt * stick;
-    //this->stick.angularVelocity += dt * local.x;
     stick *= this->stick.mass();
-    this->stick.applyImpulse(position + local, dt * stick);
+    this->stick.applyImpulse(this->stick.position + local, dt * stick);
 }
 
 void Body::step(float dt) {

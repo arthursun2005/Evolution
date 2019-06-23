@@ -15,7 +15,7 @@ const char* hexFile = "brain.hex";
 
 #define TRAINING true
 
-#define WRITING true
+#define WRITING false
 
 #define READING false
 
@@ -27,10 +27,10 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(16, 16, 15.0f, 15.0f, BodyDef());
+Builder builder(10, 10, 15.0f, 15.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
-float dt2 = 10.0f;
+float dt2 = 5.0f;
 int colSteps = 6;
 int subSteps1 = 1;
 int subSteps2 = subSteps1 * (dt2/dt1);
@@ -123,6 +123,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         
         if(key == GLFW_KEY_B) {
             printf("%d\n", builder.generation);
+        }
+        
+        if(key == GLFW_KEY_K) {
+            printf("%d\n", builder.getBestBrainComplexity());
         }
 #endif
         
@@ -270,17 +274,18 @@ int main(int argc, const char * argv[]) {
         glfwSwapBuffers(window);
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
     
-    printf("%.3f\n", timer.now());
+    printf("real time: %.3f\n", timer.now());
     
 #if !TRAINING
     
-    printf("%d\n", generation);
-    printf("%d\n", world.getMaxBrainComplexity());
+    printf("generation: %d\n", generation);
+    printf("max complexity: %d\n", world.getMaxBrainComplexity());
     
 #else
     
-    printf("%d\n", builder.generation);
-    printf("%d\n", builder.getMaxBrainComplexity());
+    printf("generation: %d\n", builder.generation);
+    printf("max complexity: %d\n", builder.getMaxBrainComplexity());
+    printf("best complexity: %d\n", builder.getBestBrainComplexity());
     
 #endif
     

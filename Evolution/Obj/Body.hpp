@@ -16,7 +16,7 @@
 
 #define body_arm_force 8.0f
 
-#define complexity_tolerence 16
+#define complexity_tolerence 1024
 
 static Colorf health_color(0.0f, 1.0f, 0.2f);
 
