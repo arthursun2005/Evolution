@@ -16,7 +16,7 @@ const char* logFile = "log.txt";
 
 #define TRAINING true
 
-#define WRITING false
+#define WRITING true
 
 #define READING true
 
@@ -227,7 +227,7 @@ int main(int argc, const char * argv[]) {
     
     glfwSwapInterval(0);
     
-    Timer timer;
+    Timer timer, subTimer;
     
     FILE* log = fopen(logFile, "w");
     
@@ -239,12 +239,13 @@ int main(int argc, const char * argv[]) {
 #endif
     
     do {
-        float currentTime = timer.now();
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         
         glfwGetCursorPos(window, &mouseX, &mouseY);
         
 #ifdef DEBUG
+        float currentTime = timer.now();
+        
         ++framesPerSecond;
         if(currentTime - lastSecondTime >= 1.0f) {
             printf("%f s/frame \n", (currentTime - lastSecondTime)/(float)framesPerSecond);
@@ -292,14 +293,19 @@ int main(int argc, const char * argv[]) {
                 
                 if(score != 0.0f) {
                     totalScore += score;
-                    fprintf(log, "generation %d\n", builder.generation);
-                    fprintf(log, "best score: %f\n", score);
-                    fprintf(log, "max complexity: %d\n", builder.getMaxBrainComplexity());
-                    fprintf(log, "best complexity: %d\n", builder.getBestBrainComplexity());
-                    fprintf(log, "average best score: %f\n", totalScore/(float)builder.generation);
+                    fprintf(log, "%d \t", builder.generation);
+                    fprintf(log, "%.3f \t", score);
+                    fprintf(log, "%d \t", builder.getMaxBrainComplexity());
+                    fprintf(log, "%d \t", builder.getBestBrainComplexity());
+                    fprintf(log, "%.3f \t", totalScore/(float)builder.generation);
                     fprintf(log, "\n");
                     fflush(log);
                 }
+                
+#if WRITING
+                if((builder.generation % 8) == 0)
+                    write();
+#endif
 #else
                 world.step(dt, subSteps);
 #endif
@@ -310,6 +316,7 @@ int main(int argc, const char * argv[]) {
         
         glfwPollEvents();
         glfwSwapBuffers(window);
+        
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
     
     fprintf(log, "\n");

@@ -17,7 +17,8 @@
 #define randf (2.0f * (rand() / (float) RAND_MAX - 0.5f))
 
 struct Room {
-    static constexpr float winScore = 0.0f;
+    static constexpr float winScore = 0.125f;
+    static constexpr float killScore = 4.0f;
     static constexpr float weightRange = 2.0f;
     
     int threshold = 10.0f;
@@ -58,23 +59,23 @@ struct Room {
     void step(float dt, int its) {
         time += dt;
         
-        if(A->health <= 0.0f) {
-            addScore(B, A, (B->health / B->maxHealth));
-            reset();
-            smallAlter();
-            time = 0.0f;
-        }else if(B->health <= 0.0f) {
-            addScore(A, B, (A->health / A->maxHealth));
-            reset();
-            smallAlter();
-            time = 0.0f;
-        }else if(time >= threshold) {
+        if(time >= threshold) {
             
             if(A->health > B->health)
                 addScore(A, B, ((A->health - B->health) / A->maxHealth));
             else
                 addScore(B, A, ((B->health - A->health) / B->maxHealth));
             
+            reset();
+            smallAlter();
+            time = 0.0f;
+        }else if(A->health <= 0.0f) {
+            addScore(B, A, killScore * (B->health / B->maxHealth) * (1.0f - time/threshold));
+            reset();
+            smallAlter();
+            time = 0.0f;
+        }else if(B->health <= 0.0f) {
+            addScore(A, B, killScore * (A->health / A->maxHealth) * (1.0f - time/threshold));
             reset();
             smallAlter();
             time = 0.0f;
@@ -260,14 +261,14 @@ public:
     }
     
     inline void write(std::ofstream& os) const {
-        bodies.back()->brain.write(os);
+        for(Body* body : bodies) {
+            body->brain.write(os);
+        }
     }
     
     inline void read(std::ifstream& is) {
-        Brain B;
-        B.read(is);
         for(Body* A : bodies)
-            A->brain = B;
+            A->brain.read(is);
     }
     
     Body* last;

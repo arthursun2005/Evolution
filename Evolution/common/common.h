@@ -17,6 +17,8 @@
 #include <string>
 #include <unistd.h>
 
+#undef DEBUG
+
 /// from std::allocator
 
 #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
