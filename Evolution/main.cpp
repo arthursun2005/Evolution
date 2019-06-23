@@ -18,7 +18,7 @@ const char* logFile = "log.txt";
 
 #define WRITING false
 
-#define READING false
+#define READING true
 
 GLFWwindow *window;
 
@@ -28,14 +28,15 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(30, 30, 30.0f, 30.0f, BodyDef());
+Builder builder(10, 10, 30.0f, 30.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
-float dt2 = 2.0f;
+float dt2 = 5.0f;
 int colSteps = 6;
 int subSteps1 = 1;
 int subSteps2 = subSteps1 * (dt2/dt1);
 int mode = 1;
+float totalScore = 0.0f;
 #else
 World world(500.0f, 500.0f);
 Graphics<BodySystem> renderer(&world);
@@ -73,7 +74,7 @@ inline vec2 getMouse() {
 }
 
 void write() {
-#if TRAINGING
+#if TRAINING
     std::ofstream os;
     os.open(hexFile);
     builder.write(os);
@@ -224,7 +225,7 @@ int main(int argc, const char * argv[]) {
     
     renderer.initialize();
     
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     
     Timer timer;
     
@@ -282,18 +283,20 @@ int main(int argc, const char * argv[]) {
             if(!paused) {
 #if TRAINING
                 
-                int score;
+                float score;
                 
                 if(mode == 1)
                     score = builder.step(dt1, colSteps, subSteps1);
                 else
                     score = builder.step(dt2, colSteps, subSteps2);
                 
-                if(score != -1) {
+                if(score != 0.0f) {
+                    totalScore += score;
                     fprintf(log, "generation %d\n", builder.generation);
-                    fprintf(log, "best score: %d\n", score);
+                    fprintf(log, "best score: %f\n", score);
                     fprintf(log, "max complexity: %d\n", builder.getMaxBrainComplexity());
                     fprintf(log, "best complexity: %d\n", builder.getBestBrainComplexity());
+                    fprintf(log, "average best score: %f\n", totalScore/(float)builder.generation);
                     fprintf(log, "\n");
                     fflush(log);
                 }

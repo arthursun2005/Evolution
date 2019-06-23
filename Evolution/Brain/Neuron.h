@@ -41,25 +41,32 @@ struct Neuron
     
     ActivationFunction f;
     
-    inline Neuron() : bias(rand()) {}
+    inline Neuron() : bias(0.0f) {}
     
     inline void add_link(int index) {
         Link link;
         link.index = index;
-        link.weight = rand();
+        link.weight = 0.0f;
         inputs.push_back(link);
     }
     
-    inline void reset(float scl) {
+    inline void set(float scl) {
         for(Link& link : inputs)
             link.weight = scl * rand();
         
         bias = scl * rand();
     }
     
+    inline void setShared(float value) {
+        for(Link& link : inputs)
+            link.weight = value;
+        
+        bias = value;
+    }
+    
     inline void clear() {
         inputs.clear();
-        bias = rand();
+        bias = 0.0f;
     }
     
     inline void alter(float scl) {

@@ -16,8 +16,6 @@
 
 #define body_arm_force 8.0f
 
-#define complexity_tolerence 1024
-
 static Colorf health_color(0.0f, 1.0f, 0.2f);
 
 struct BodyDef
@@ -51,8 +49,8 @@ public:
     
     /// body velocity, stick position, stick velocity, stick normal, stick angularVel, radius, stick length, stick radius, density, stick density
     /// '' -> target
-    static const int single_input = 14;
-    static const int input_size = 2 * single_input + 6;
+    static const int single_input = 17;
+    static const int input_size = 2 * single_input + 5;
     
     /// body force, stick force, stick force local position
     static const int output_size = 6;
@@ -77,7 +75,7 @@ public:
     
     const Body* target;
     
-    int hits;
+    float score;
     
     Body(const BodyDef* def);
     
@@ -127,7 +125,7 @@ public:
     void setInputs(const AABB& aabb);
     
     inline static bool to_best (const Body* a, const Body* b) {
-        return (abs(b->hits - a->hits) < complexity_tolerence && a->brain.totalSize() > b->brain.totalSize()) || a->hits < b->hits;
+        return a->score < b->score;
     }
     
 };

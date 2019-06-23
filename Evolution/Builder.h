@@ -14,10 +14,11 @@
 
 #define builder_threads 8
 
+#define randf (2.0f * (rand() / (float) RAND_MAX - 0.5f))
+
 struct Room {
-    static const int winScore = 2 * complexity_tolerence;
-    static const int killScore = 4;
-    static constexpr float alterRate = 0.2f;
+    static constexpr float winScore = 0.0f;
+    static constexpr float weightRange = 2.0f;
     
     int threshold = 10.0f;
     
@@ -34,6 +35,8 @@ struct Room {
     inline void initialize() {
         A->target = B;
         B->target = A;
+        A->score = 0.0f;
+        B->score = 0.0f;
         time = 0.0f;
     }
     
@@ -46,24 +49,31 @@ struct Room {
         World::solveStickStick(&A->stick, &B->stick, dt);
     }
     
+    inline void addScore(Body* A, Body* B, float score) {
+        score *= winScore;
+        A->score += score;
+        B->score -= score;
+    }
+    
     void step(float dt, int its) {
         time += dt;
         
         if(A->health <= 0.0f) {
-            B->hits += roundf(killScore * winScore * (B->health / B->maxHealth));
+            addScore(B, A, (B->health / B->maxHealth));
             reset();
             smallAlter();
             time = 0.0f;
         }else if(B->health <= 0.0f) {
-            A->hits += roundf(killScore * winScore * (A->health / A->maxHealth));
+            addScore(A, B, (A->health / A->maxHealth));
             reset();
             smallAlter();
             time = 0.0f;
         }else if(time >= threshold) {
+            
             if(A->health > B->health)
-                A->hits += roundf(winScore * ((A->health - B->health) / A->maxHealth));
+                addScore(A, B, ((A->health - B->health) / A->maxHealth));
             else
-                B->hits += roundf(winScore * ((B->health - A->health) / B->maxHealth));
+                addScore(B, A, ((B->health - A->health) / B->maxHealth));
             
             reset();
             smallAlter();
@@ -89,8 +99,8 @@ struct Room {
     }
     
     inline void smallAlter() {
-        A->brain.alter(alterRate);
-        B->brain.alter(alterRate);
+        A->brain.setShared(randf * weightRange);
+        B->brain.setShared(randf * weightRange);
     }
     
     void copyStatistics(Body* body, const BodyDef* def) {
@@ -119,7 +129,7 @@ class Builder : public BodySystem
     
 public:
     
-    float threshold = 600.0f;
+    float threshold = 1000.0f;
     float time = 0.0f;
     
     int generation = 0;
@@ -144,10 +154,7 @@ public:
                 bd.position = p + vec2(w * 0.1666f, 0.0f);
                 room.B = new Body(&bd);
                 room.dB = bd;
-                
-                room.A->hits = 0;
-                room.B->hits = 0;
-                
+
                 room.initialize();
                 
                 bodies.push_back(room.A);
@@ -179,11 +186,11 @@ public:
             _step_range(i, n, dt, col);
     }
     
-    int step(float dt, int col, int its) {
+    float step(float dt, int col, int its) {
         time += dt;
-        int score;
+        float score;
         
-        score = -1;
+        score = 0.0f;
         
         if(time >= threshold) {
             last->color = next;
@@ -192,7 +199,7 @@ public:
             last = bodies.back();
             last->color = best;
             
-            score = last->hits;
+            score = last->score;
             
             iterator_type begin = this->begin();
             iterator_type end = this->end();
@@ -225,14 +232,12 @@ public:
                 
                 room.initialize();
                 room.reset();
-                room.A->hits = 0;
-                room.B->hits = 0;
             }
             
             time = 0.0f;
             ++generation;
         }
-        
+
         int work = (int)rooms.size();
         int i = 0;
         

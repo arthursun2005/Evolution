@@ -171,9 +171,14 @@ public:
             n.alter(scl);
     }
     
-    inline void resetNeurons(float scl) {
+    inline void setRandom(float scl) {
         for(Neuron& n : neurons)
-            n.reset(scl);
+            n.set(scl);
+    }
+    
+    inline void setShared(float value) {
+        for(Neuron& n : neurons)
+            n.setShared(value);
     }
     
     static void alter(Brain* result, const Brain* brain) {

@@ -1,530 +1,683 @@
 generation 1
-best score: 15850
-max complexity: 61
-best complexity: 51
+best score: -0.947229
+max complexity: 121
+best complexity: 118
+average best score: -0.947229
 
 generation 2
-best score: 23479
-max complexity: 64
-best complexity: 45
+best score: -8.063779
+max complexity: 124
+best complexity: 118
+average best score: -4.505504
 
 generation 3
-best score: 313983
-max complexity: 64
-best complexity: 49
+best score: -3.442775
+max complexity: 127
+best complexity: 119
+average best score: -4.151261
 
 generation 4
-best score: 113233
-max complexity: 66
-best complexity: 56
+best score: -10.931591
+max complexity: 128
+best complexity: 122
+average best score: -5.846343
 
 generation 5
-best score: 190944
-max complexity: 67
-best complexity: 48
+best score: -5.476945
+max complexity: 130
+best complexity: 119
+average best score: -5.772463
 
 generation 6
-best score: 374652
-max complexity: 69
-best complexity: 47
+best score: 2.831861
+max complexity: 130
+best complexity: 119
+average best score: -4.338409
 
 generation 7
-best score: 276349
-max complexity: 69
-best complexity: 54
+best score: 12.839930
+max complexity: 129
+best complexity: 119
+average best score: -1.884361
 
 generation 8
-best score: 629615
-max complexity: 69
-best complexity: 56
+best score: 20.485237
+max complexity: 131
+best complexity: 123
+average best score: 0.911839
 
 generation 9
-best score: 493874
-max complexity: 70
-best complexity: 52
+best score: 6.294617
+max complexity: 131
+best complexity: 122
+average best score: 1.509925
 
 generation 10
-best score: 377525
-max complexity: 73
-best complexity: 48
+best score: 12.699406
+max complexity: 133
+best complexity: 126
+average best score: 2.628873
 
 generation 11
-best score: 522367
-max complexity: 76
-best complexity: 46
+best score: 19.074099
+max complexity: 133
+best complexity: 125
+average best score: 4.123894
 
 generation 12
-best score: 987356
-max complexity: 75
-best complexity: 60
+best score: 10.748940
+max complexity: 136
+best complexity: 120
+average best score: 4.675981
 
 generation 13
-best score: 1001831
-max complexity: 76
-best complexity: 53
+best score: 13.233951
+max complexity: 137
+best complexity: 126
+average best score: 5.334286
 
 generation 14
-best score: 1146800
-max complexity: 79
-best complexity: 63
+best score: 13.398880
+max complexity: 137
+best complexity: 120
+average best score: 5.910328
 
 generation 15
-best score: 1492896
-max complexity: 79
-best complexity: 44
+best score: 18.631317
+max complexity: 136
+best complexity: 127
+average best score: 6.758394
 
 generation 16
-best score: 1640116
-max complexity: 77
-best complexity: 61
+best score: 22.766937
+max complexity: 137
+best complexity: 128
+average best score: 7.758928
 
 generation 17
-best score: 924756
-max complexity: 80
-best complexity: 66
+best score: 22.063597
+max complexity: 137
+best complexity: 130
+average best score: 8.600380
 
 generation 18
-best score: 1570237
-max complexity: 81
-best complexity: 67
+best score: 21.735218
+max complexity: 138
+best complexity: 126
+average best score: 9.330092
 
 generation 19
-best score: 1780581
-max complexity: 82
-best complexity: 58
+best score: 34.612335
+max complexity: 141
+best complexity: 130
+average best score: 10.660737
 
 generation 20
-best score: 1236137
-max complexity: 81
-best complexity: 64
+best score: 21.495024
+max complexity: 139
+best complexity: 128
+average best score: 11.202452
 
 generation 21
-best score: 2943536
-max complexity: 84
-best complexity: 64
+best score: 24.031395
+max complexity: 140
+best complexity: 130
+average best score: 11.813353
 
 generation 22
-best score: 1165518
-max complexity: 85
-best complexity: 70
+best score: 18.875420
+max complexity: 141
+best complexity: 131
+average best score: 12.134356
 
 generation 23
-best score: 1236992
-max complexity: 87
-best complexity: 71
+best score: 30.525513
+max complexity: 142
+best complexity: 137
+average best score: 12.933972
 
 generation 24
-best score: 2479602
-max complexity: 88
-best complexity: 66
+best score: 21.055958
+max complexity: 144
+best complexity: 140
+average best score: 13.272388
 
 generation 25
-best score: 1295904
-max complexity: 91
-best complexity: 65
+best score: 23.927137
+max complexity: 145
+best complexity: 131
+average best score: 13.698578
 
 generation 26
-best score: 1091081
-max complexity: 94
-best complexity: 73
+best score: 25.124073
+max complexity: 145
+best complexity: 139
+average best score: 14.138021
 
 generation 27
-best score: 999943
-max complexity: 91
-best complexity: 71
+best score: 31.589285
+max complexity: 147
+best complexity: 139
+average best score: 14.784364
 
 generation 28
-best score: 1267289
-max complexity: 94
-best complexity: 63
+best score: 36.954517
+max complexity: 146
+best complexity: 142
+average best score: 15.576156
 
 generation 29
-best score: 1309829
-max complexity: 93
-best complexity: 72
+best score: 27.073250
+max complexity: 149
+best complexity: 136
+average best score: 15.972607
 
 generation 30
-best score: 3068904
-max complexity: 95
-best complexity: 80
+best score: 20.968058
+max complexity: 147
+best complexity: 137
+average best score: 16.139122
 
 generation 31
-best score: 2386934
-max complexity: 95
-best complexity: 65
+best score: 15.192387
+max complexity: 146
+best complexity: 137
+average best score: 16.108582
 
 generation 32
-best score: 2236298
-max complexity: 96
-best complexity: 63
+best score: 21.914036
+max complexity: 148
+best complexity: 134
+average best score: 16.290003
 
 generation 33
-best score: 2473984
-max complexity: 99
-best complexity: 65
+best score: 14.190866
+max complexity: 149
+best complexity: 134
+average best score: 16.226393
 
 generation 34
-best score: 2103363
-max complexity: 98
-best complexity: 75
+best score: 13.705357
+max complexity: 149
+best complexity: 135
+average best score: 16.152245
 
 generation 35
-best score: 2960121
-max complexity: 99
-best complexity: 62
+best score: 35.581139
+max complexity: 149
+best complexity: 141
+average best score: 16.707355
 
 generation 36
-best score: 1410385
-max complexity: 101
-best complexity: 65
+best score: 16.371790
+max complexity: 150
+best complexity: 138
+average best score: 16.698034
 
 generation 37
-best score: 3663852
-max complexity: 102
-best complexity: 85
+best score: 14.857115
+max complexity: 151
+best complexity: 135
+average best score: 16.648279
 
 generation 38
-best score: 3277848
-max complexity: 104
-best complexity: 62
+best score: 28.263960
+max complexity: 152
+best complexity: 146
+average best score: 16.953955
 
 generation 39
-best score: 1733712
-max complexity: 107
-best complexity: 69
+best score: 14.440435
+max complexity: 152
+best complexity: 139
+average best score: 16.889505
 
 generation 40
-best score: 1479263
-max complexity: 107
-best complexity: 77
+best score: 14.938130
+max complexity: 152
+best complexity: 148
+average best score: 16.840721
 
 generation 41
-best score: 1112995
-max complexity: 108
-best complexity: 84
+best score: 13.168995
+max complexity: 153
+best complexity: 138
+average best score: 16.751167
 
 generation 42
-best score: 1118541
-max complexity: 106
-best complexity: 66
+best score: 17.153740
+max complexity: 153
+best complexity: 143
+average best score: 16.760752
 
 generation 43
-best score: 1189569
-max complexity: 106
-best complexity: 73
+best score: 21.927454
+max complexity: 153
+best complexity: 137
+average best score: 16.880907
 
 generation 44
-best score: 1323809
-max complexity: 106
-best complexity: 65
+best score: 24.628881
+max complexity: 152
+best complexity: 150
+average best score: 17.056999
 
 generation 45
-best score: 1875715
-max complexity: 103
-best complexity: 68
+best score: 17.140850
+max complexity: 153
+best complexity: 143
+average best score: 17.058863
 
 generation 46
-best score: 2241844
-max complexity: 104
-best complexity: 88
+best score: 20.127966
+max complexity: 156
+best complexity: 148
+average best score: 17.125582
 
 generation 47
-best score: 1302173
-max complexity: 104
-best complexity: 80
+best score: 19.539610
+max complexity: 155
+best complexity: 142
+average best score: 17.176945
 
 generation 48
-best score: 1499271
-max complexity: 104
-best complexity: 78
+best score: 16.732491
+max complexity: 156
+best complexity: 140
+average best score: 17.167685
 
 generation 49
-best score: 1400401
-max complexity: 106
-best complexity: 83
+best score: 18.528502
+max complexity: 155
+best complexity: 136
+average best score: 17.195457
 
 generation 50
-best score: 1298114
-max complexity: 106
-best complexity: 73
+best score: 23.125658
+max complexity: 156
+best complexity: 136
+average best score: 17.314062
 
 generation 51
-best score: 1652528
-max complexity: 109
-best complexity: 76
+best score: 18.015974
+max complexity: 158
+best complexity: 142
+average best score: 17.327826
 
 generation 52
-best score: 1546436
-max complexity: 106
-best complexity: 73
+best score: 13.977797
+max complexity: 156
+best complexity: 144
+average best score: 17.263401
 
 generation 53
-best score: 1480876
-max complexity: 109
-best complexity: 84
+best score: 16.813967
+max complexity: 156
+best complexity: 140
+average best score: 17.254921
 
 generation 54
-best score: 1553738
-max complexity: 108
-best complexity: 86
+best score: 15.815608
+max complexity: 157
+best complexity: 155
+average best score: 17.228268
 
 generation 55
-best score: 1681487
-max complexity: 106
-best complexity: 77
+best score: 18.344326
+max complexity: 156
+best complexity: 142
+average best score: 17.248558
 
 generation 56
-best score: 1636669
-max complexity: 107
-best complexity: 80
+best score: 19.429802
+max complexity: 159
+best complexity: 141
+average best score: 17.287510
 
 generation 57
-best score: 1494396
-max complexity: 108
-best complexity: 80
+best score: 13.630869
+max complexity: 157
+best complexity: 141
+average best score: 17.223358
 
 generation 58
-best score: 1601971
-max complexity: 110
-best complexity: 75
+best score: 19.556355
+max complexity: 157
+best complexity: 140
+average best score: 17.263582
 
 generation 59
-best score: 1663562
-max complexity: 110
-best complexity: 81
+best score: 14.956484
+max complexity: 160
+best complexity: 147
+average best score: 17.224478
 
 generation 60
-best score: 1459273
-max complexity: 111
-best complexity: 80
+best score: 14.027165
+max complexity: 163
+best complexity: 140
+average best score: 17.171190
 
 generation 61
-best score: 1737954
-max complexity: 110
-best complexity: 88
+best score: 20.933302
+max complexity: 164
+best complexity: 145
+average best score: 17.232864
 
 generation 62
-best score: 1688758
-max complexity: 111
-best complexity: 79
+best score: 17.757086
+max complexity: 166
+best complexity: 140
+average best score: 17.241320
 
 generation 63
-best score: 1611854
-max complexity: 110
-best complexity: 84
+best score: 18.158480
+max complexity: 168
+best complexity: 151
+average best score: 17.255877
 
 generation 64
-best score: 1750070
-max complexity: 113
-best complexity: 77
+best score: 17.514885
+max complexity: 166
+best complexity: 153
+average best score: 17.259924
 
 generation 65
-best score: 2714066
-max complexity: 114
-best complexity: 92
+best score: 20.341520
+max complexity: 164
+best complexity: 150
+average best score: 17.307333
 
 generation 66
-best score: 1788005
-max complexity: 117
-best complexity: 91
+best score: 16.725479
+max complexity: 166
+best complexity: 155
+average best score: 17.298517
 
 generation 67
-best score: 1557357
-max complexity: 117
-best complexity: 78
+best score: 45.164501
+max complexity: 167
+best complexity: 154
+average best score: 17.714428
 
 generation 68
-best score: 1579981
-max complexity: 120
-best complexity: 81
+best score: 18.490479
+max complexity: 169
+best complexity: 155
+average best score: 17.725842
 
 generation 69
-best score: 1955243
-max complexity: 121
-best complexity: 88
+best score: 19.168779
+max complexity: 167
+best complexity: 151
+average best score: 17.746754
 
 generation 70
-best score: 2017203
-max complexity: 123
-best complexity: 79
+best score: 21.493948
+max complexity: 170
+best complexity: 160
+average best score: 17.800283
 
 generation 71
-best score: 1686176
-max complexity: 119
-best complexity: 81
+best score: 17.963898
+max complexity: 170
+best complexity: 143
+average best score: 17.802588
 
 generation 72
-best score: 1670917
-max complexity: 117
-best complexity: 89
+best score: 23.140623
+max complexity: 173
+best complexity: 155
+average best score: 17.876728
 
 generation 73
-best score: 1564424
-max complexity: 118
-best complexity: 88
+best score: 16.371185
+max complexity: 176
+best complexity: 160
+average best score: 17.856104
 
 generation 74
-best score: 1877096
-max complexity: 121
-best complexity: 82
+best score: 16.754950
+max complexity: 179
+best complexity: 161
+average best score: 17.841225
 
 generation 75
-best score: 1691241
-max complexity: 121
-best complexity: 78
+best score: 14.562578
+max complexity: 177
+best complexity: 154
+average best score: 17.797510
 
 generation 76
-best score: 1429888
-max complexity: 124
-best complexity: 89
+best score: 17.789389
+max complexity: 177
+best complexity: 159
+average best score: 17.797403
 
 generation 77
-best score: 1654397
-max complexity: 124
-best complexity: 94
+best score: 21.492027
+max complexity: 177
+best complexity: 159
+average best score: 17.845387
 
 generation 78
-best score: 1901995
-max complexity: 124
-best complexity: 89
+best score: 21.678558
+max complexity: 180
+best complexity: 160
+average best score: 17.894529
 
 generation 79
-best score: 1766059
-max complexity: 125
-best complexity: 95
+best score: 19.293978
+max complexity: 181
+best complexity: 150
+average best score: 17.912243
 
 generation 80
-best score: 1499897
-max complexity: 125
-best complexity: 100
+best score: 16.721697
+max complexity: 181
+best complexity: 150
+average best score: 17.897362
 
 generation 81
-best score: 1244580
-max complexity: 128
-best complexity: 97
+best score: 18.373405
+max complexity: 181
+best complexity: 151
+average best score: 17.903238
 
 generation 82
-best score: 1561133
-max complexity: 128
-best complexity: 83
+best score: 15.611674
+max complexity: 183
+best complexity: 150
+average best score: 17.875294
 
 generation 83
-best score: 1462003
-max complexity: 129
-best complexity: 108
+best score: 19.629486
+max complexity: 171
+best complexity: 150
+average best score: 17.896429
 
 generation 84
-best score: 1304267
-max complexity: 130
-best complexity: 99
+best score: 25.327780
+max complexity: 174
+best complexity: 161
+average best score: 17.984898
 
 generation 85
-best score: 1773876
-max complexity: 130
-best complexity: 113
+best score: 21.235708
+max complexity: 177
+best complexity: 159
+average best score: 18.023142
 
 generation 86
-best score: 1641397
-max complexity: 130
-best complexity: 104
+best score: 37.034184
+max complexity: 180
+best complexity: 156
+average best score: 18.244200
 
 generation 87
-best score: 884845
-max complexity: 125
-best complexity: 98
+best score: 19.070980
+max complexity: 178
+best complexity: 167
+average best score: 18.253702
 
 generation 88
-best score: 1695744
-max complexity: 124
-best complexity: 86
+best score: 18.177019
+max complexity: 175
+best complexity: 161
+average best score: 18.252831
 
 generation 89
-best score: 2693361
-max complexity: 125
-best complexity: 116
+best score: 17.204060
+max complexity: 177
+best complexity: 158
+average best score: 18.241047
 
 generation 90
-best score: 3073097
-max complexity: 126
-best complexity: 95
+best score: 20.250404
+max complexity: 175
+best complexity: 159
+average best score: 18.263374
 
 generation 91
-best score: 1187675
-max complexity: 126
-best complexity: 103
+best score: 29.141081
+max complexity: 178
+best complexity: 160
+average best score: 18.382910
 
 generation 92
-best score: 3090729
-max complexity: 129
-best complexity: 101
+best score: 23.043961
+max complexity: 174
+best complexity: 167
+average best score: 18.433573
 
 generation 93
-best score: 1372816
-max complexity: 132
-best complexity: 112
+best score: 18.505587
+max complexity: 176
+best complexity: 151
+average best score: 18.434347
 
 generation 94
-best score: 2489246
-max complexity: 131
-best complexity: 95
+best score: 15.948362
+max complexity: 177
+best complexity: 154
+average best score: 18.407900
 
 generation 95
-best score: 1040384
-max complexity: 133
-best complexity: 99
+best score: 17.286203
+max complexity: 179
+best complexity: 164
+average best score: 18.396093
 
 generation 96
-best score: 1735319
-max complexity: 134
-best complexity: 101
+best score: 13.301037
+max complexity: 179
+best complexity: 166
+average best score: 18.343019
 
 generation 97
-best score: 1500717
-max complexity: 134
-best complexity: 95
+best score: 20.404118
+max complexity: 178
+best complexity: 157
+average best score: 18.364269
 
 generation 98
-best score: 1466927
-max complexity: 135
-best complexity: 101
+best score: 59.017391
+max complexity: 180
+best complexity: 160
+average best score: 18.779097
 
 generation 99
-best score: 1446851
-max complexity: 135
-best complexity: 100
+best score: 19.582249
+max complexity: 178
+best complexity: 163
+average best score: 18.787209
 
 generation 100
-best score: 1566922
-max complexity: 136
-best complexity: 107
+best score: 17.889181
+max complexity: 178
+best complexity: 172
+average best score: 18.778229
 
 generation 101
-best score: 1670440
-max complexity: 137
-best complexity: 110
+best score: 21.143335
+max complexity: 179
+best complexity: 160
+average best score: 18.801645
 
 generation 102
-best score: 1038025
-max complexity: 138
-best complexity: 104
+best score: 18.089846
+max complexity: 181
+best complexity: 164
+average best score: 18.794666
 
 generation 103
-best score: 1365881
-max complexity: 139
-best complexity: 96
+best score: 19.378357
+max complexity: 182
+best complexity: 160
+average best score: 18.800333
 
 generation 104
-best score: 2434454
-max complexity: 141
-best complexity: 108
+best score: 20.958406
+max complexity: 182
+best complexity: 165
+average best score: 18.821083
 
 generation 105
-best score: 1743148
-max complexity: 141
-best complexity: 109
+best score: 15.522945
+max complexity: 183
+best complexity: 161
+average best score: 18.789673
+
+generation 106
+best score: 20.172142
+max complexity: 184
+best complexity: 176
+average best score: 18.802715
+
+generation 107
+best score: 24.816320
+max complexity: 187
+best complexity: 169
+average best score: 18.858917
+
+generation 108
+best score: 35.484039
+max complexity: 187
+best complexity: 165
+average best score: 19.012854
+
+generation 109
+best score: 17.468170
+max complexity: 188
+best complexity: 178
+average best score: 18.998684
+
+generation 110
+best score: 14.552765
+max complexity: 190
+best complexity: 163
+average best score: 18.958265
+
+generation 111
+best score: 23.173985
+max complexity: 188
+best complexity: 171
+average best score: 18.996246
+
+generation 112
+best score: 19.358805
+max complexity: 189
+best complexity: 176
+average best score: 18.999483
+
+generation 113
+best score: 32.941456
+max complexity: 189
+best complexity: 166
+average best score: 19.122864
 
 
-real time: 3174.853
-generation: 105
-max complexity: 141
-best complexity: 109
+real time: 602.633
+generation: 113
+max complexity: 189
+best complexity: 166

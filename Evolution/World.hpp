@@ -14,7 +14,7 @@
 #define impulse_pressure 0.2f
 
 struct Manifold
-{
+{    
     Obj* obj1;
     Obj* obj2;
     
@@ -24,14 +24,31 @@ struct Manifold
     float force;
     float mass;
     float impulse;
+    float dt;
     
-    inline Manifold(float totalMass, float dt) : mass(totalMass), impulse(impulse_pressure/dt) {}
+    inline Manifold(float totalMass, float dt) : mass(totalMass), impulse(impulse_pressure/dt), dt(dt) {}
+    
+    void addScore(Obj* obj1, Obj* obj2, float K) {
+        if(obj1->type == Obj::e_body && obj2->type == Obj::e_stick) {
+            Body* body1 = (Body*)obj1;
+            Body* body2 = ((Stick*)obj2)->owner;
+            if(body1 == body2) {
+                body2->score -= K;
+            }else{
+                body2->score += K;
+            }
+        }
+    }
     
     void solve() {
         float I = force * impulse * mass;
         
         obj1->applyImpulse(point, -I * normal);
         obj2->applyImpulse(point, I * normal);
+        
+        float R = I * dt;
+        addScore(obj1, obj2, R);
+        addScore(obj2, obj1, R);
     }
 };
 
