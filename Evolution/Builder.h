@@ -15,7 +15,11 @@
 #define builder_threads 8
 
 struct Room {
-    static const int winScore = 1024;
+    static const int winScore = 2 * complexity_tolerence;
+    static const int killScore = 4;
+    static constexpr float alterRate = 0.2f;
+    
+    int threshold = 10.0f;
     
     AABB aabb;
     
@@ -26,8 +30,6 @@ struct Room {
     BodyDef dB;
     
     float time;
-    
-    int threshold = 10.0f;
     
     inline void initialize() {
         A->target = B;
@@ -48,28 +50,28 @@ struct Room {
         time += dt;
         
         if(A->health <= 0.0f) {
-            B->hits += winScore * ((B->health - A->health) / B->maxHealth);
+            B->hits += roundf(killScore * winScore * (B->health / B->maxHealth));
             reset();
             smallAlter();
             time = 0.0f;
         }else if(B->health <= 0.0f) {
-            A->hits += winScore * ((A->health - B->health) / A->maxHealth);
+            A->hits += roundf(killScore * winScore * (A->health / A->maxHealth));
             reset();
             smallAlter();
             time = 0.0f;
         }else if(time >= threshold) {
             if(A->health > B->health)
-                A->hits += winScore * ((A->health - B->health) / A->maxHealth);
+                A->hits += roundf(winScore * ((A->health - B->health) / A->maxHealth));
             else
-                B->hits += winScore * ((B->health - A->health) / B->maxHealth);
+                B->hits += roundf(winScore * ((B->health - A->health) / B->maxHealth));
             
             reset();
             smallAlter();
             time = 0.0f;
         }
         
-        A->setInputs();
-        B->setInputs();
+        A->setInputs(aabb);
+        B->setInputs(aabb);
         
         A->think(dt);
         B->think(dt);
@@ -87,8 +89,8 @@ struct Room {
     }
     
     inline void smallAlter() {
-        A->brain.alter(1.0f);
-        B->brain.alter(1.0f);
+        A->brain.alter(alterRate);
+        B->brain.alter(alterRate);
     }
     
     void copyStatistics(Body* body, const BodyDef* def) {
@@ -117,7 +119,7 @@ class Builder : public BodySystem
     
 public:
     
-    float threshold = 300.0f;
+    float threshold = 600.0f;
     float time = 0.0f;
     
     int generation = 0;
@@ -177,15 +179,20 @@ public:
             _step_range(i, n, dt, col);
     }
     
-    void step(float dt, int col, int its) {
+    int step(float dt, int col, int its) {
         time += dt;
+        int score;
+        
+        score = -1;
         
         if(time >= threshold) {
             last->color = next;
             bodies.sort(Body::to_best);
-
+            
             last = bodies.back();
             last->color = best;
+            
+            score = last->hits;
             
             iterator_type begin = this->begin();
             iterator_type end = this->end();
@@ -202,7 +209,6 @@ public:
                 const Body* B = *end;
                 
                 Brain::alter(&A->brain, &B->brain);
-                A->brain.resetNeurons(1.0f);
                 ++begin;
             }
             
@@ -241,6 +247,7 @@ public:
         for(int j = 0; j != i; ++j)
             threads[j].join();
         
+        return score;
     }
     
     inline int getBestBrainComplexity() const {

@@ -52,7 +52,7 @@ public:
     /// body velocity, stick position, stick velocity, stick normal, stick angularVel, radius, stick length, stick radius, density, stick density
     /// '' -> target
     static const int single_input = 14;
-    static const int input_size = 2 * single_input + 2;
+    static const int input_size = 2 * single_input + 6;
     
     /// body force, stick force, stick force local position
     static const int output_size = 6;
@@ -124,7 +124,7 @@ public:
     
     void setInputs(Neuron* in) const;
     
-    void setInputs();
+    void setInputs(const AABB& aabb);
     
     inline static bool to_best (const Body* a, const Body* b) {
         return (abs(b->hits - a->hits) < complexity_tolerence && a->brain.totalSize() > b->brain.totalSize()) || a->hits < b->hits;

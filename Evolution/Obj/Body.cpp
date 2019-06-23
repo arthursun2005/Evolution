@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.1f;
+    damping = 0.05f;
     
     radius = 1.0f;
     
@@ -27,8 +27,8 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 48.0f;
-    maxForce = 64.0f;
+    maxStickForce = 128.0f;
+    maxForce = 256.0f;
     
     armLength = 2.0f;
 }
@@ -84,11 +84,15 @@ void Body::setInputs(Neuron *in) const {
     in[13].value = stick.density;
 }
 
-void Body::setInputs() {
+void Body::setInputs(const AABB& aabb) {
     if(target != NULL) {
         Neuron* in = brain.inputs();
         setInputs(in);
         target->setInputs(in + single_input);
+        in[input_size - 6].value = aabb.lowerBound.x - position.x;
+        in[input_size - 5].value = aabb.lowerBound.y - position.y;
+        in[input_size - 4].value = aabb.upperBound.x - position.x;
+        in[input_size - 3].value = aabb.upperBound.y - position.y;
         in[input_size - 2].value = target->position.x - position.x;
         in[input_size - 1].value = target->position.y - position.y;
     }
@@ -103,14 +107,10 @@ void Body::think(float dt) {
     vec2 stick = vec2(out[2].value, out[3].value);
     vec2 local = vec2(out[4].value, out[5].value);
     
-    force *= maxForce;
-    stick *= maxStickForce;
-    local *= this->stick.length;
-    
     ::constrain(&force, maxForce * maxForce);
     ::constrain(&stick, maxStickForce * maxStickForce);
     ::constrain(&local, this->stick.length * this->stick.length);
-    
+        
     velocity += dt * force;
     stick *= this->stick.mass();
     this->stick.applyImpulse(this->stick.position + local, dt * stick);

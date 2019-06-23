@@ -12,6 +12,7 @@
 #include "Graphics.h"
 
 const char* hexFile = "brain.hex";
+const char* logFile = "log.txt";
 
 #define TRAINING true
 
@@ -27,10 +28,10 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(10, 10, 15.0f, 15.0f, BodyDef());
+Builder builder(30, 30, 30.0f, 30.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
-float dt2 = 5.0f;
+float dt2 = 2.0f;
 int colSteps = 6;
 int subSteps1 = 1;
 int subSteps2 = subSteps1 * (dt2/dt1);
@@ -44,7 +45,6 @@ int generation = 0;
 #endif
 
 bool paused = false;
-
 
 Frame frame;
 
@@ -70,6 +70,15 @@ inline vec2 getMouse() {
     vec2 mouse((mouseX * 2.0f - width) * k, (mouseY * 2.0f - height) * -k);
     mouse -= frame.offset;
     return mouse;
+}
+
+void write() {
+#if TRAINGING
+    std::ofstream os;
+    os.open(hexFile);
+    builder.write(os);
+    os.close();
+#endif
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -128,12 +137,23 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if(key == GLFW_KEY_K) {
             printf("%d\n", builder.getBestBrainComplexity());
         }
+        
+        if(key == GLFW_KEY_B) {
+            printf("%d\n", builder.generation);
+        }
+        
+        if(key == GLFW_KEY_K) {
+            printf("%d\n", builder.getBestBrainComplexity());
+        }
 #endif
         
         if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
             paused = !paused;
         }
         
+        if(key == GLFW_KEY_W) {
+            write();
+        }
         
     }
 }
@@ -208,10 +228,13 @@ int main(int argc, const char * argv[]) {
     
     Timer timer;
     
+    FILE* log = fopen(logFile, "w");
+    
 #if READING
     std::ifstream is;
     is.open(hexFile);
     builder.read(is);
+    is.close();
 #endif
     
     do {
@@ -258,10 +281,22 @@ int main(int argc, const char * argv[]) {
             
             if(!paused) {
 #if TRAINING
+                
+                int score;
+                
                 if(mode == 1)
-                    builder.step(dt1, colSteps, subSteps1);
+                    score = builder.step(dt1, colSteps, subSteps1);
                 else
-                    builder.step(dt2, colSteps, subSteps2);
+                    score = builder.step(dt2, colSteps, subSteps2);
+                
+                if(score != -1) {
+                    fprintf(log, "generation %d\n", builder.generation);
+                    fprintf(log, "best score: %d\n", score);
+                    fprintf(log, "max complexity: %d\n", builder.getMaxBrainComplexity());
+                    fprintf(log, "best complexity: %d\n", builder.getBestBrainComplexity());
+                    fprintf(log, "\n");
+                    fflush(log);
+                }
 #else
                 world.step(dt, subSteps);
 #endif
@@ -274,28 +309,30 @@ int main(int argc, const char * argv[]) {
         glfwSwapBuffers(window);
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
     
-    printf("real time: %.3f\n", timer.now());
+    fprintf(log, "\n");
+    
+    fprintf(log, "real time: %.3f\n", timer.now());
     
 #if !TRAINING
     
-    printf("generation: %d\n", generation);
-    printf("max complexity: %d\n", world.getMaxBrainComplexity());
+    fprintf(log, "generation: %d\n", generation);
+    fprintf(log, "max complexity: %d\n", world.getMaxBrainComplexity());
     
 #else
     
-    printf("generation: %d\n", builder.generation);
-    printf("max complexity: %d\n", builder.getMaxBrainComplexity());
-    printf("best complexity: %d\n", builder.getBestBrainComplexity());
+    fprintf(log, "generation: %d\n", builder.generation);
+    fprintf(log, "max complexity: %d\n", builder.getMaxBrainComplexity());
+    fprintf(log, "best complexity: %d\n", builder.getBestBrainComplexity());
     
 #endif
     
 #if WRITING
-    std::ofstream os;
-    os.open(hexFile);
-    builder.write(os);
+    write();
 #endif
     
     renderer.destory();
+    
+    fclose(log);
     
     glfwDestroyWindow(window);
     glfwDestroyCursor(cursor);

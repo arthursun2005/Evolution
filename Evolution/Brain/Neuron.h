@@ -11,7 +11,6 @@
 
 #include "activation_functions.h"
 #include <list>
-#include <stack>
 
 enum neuron_flags
 {
@@ -108,31 +107,15 @@ inline void compute_value(int index, Neuron* neurons) {
     if((neurons[index].flags & e_neuron_computed) != 0)
         return;
     
-    std::stack<int> stack;
-    std::stack<int> work;
+    neurons[index].flags |= e_neuron_computed;
+    neurons[index].value = 0.0f;
     
-    stack.push(index);
-    
-    while(!stack.empty()) {
-        int node = stack.top();
-        stack.pop();
-        
-        work.push(node);
-        
-        neurons[node].flags |= e_neuron_computed;
-        neurons[node].value = 0.0f;
-        
-        for(Neuron::Link& link : neurons[node].inputs) {
-            if((neurons[link.index].flags & e_neuron_computed) == 0)
-                stack.push(link.index);
-        }
+    for(const Neuron::Link& link : neurons[index].inputs) {
+        if((neurons[link.index].flags & e_neuron_computed) == 0)
+            compute_value(link.index, neurons);
     }
     
-    while(!work.empty()) {
-        int node = work.top();
-        work.pop();
-        neurons[node].compute(neurons);
-    }
+    neurons[index].compute(neurons);
 }
 
 #endif /* Neuron_h */

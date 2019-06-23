@@ -179,21 +179,26 @@ public:
     static void alter(Brain* result, const Brain* brain) {
         *result = *brain;
         
-        int func_type = ActivationFunction::rand();
         int size = (int)(result->neurons.size());
         
-        if((rand() & 0xf) < 0x4) {
+        int k = rand() & 0xffff;
+
+        if(k <= 0x5555) {
             int index1 = result->input_size + (rand() % (size - result->input_size));
             int index2 = rand() % size;
             
-            if((rand() & 0xf) < 0x4) {
-                result->create_neuron(index2, index1, func_type);
-            }else{
-                if(!result->neurons[index1].has_link(index2))
-                    result->neurons[index1].add_link(index2);
-            }
+            int func_type = ActivationFunction::rand();
+            
+            result->create_neuron(index2, index1, func_type);
+        }else if(k <= 0xAAAA) {
+            int index1 = result->input_size + (rand() % (size - result->input_size));
+            int index2 = rand() % size;
+            
+            if(!result->neurons[index1].has_link(index2))
+                result->neurons[index1].add_link(index2);
         }else{
             int index = rand() % size;
+            int func_type = ActivationFunction::rand();
             result->neurons[index].f.type = func_type;
         }
     }

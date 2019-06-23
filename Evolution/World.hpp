@@ -112,7 +112,7 @@ protected:
             AABB fatAABB = body->box(targetRadius);
             tree.query(&collector, fatAABB);
             body->target = collector.body;
-            body->setInputs();
+            body->setInputs(aabb);
         }
     }
     

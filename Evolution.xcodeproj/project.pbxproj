@@ -37,6 +37,7 @@
 		8E4981B322BDFC7200242B9B /* Builder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Builder.h; sourceTree = "<group>"; };
 		8E4981B422BE0EC300242B9B /* BodySystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BodySystem.h; sourceTree = "<group>"; };
 		8E4981B522BEE3CB00242B9B /* brain.hex */ = {isa = PBXFileReference; lastKnownFileType = text; path = brain.hex; sourceTree = "<group>"; };
+		8E4981B622BF430500242B9B /* log.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.txt; sourceTree = "<group>"; };
 		8E88F76322B3035700AD6D5A /* Neuron.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Neuron.h; sourceTree = "<group>"; };
 		8E88F76422B348F900AD6D5A /* Brain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Brain.h; sourceTree = "<group>"; };
 		8E88F76522B34AC900AD6D5A /* Body.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Body.cpp; sourceTree = "<group>"; };
@@ -154,6 +155,7 @@
 				8E4981B322BDFC7200242B9B /* Builder.h */,
 				8E4981B422BE0EC300242B9B /* BodySystem.h */,
 				8E4981B522BEE3CB00242B9B /* brain.hex */,
+				8E4981B622BF430500242B9B /* log.txt */,
 				8E3DE51822BB9BD20047504D /* Obj */,
 				8E3DE51722BB9B810047504D /* Collision */,
 				8E3DE51522BB9B600047504D /* Brain */,
