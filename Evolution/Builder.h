@@ -14,14 +14,18 @@
 
 #define builder_threads 8
 
-#define randf (2.0f * (rand() / (float) RAND_MAX - 0.5f))
+enum training_mode
+{
+    e_construct_brain,
+    e_tune_weights
+};
 
 struct Room {
-    static constexpr float winScore = 0.125f;
-    static constexpr float killScore = 4.0f;
+    static constexpr float winScore = 0.0f;
+    static constexpr float killScore = 2.0f;
     static constexpr float weightRange = 2.0f;
-    
-    int threshold = 10.0f;
+    static constexpr float weightStep = 0.005f;
+    static constexpr float threshold = 10.0f;
     
     AABB aabb;
     
@@ -36,8 +40,6 @@ struct Room {
     inline void initialize() {
         A->target = B;
         B->target = A;
-        A->score = 0.0f;
-        B->score = 0.0f;
         time = 0.0f;
     }
     
@@ -50,13 +52,13 @@ struct Room {
         World::solveStickStick(&A->stick, &B->stick, dt);
     }
     
-    inline void addScore(Body* A, Body* B, float score) {
-        score *= winScore;
-        A->score += score;
-        B->score -= score;
+    inline void addScore(Body* A, Body* B, float reward) {
+        reward *= winScore;
+        A->brain->reward += reward;
+        B->brain->reward -= reward;
     }
     
-    void step(float dt, int its) {
+    void step(float dt, int its, int mode) {
         time += dt;
         
         if(time >= threshold) {
@@ -67,17 +69,22 @@ struct Room {
                 addScore(B, A, ((B->health - A->health) / B->maxHealth));
             
             reset();
-            smallAlter();
+            smallAlter(mode);
+            
             time = 0.0f;
         }else if(A->health <= 0.0f) {
             addScore(B, A, killScore * (B->health / B->maxHealth) * (1.0f - time/threshold));
+            
             reset();
-            smallAlter();
+            smallAlter(mode);
+            
             time = 0.0f;
         }else if(B->health <= 0.0f) {
             addScore(A, B, killScore * (A->health / A->maxHealth) * (1.0f - time/threshold));
+
             reset();
-            smallAlter();
+            smallAlter(mode);
+            
             time = 0.0f;
         }
         
@@ -99,9 +106,14 @@ struct Room {
         B->constrain(aabb);
     }
     
-    inline void smallAlter() {
-        A->brain.setShared(randf * weightRange);
-        B->brain.setShared(randf * weightRange);
+    inline void smallAlter(int mode) {
+        if(mode == e_construct_brain) {
+            A->brain->setShared(randf(-weightRange, weightRange));
+            B->brain->setShared(randf(-weightRange, weightRange));
+        }else{
+            A->brain->alter(weightStep);
+            B->brain->alter(weightStep);
+        }
     }
     
     void copyStatistics(Body* body, const BodyDef* def) {
@@ -115,7 +127,6 @@ struct Room {
         body->stick.velocity += body->velocity;
         
         body->health = def->maxHealth;
-        body->wound = 0.0f;
     }
     
     inline void reset() {
@@ -130,8 +141,13 @@ class Builder : public BodySystem
     
 public:
     
-    float threshold = 1000.0f;
+    float threshold1 = Room::threshold * 100.0f;
+    float threshold2 = Room::threshold * 3.0f;
     float time = 0.0f;
+    
+    float tune_step = Room::weightStep * 3.0f;
+    
+    int mode = e_construct_brain;
     
     int generation = 0;
     
@@ -167,6 +183,21 @@ public:
         
         last = bodies.back();
         next = bodies.back()->color;
+        
+        bs.resize(size());
+        
+        bs.reset(Body::input_size, Body::output_size);
+        
+        int i = 0;
+        for(Room& room : rooms) {
+            room.A->brain = bs[i];
+            ++i;
+            
+            room.B->brain = bs[i];
+            ++i;
+        }
+        
+        bs.clear();
     }
     
     ~Builder() {
@@ -178,7 +209,7 @@ public:
     inline void _step_range(int i, int n, float dt, int its) {
         int end = i + n;
         for(; i != end; ++i)
-            rooms[i].step(dt, its);
+            rooms[i].step(dt, its, mode);
     }
     
     inline void step_range(int i, int n, float dt, int col, int its) {
@@ -193,50 +224,40 @@ public:
         
         score = 0.0f;
         
+        float threshold = mode == e_construct_brain ? threshold1 : Room::threshold;
+        
         if(time >= threshold) {
             last->color = next;
-            bodies.sort(Body::to_best);
+            
+            bs.sort();
             
             last = bodies.back();
             last->color = best;
             
-            score = last->score;
+            score = bs.last()->reward;
             
-            iterator_type begin = this->begin();
-            iterator_type end = this->end();
+            bs.replace();
             
-            int n = size();
-
-            int i = n / 2;
+            if(mode == e_construct_brain)
+                bs.mutate();
+            else
+                bs.alter(tune_step);
             
-            Body* A;
-            while(i-- > 0) {
-                --end;
-                
-                A = *begin;
-                const Body* B = *end;
-                
-                Brain::alter(&A->brain, &B->brain);
-                ++begin;
-            }
-            
-            assert((n % 2) == 0);
-            
-            begin = this->begin();
-            
+            int i = 0;
             for(Room& room : rooms) {
-                room.A = *begin;
-                ++begin;
+                room.A->brain = bs[i];
+                ++i;
                 
-                room.B = *begin;
-                ++begin;
+                room.B->brain = bs[i];
+                ++i;
                 
                 room.initialize();
-                room.reset();
             }
             
             time = 0.0f;
             ++generation;
+            
+            bs.clear();
         }
 
         int work = (int)rooms.size();
@@ -257,18 +278,19 @@ public:
     }
     
     inline int getBestBrainComplexity() const {
-        return bodies.back()->brain.totalSize();
+        return bs.last()->totalSize();
     }
     
     inline void write(std::ofstream& os) const {
-        for(Body* body : bodies) {
-            body->brain.write(os);
-        }
+        bs.write(os);
     }
     
     inline void read(std::ifstream& is) {
-        for(Body* A : bodies)
-            A->brain.read(is);
+        bs.read(is);
+    }
+    
+    inline void tune_weights() {
+        mode = e_tune_weights;
     }
     
     Body* last;
@@ -276,7 +298,7 @@ public:
     Colorf best = Colorf(1.0f, 0.0f, 0.0f);
     
 private:
-    
+        
     std::vector<Room> rooms;
     
     std::thread threads[builder_threads];

@@ -10,7 +10,7 @@
 #define Body_hpp
 
 #include "Stick.h"
-#include "Brain.h"
+#include "BrainSystem.h"
 
 #define body_center_force 6.0f
 
@@ -47,7 +47,6 @@ class Body : public Obj
     
 public:
     
-    /// body velocity, stick position, stick velocity, stick normal, stick angularVel, radius, stick length, stick radius, density, stick density
     /// '' -> target
     static const int single_input = 17;
     static const int input_size = 2 * single_input + 5;
@@ -62,10 +61,8 @@ public:
     float health;
     
     float armLength;
-    
-    float wound;
-    
-    Brain brain;
+        
+    Brain* brain;
     
     float damping;
     
@@ -74,9 +71,7 @@ public:
     Stick stick;
     
     const Body* target;
-    
-    float score;
-    
+
     Body(const BodyDef* def);
     
     inline float getHealthRatio() const {
@@ -123,11 +118,6 @@ public:
     void setInputs(Neuron* in) const;
     
     void setInputs(const AABB& aabb);
-    
-    inline static bool to_best (const Body* a, const Body* b) {
-        return a->score < b->score;
-    }
-    
 };
 
 #endif /* Body_hpp */

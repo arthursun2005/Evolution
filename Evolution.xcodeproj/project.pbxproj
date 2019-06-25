@@ -36,7 +36,6 @@
 		8E4113E622A0C29000AD78A2 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		8E4981B322BDFC7200242B9B /* Builder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Builder.h; sourceTree = "<group>"; };
 		8E4981B422BE0EC300242B9B /* BodySystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BodySystem.h; sourceTree = "<group>"; };
-		8E4981B522BEE3CB00242B9B /* brain.hex */ = {isa = PBXFileReference; lastKnownFileType = text; path = brain.hex; sourceTree = "<group>"; };
 		8E4981B622BF430500242B9B /* log.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.txt; sourceTree = "<group>"; };
 		8E88F76322B3035700AD6D5A /* Neuron.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Neuron.h; sourceTree = "<group>"; };
 		8E88F76422B348F900AD6D5A /* Brain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Brain.h; sourceTree = "<group>"; };
@@ -61,6 +60,7 @@
 		8E88F77F22B63D9300AD6D5A /* bar.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = bar.vs; sourceTree = "<group>"; };
 		8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicTree.cpp; sourceTree = "<group>"; };
 		8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DynamicTree.hpp; sourceTree = "<group>"; };
+		8EFAC3EA22C08169003781A0 /* BrainSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrainSystem.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,7 +91,6 @@
 			children = (
 				8E88F77E22B6309400AD6D5A /* Timer.h */,
 				8E88F77522B47B7400AD6D5A /* vec2.h */,
-				8E88F77422B47B4700AD6D5A /* activation_functions.h */,
 				8E88F77622B4BE3400AD6D5A /* color.h */,
 				8E4113E622A0C29000AD78A2 /* common.h */,
 			);
@@ -101,8 +100,10 @@
 		8E3DE51522BB9B600047504D /* Brain */ = {
 			isa = PBXGroup;
 			children = (
+				8EFAC3EA22C08169003781A0 /* BrainSystem.h */,
 				8E88F76422B348F900AD6D5A /* Brain.h */,
 				8E88F76322B3035700AD6D5A /* Neuron.h */,
+				8E88F77422B47B4700AD6D5A /* activation_functions.h */,
 			);
 			path = Brain;
 			sourceTree = "<group>";
@@ -154,7 +155,6 @@
 				8E88F76922B34C0200AD6D5A /* World.hpp */,
 				8E4981B322BDFC7200242B9B /* Builder.h */,
 				8E4981B422BE0EC300242B9B /* BodySystem.h */,
-				8E4981B522BEE3CB00242B9B /* brain.hex */,
 				8E4981B622BF430500242B9B /* log.txt */,
 				8E3DE51822BB9BD20047504D /* Obj */,
 				8E3DE51722BB9B810047504D /* Collision */,

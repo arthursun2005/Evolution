@@ -16,6 +16,7 @@
 #include <cmath>
 #include <string>
 #include <unistd.h>
+#include <float.h>
 
 #undef DEBUG
 

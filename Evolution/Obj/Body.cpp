@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.5f;
+    damping = 0.2f;
     
     radius = 1.0f;
     
@@ -27,13 +27,13 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 16.0f;
-    maxForce = 24.0f;
+    maxStickForce = 12.0f;
+    maxForce = 16.0f;
     
     armLength = 2.0f;
 }
 
-Body::Body(const BodyDef* def) : brain(input_size, output_size) {
+Body::Body(const BodyDef* def) {
     position = def->position;
     velocity = def->velocity;
     
@@ -57,21 +57,17 @@ Body::Body(const BodyDef* def) : brain(input_size, output_size) {
     
     maxForce = def->maxForce;
     maxStickForce = def->maxStickForce;
-    
-    wound = 0.0f;
-    
+        
     armLength = def->armLength;
         
     target = NULL;
-    
-    score = 0.0f;
 }
 
 void Body::setInputs(Neuron *in) const {
     in[0].value = velocity.x;
     in[1].value = velocity.y;
-    in[2].value = stick.position.x - position.x;
-    in[3].value = stick.position.y - position.y;
+    in[2].value = stick.position.x;
+    in[3].value = stick.position.y;
     in[4].value = stick.velocity.x;
     in[5].value = stick.velocity.y;
     in[6].value = stick.normal.x;
@@ -89,7 +85,7 @@ void Body::setInputs(Neuron *in) const {
 
 void Body::setInputs(const AABB& aabb) {
     if(target != NULL) {
-        Neuron* in = brain.inputs();
+        Neuron* in = brain->inputs();
         setInputs(in);
         target->setInputs(in + single_input);
         in[input_size - 5].value = aabb.lowerBound.x;
@@ -100,11 +96,11 @@ void Body::setInputs(const AABB& aabb) {
 }
 
 void Body::think(float dt) {
-    brain.inputs()[input_size - 1].value = dt;
+    brain->inputs()[input_size - 1].value = dt;
     
-    brain.compute();
+    brain->compute();
     
-    Neuron* out = brain.outputs();
+    Neuron* out = brain->outputs();
     
     vec2 force = vec2(out[0].value, out[1].value);
     vec2 stick = vec2(out[2].value, out[3].value);
@@ -145,9 +141,6 @@ void Body::step(float dt) {
     
     velocity *= powf(damping, dt);
     position += dt * velocity;
-    
-    health -= wound * dt;
-    wound *= (1.0f - dt);
 }
 
 void Body::applyImpulse(const vec2& world, const vec2& imp) {
@@ -156,5 +149,5 @@ void Body::applyImpulse(const vec2& world, const vec2& imp) {
     d = vec2(fabs(d.x), fabs(d.y));
     vec2 accel = invMass * scl(d, imp);
     velocity += accel;
-    wound += accel.length();
+    health -= accel.length();
 }

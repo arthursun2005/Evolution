@@ -32,23 +32,23 @@ struct Manifold
         if(obj1->type == Obj::e_body && obj2->type == Obj::e_stick) {
             Body* body1 = (Body*)obj1;
             Body* body2 = ((Stick*)obj2)->owner;
-            if(body1 == body2) {
-                body2->score -= K;
+            if(body1 != body2) {
+                body2->brain->reward += K;
             }else{
-                body2->score += K;
+                body2->brain->reward -= K;
             }
         }
     }
+    
     
     void solve() {
         float I = force * impulse * mass;
         
         obj1->applyImpulse(point, -I * normal);
         obj2->applyImpulse(point, I * normal);
-        
-        float R = I * dt;
-        addScore(obj1, obj2, R);
-        addScore(obj2, obj1, R);
+
+        addScore(obj1, obj2, I);
+        addScore(obj2, obj1, I);
     }
 };
 
@@ -165,6 +165,21 @@ public:
         }
     }
     
+    void generate(BodyDef def, std::ifstream& is) {
+        Brain b;
+        b.read(is);
+        
+        float stride = 2.0f * def.radius * targetRadius;
+        for(float x = aabb.lowerBound.x + stride; x < aabb.upperBound.x; x += stride) {
+            for(float y = aabb.lowerBound.y + stride; y < aabb.upperBound.y; y += stride) {
+                if(bodies.size() >= maxBodies) return;
+                def.position = vec2(x, y);
+                Body* B = createBody(&def);
+                *(B->brain) = b;
+            }
+        }
+    }
+    
     void alter() {
         BodyDef def;
         iterator_type begin = bodies.begin();
@@ -172,7 +187,8 @@ public:
             if(bodies.size() >= maxBodies) return;
             def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
             Body* body = createBody(&def);
-            Brain::alter(&body->brain, &(*begin)->brain);
+            *body->brain = *(*begin)->brain;
+            body->brain->mutate();
         }
     }
     

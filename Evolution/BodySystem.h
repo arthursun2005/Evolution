@@ -48,12 +48,14 @@ public:
         int c = 0;
         
         for(Body* body : bodies)
-            c = std::max(c, body->brain.totalSize());
+            c = std::max(c, body->brain->totalSize());
         
         return c;
     }
     
 protected:
+    
+    BrainSystem bs;
     
     std::list<Body*> bodies;
     

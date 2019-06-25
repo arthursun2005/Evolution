@@ -33,7 +33,7 @@ struct ActivationFunction
     static inline int rand() {
         return ::rand() % numberOfActivationFunctions;
     }
-        
+    
     inline float operator () (float x) const {
         if(type == activation_linear) {
             return x;

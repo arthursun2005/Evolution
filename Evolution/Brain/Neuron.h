@@ -10,7 +10,7 @@
 #define Neuron_h
 
 #include "activation_functions.h"
-#include <list>
+#include <vector>
 
 enum neuron_flags
 {
@@ -35,7 +35,7 @@ struct Neuron
         return distribution(generator);
     }
     
-    std::list<Link> inputs;
+    std::vector<Link> inputs;
     
     int flags;
     
@@ -46,11 +46,11 @@ struct Neuron
     inline void add_link(int index) {
         Link link;
         link.index = index;
-        link.weight = 0.0f;
+        link.weight = 1.0f;
         inputs.push_back(link);
     }
     
-    inline void set(float scl) {
+    inline void setRandom(float scl) {
         for(Link& link : inputs)
             link.weight = scl * rand();
         
@@ -77,11 +77,11 @@ struct Neuron
     }
     
     inline void remove_link(int index) {
-        std::list<Neuron::Link>::iterator begin = inputs.begin();
-        std::list<Neuron::Link>::iterator end = inputs.end();
-        for(; begin != end; ++begin) {
-            if(begin->index == index) {
-                inputs.erase(begin);
+        std::vector<Neuron::Link>::iterator begin = inputs.begin();
+        std::vector<Neuron::Link>::iterator end = inputs.end();
+        while(end-- != begin) {
+            if(end->index == index) {
+                inputs.erase(end);
                 return;
             }
         }
@@ -108,21 +108,29 @@ struct Neuron
             value = f(sum + bias);
         }
     }
+    
+    static void compute_value(int index, Neuron* neurons) {
+        if((neurons[index].flags & e_neuron_computed) != 0)
+            return;
+        
+        neurons[index].flags |= e_neuron_computed;
+        
+        if((neurons[index].flags & e_neuron_input) != 0) {
+            neurons[index].compute(neurons);
+            return;
+        }
+        
+        neurons[index].value = 0.0f;
+        
+        for(const Neuron::Link& link : neurons[index].inputs) {
+            if((neurons[link.index].flags & e_neuron_computed) == 0)
+                compute_value(link.index, neurons);
+        }
+        
+        neurons[index].compute(neurons);
+    }
 };
 
-inline void compute_value(int index, Neuron* neurons) {
-    if((neurons[index].flags & e_neuron_computed) != 0)
-        return;
-    
-    neurons[index].flags |= e_neuron_computed;
-    neurons[index].value = 0.0f;
-    
-    for(const Neuron::Link& link : neurons[index].inputs) {
-        if((neurons[link.index].flags & e_neuron_computed) == 0)
-            compute_value(link.index, neurons);
-    }
-    
-    neurons[index].compute(neurons);
-}
+
 
 #endif /* Neuron_h */

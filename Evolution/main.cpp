@@ -6,19 +6,22 @@
 //  Copyright © 2019 Arthur Sun. All rights reserved.
 //
 
+#include "BrainSystem.h"
 #include <iostream>
 #include "World.hpp"
 #include "Builder.h"
 #include "Graphics.h"
 
-const char* hexFile = "brain.hex";
+const char* hexFile = "brain7.hex";
 const char* logFile = "log.txt";
+
+FILE* log_file;
 
 #define TRAINING true
 
-#define WRITING true
+#define WRITING false
 
-#define READING true
+#define READING false
 
 GLFWwindow *window;
 
@@ -28,7 +31,7 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(10, 10, 30.0f, 30.0f, BodyDef());
+Builder builder(32, 32, 30.0f, 30.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
 float dt2 = 5.0f;
@@ -146,6 +149,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if(key == GLFW_KEY_K) {
             printf("%d\n", builder.getBestBrainComplexity());
         }
+        
+        if(key == GLFW_KEY_1) {
+            if(builder.mode != e_tune_weights)
+                fprintf(log_file, "\ntuning weights now....\n");
+            builder.tune_weights();
+        }
+        
 #endif
         
         if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {
@@ -229,15 +239,19 @@ int main(int argc, const char * argv[]) {
     
     Timer timer, subTimer;
     
-    FILE* log = fopen(logFile, "w");
+    log_file = fopen(logFile, "w");
     
 #if READING
     std::ifstream is;
     is.open(hexFile);
+#if TRAINING
     builder.read(is);
+#else
+    world.generate(BodyDef(), is);
+#endif
     is.close();
 #endif
-    
+        
     do {
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         
@@ -283,6 +297,7 @@ int main(int argc, const char * argv[]) {
             
             if(!paused) {
 #if TRAINING
+                int gen = builder.generation;
                 
                 float score;
                 
@@ -291,21 +306,17 @@ int main(int argc, const char * argv[]) {
                 else
                     score = builder.step(dt2, colSteps, subSteps2);
                 
-                if(score != 0.0f) {
+                if(builder.generation != gen) {
                     totalScore += score;
-                    fprintf(log, "%d \t", builder.generation);
-                    fprintf(log, "%.3f \t", score);
-                    fprintf(log, "%d \t", builder.getMaxBrainComplexity());
-                    fprintf(log, "%d \t", builder.getBestBrainComplexity());
-                    fprintf(log, "%.3f \t", totalScore/(float)builder.generation);
-                    fprintf(log, "\n");
-                    fflush(log);
+                    fprintf(log_file, "%d \t", builder.generation);
+                    fprintf(log_file, "%.3f \t", score);
+                    fprintf(log_file, "%d \t", builder.getMaxBrainComplexity());
+                    fprintf(log_file, "%d \t", builder.getBestBrainComplexity());
+                    fprintf(log_file, "%.3f \t", totalScore/(float)builder.generation);
+                    fprintf(log_file, "\n");
+                    fflush(log_file);
                 }
-                
-#if WRITING
-                if((builder.generation % 8) == 0)
-                    write();
-#endif
+
 #else
                 world.step(dt, subSteps);
 #endif
@@ -319,20 +330,20 @@ int main(int argc, const char * argv[]) {
         
     } while (glfwWindowShouldClose(window) == GL_FALSE && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
     
-    fprintf(log, "\n");
+    fprintf(log_file, "\n");
     
-    fprintf(log, "real time: %.3f\n", timer.now());
+    fprintf(log_file, "real time: %.3f\n", timer.now());
     
 #if !TRAINING
     
-    fprintf(log, "generation: %d\n", generation);
-    fprintf(log, "max complexity: %d\n", world.getMaxBrainComplexity());
+    fprintf(log_file, "generation: %d\n", generation);
+    fprintf(log_file, "max complexity: %d\n", world.getMaxBrainComplexity());
     
 #else
     
-    fprintf(log, "generation: %d\n", builder.generation);
-    fprintf(log, "max complexity: %d\n", builder.getMaxBrainComplexity());
-    fprintf(log, "best complexity: %d\n", builder.getBestBrainComplexity());
+    fprintf(log_file, "generation: %d\n", builder.generation);
+    fprintf(log_file, "max complexity: %d\n", builder.getMaxBrainComplexity());
+    fprintf(log_file, "best complexity: %d\n", builder.getBestBrainComplexity());
     
 #endif
     
@@ -342,7 +353,7 @@ int main(int argc, const char * argv[]) {
     
     renderer.destory();
     
-    fclose(log);
+    fclose(log_file);
     
     glfwDestroyWindow(window);
     glfwDestroyCursor(cursor);
