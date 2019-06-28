@@ -136,15 +136,9 @@ public:
         }
         
         int index1 = input_size + (rand() % output_size);
-        int index2 = rand() % size;
-        if(rand() & 0x1) {
-            if(!neurons[index1].has_link(index2)) {
-                neurons[index1].add_link(index2);
-                ++links;
-            }
-        }else{
-            create_neuron(index2, index1, ActivationFunction::rand());
-        }
+        int index2 = rand() % input_size;
+        neurons[index1].add_link(index2);
+        ++links;
     }
     
     void write(std::ofstream& os) const {
@@ -181,7 +175,10 @@ public:
     inline void compute() {
         int size = (int)neurons.size();
         
-        for(int i = 0; i < size; ++i)
+        for(int i = 0; i < input_size; ++i)
+            neurons[i].value = neurons[i].f(neurons[i].value + neurons[i].bias);
+        
+        for(int i = input_size; i < size; ++i)
             neurons[i].flags &= ~ e_neuron_computed;
         
         for(int i = 0; i < output_size; ++i)
@@ -208,21 +205,40 @@ public:
         
         int k = rand() & 0xFFFF;
         
-        if(k <= 0x5555) {
-            int index1 = input_size + (rand() % (size - input_size));
-            int index2 = rand() % size;
+        if(k <= 0x4FFF) {
+            
+            int index1 = -1;
+            
+            while(index1 == -1 || neurons[index1].inputs.empty())
+                index1 = input_size + (rand() % (size - input_size));
+            
+            
+            int i = rand() % neurons[index1].inputs.size();
+            
+            int index2 = neurons[index1].inputs[i].index;
+            
+            neurons[index1].inputs.erase(neurons[index1].inputs.begin() + i);
+            --links;
             
             int func_type = ActivationFunction::rand();
             
             create_neuron(index2, index1, func_type);
-        }else if(k <= 0xAAAA) {
-            int index1 = input_size + (rand() % (size - input_size));
-            int index2 = rand() % size;
             
-            if(!neurons[index1].has_link(index2)) {
-                neurons[index1].add_link(index2);
-                ++links;
+        }else if(k <= 0x7FFF) {
+            int index1 = -1;
+            int index2 = 0;
+            
+            int tries = 0;
+            
+            while(index1 == -1 || Neuron::has_neuron(index1, index2, neurons.data()) || Neuron::has_neuron(index2, index1, neurons.data()) || index1 == index2) {
+                if(tries >= size) return;
+                index1 = input_size + (rand() % (size - input_size));
+                index2 = rand() % size;
+                ++tries;
             }
+            
+            neurons[index1].add_link(index2);
+            ++links;
         }else{
             int index = rand() % size;
             int func_type = ActivationFunction::rand();
@@ -230,10 +246,28 @@ public:
         }
     }
     
-    static inline bool sort(const Brain* A, const Brain* B) {
-        return A->reward < B->reward;
+    static void produce(const Brain* A, const Brain* B, Brain* C) {
+        *C = *A;
+        
+        int size = C->numOfNeurons();
+        for(int i = 0; i < size; ++i) {
+            int lsize = (int)C->neurons[i].inputs.size();
+            
+            for(int j = 0; j < lsize; ++j) {
+                if(rand() & 0b1) {
+                    C->neurons[i].inputs[j].weight = B->neurons[i].inputs[j].weight;
+                }
+            }
+            
+            if(rand() & 0b1) {
+                C->neurons[i].bias = B->neurons[i].bias;
+            }
+        }
     }
+    
+    friend class BrainSystem;
     
 };
 
 #endif /* Brain_h */
+

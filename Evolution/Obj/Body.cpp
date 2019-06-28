@@ -78,7 +78,7 @@ void Body::setInputs(Neuron *in) const {
     in[11].value = stick.radius;
     in[12].value = density;
     in[13].value = stick.density;
-    in[14].value = health;
+    in[14].value = armLength;
     in[15].value = position.x;
     in[16].value = position.y;
 }

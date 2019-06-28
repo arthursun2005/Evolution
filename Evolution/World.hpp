@@ -40,15 +40,14 @@ struct Manifold
         }
     }
     
-    
     void solve() {
         float I = force * impulse * mass;
         
         obj1->applyImpulse(point, -I * normal);
         obj2->applyImpulse(point, I * normal);
 
-        addScore(obj1, obj2, I);
-        addScore(obj2, obj1, I);
+        //addScore(obj1, obj2, I);
+        //addScore(obj2, obj1, I);
     }
 };
 

@@ -12,8 +12,8 @@
 #include "Builder.h"
 #include "Graphics.h"
 
-const char* hexFile = "brain7.hex";
-const char* logFile = "log.txt";
+const char* hexFile = "brain14.hex";
+const char* logFile = "log";
 
 FILE* log_file;
 
@@ -21,7 +21,9 @@ FILE* log_file;
 
 #define WRITING false
 
-#define READING false
+#define READING true
+
+#define pop_root 32
 
 GLFWwindow *window;
 
@@ -31,7 +33,7 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(32, 32, 30.0f, 30.0f, BodyDef());
+Builder builder(pop_root, pop_root, 30.0f, 30.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
 float dt2 = 5.0f;
@@ -151,9 +153,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         
         if(key == GLFW_KEY_1) {
-            if(builder.mode != e_tune_weights)
+            if(builder.mode != e_tune_weights) {
                 fprintf(log_file, "\ntuning weights now....\n");
-            builder.tune_weights();
+                fflush(log_file);
+                builder.tune_weights();
+            }
         }
         
 #endif
@@ -248,6 +252,7 @@ int main(int argc, const char * argv[]) {
     builder.read(is);
 #else
     world.generate(BodyDef(), is);
+    world.maxBodies = pop_root;
 #endif
     is.close();
 #endif
@@ -306,13 +311,13 @@ int main(int argc, const char * argv[]) {
                 else
                     score = builder.step(dt2, colSteps, subSteps2);
                 
-                if(builder.generation != gen) {
+                if(gen != builder.generation) {
                     totalScore += score;
-                    fprintf(log_file, "%d \t", builder.generation);
-                    fprintf(log_file, "%.3f \t", score);
-                    fprintf(log_file, "%d \t", builder.getMaxBrainComplexity());
-                    fprintf(log_file, "%d \t", builder.getBestBrainComplexity());
-                    fprintf(log_file, "%.3f \t", totalScore/(float)builder.generation);
+                    fprintf(log_file, "%6d ", builder.generation);
+                    fprintf(log_file, "%9.3f ", score);
+                    fprintf(log_file, "%5d ", builder.getMaxBrainComplexity());
+                    fprintf(log_file, "%5d ", builder.getBestBrainComplexity());
+                    fprintf(log_file, "%9.3f ", totalScore/(float)builder.generation);
                     fprintf(log_file, "\n");
                     fflush(log_file);
                 }
