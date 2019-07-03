@@ -57,7 +57,7 @@ inline AABB combine_aabb(const AABB& a, const AABB& b) {
 inline bool touches(const AABB& a, const AABB& b) {
     vec2 d1 = b.upperBound - a.lowerBound;
     vec2 d2 = a.upperBound - b.lowerBound;
-    return firstbit(d1.x) * firstbit(d1.y) * firstbit(d2.x) * firstbit(d2.y);
+    return firstbitf(d1.x) * firstbitf(d1.y) * firstbitf(d2.x) * firstbitf(d2.y);
 }
 
 inline AABB extendAABB(const AABB& aabb) {

@@ -43,8 +43,6 @@ struct Room {
         AABB bBs = B->stick.aabb();
         
         if(touches(bA, bB)) World::solveBodyBody(A, B, dt);
-        if(touches(bA, bAs)) World::solveBodyStick(A, &A->stick, dt);
-        if(touches(bB, bBs)) World::solveBodyStick(B, &B->stick, dt);
         if(touches(bA, bBs)) World::solveBodyStick(A, &B->stick, dt);
         if(touches(bB, bAs)) World::solveBodyStick(B, &A->stick, dt);
         if(touches(bAs, bBs)) World::solveStickStick(&A->stick, &B->stick, dt);
@@ -71,7 +69,6 @@ struct Room {
     
     inline void alter(int mode) {
         if(mode == e_construct_brain) {
-            A->brain->setShared(randf(-2.0f, 2.0f));
             B->brain->setShared(randf(-2.0f, 2.0f));
         }
     }
@@ -139,7 +136,7 @@ public:
             }
         }
         
-        bs.resize(size());
+        bs.resize(rooms.size() + 1);
         
         bs.reset(Body::input_size, Body::output_size);
         
@@ -169,11 +166,10 @@ public:
     inline void assign() {
         int i = 0;
         for(Room& room : rooms) {
-            room.A->brain = bs[i];
+            room.A->brain = bs[0];
             ++i;
             
             room.B->brain = bs[i];
-            ++i;
             
             room.initialize();
         }
@@ -196,7 +192,6 @@ public:
                 bs.mutate();
             }else{
                 bs.produce();
-                bs.alter(0.01f);
             }
             
             time = 0.0f;
@@ -207,9 +202,8 @@ public:
         
         if(subTime >= subThreshold) {
             for(Room& R : rooms) {
-                float K = R.A->health - R.B->health;
-                R.A->brain->reward += K;
-                R.B->brain->reward -= K;
+                float K = R.B->health - R.A->health;
+                R.B->brain->reward += K;
             }
             
             bs.shuffle();
@@ -220,6 +214,8 @@ public:
                 R.alter(mode);
                 R.reset();
             }
+            
+            bs[0]->setShared(randf(-2.0f, 2.0f));
             
             subTime = 0.0f;
         }
@@ -241,7 +237,7 @@ public:
         return score;
     }
     
-    inline int getBestBrainComplexity() const {
+    inline size_t getBestBrainComplexity() const {
         return bs.best()->totalSize();
     }
     

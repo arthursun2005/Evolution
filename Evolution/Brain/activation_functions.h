@@ -11,71 +11,78 @@
 
 #include "common.h"
 
-enum activation_function_types {
-    activation_linear = 0,
-    activation_sigmoid,
-    activation_smooth,
-    activation_tanh,
-    activation_step,
-    activation_swish,
-    activation_gauss,
-    activation_sine,
-    activation_cosine,
-    activation_abs,
-    activation_inv,
-    numberOfActivationFunctions
-};
-
 struct ActivationFunction
 {
-    int type = activation_linear;
+    enum types {
+        e_linear = 0,
+        e_sigmoid,
+        e_smooth,
+        e_tanh,
+        e_step,
+        e_swish,
+        e_relu,
+        e_gauss,
+        e_sine,
+        e_cosine,
+        e_abs,
+        e_inv,
+        count_of_types
+    };
+    
+    int type = e_linear;
     
     static inline int rand() {
-        return ::rand() % numberOfActivationFunctions;
+        return rand32() % count_of_types;
     }
     
     inline float operator () (float x) const {
-        if(type == activation_linear) {
+        return expf(-(x * x) * 0.5f);
+        
+        if(type == e_linear) {
             return x;
         }
         
-        if(type == activation_sigmoid) {
-            return 1.0f / (1.0f + exp(-x));
+        if(type == e_sigmoid) {
+            return 1.0f / (1.0f + expf(-x));
         }
         
-        if(type == activation_smooth) {
+        if(type == e_smooth) {
             return x / (1.0f + fabs(x));
         }
         
-        if(type == activation_tanh) {
-            return tanh(x);
+        if(type == e_tanh) {
+            return tanhf(x);
         }
         
-        if(type == activation_step) {
-            return firstbit(x);
+        if(type == e_step) {
+            return firstbitf(x);
         }
         
-        if(type == activation_swish) {
-            return x / (1.0f + exp(-x));
+        if(type == e_swish) {
+            return x / (1.0f + expf(-x));
         }
         
-        if(type == activation_gauss) {
-            return exp(-(x * x) * 0.5f);
+        if(type == e_relu) {
+            return x * firstbitf(x);
         }
         
-        if(type == activation_sine) {
+        if(type == e_gauss) {
+            return expf(-(x * x) * 0.5f);
+        }
+        
+        if(type == e_sine) {
             return sinf(M_PI * x);
         }
         
-        if(type == activation_cosine) {
+        if(type == e_cosine) {
             return cosf(M_PI * x);
         }
         
-        if(type == activation_abs) {
+        if(type == e_abs) {
             return fabs(x);
         }
         
-        if(type == activation_inv) {
+        if(type == e_inv) {
             return -x;
         }
         

@@ -1,9 +1,9 @@
 # Evolution
 
-## Neural Networks
+## Weight Agnostic Neural Networks
 
-[link](https://weightagnostic.github.io/)
+[weight agnostic neural networks](https://weightagnostic.github.io/)
 
-![Image](img1.png)
+![](img1.png)
 
 ## Self balancing binary trees for collision detection

@@ -18,38 +18,6 @@
 #include <unistd.h>
 #include <float.h>
 
-#undef DEBUG
-
-/// from std::allocator
-
-#ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
-
-inline void* Alloc(size_t size) {
-    return ::operator new(size);
-}
-
-inline void Free(void* ptr) {
-    ::operator delete(ptr);
-}
-
-#else
-
-inline void* Alloc(size_t size) {
-    return __builtin_operator_new(size);
-}
-
-inline void Free(void* ptr) {
-    __builtin_operator_delete(ptr);
-}
-
-#endif
-
-
-template <class T, class... Args>
-inline void Construct(T* ptr, Args&&... args) {
-    ::new((void*)ptr) T(args...);
-}
-
 inline int fstr(const char* file_name, std::string* str) {
     std::ifstream file;
     file.open(file_name);
@@ -91,12 +59,21 @@ inline bool starts_with(const std::string& str, const std::string& start) {
     return true;
 }
 
-inline int firstbit(float x) {
-    return 0b1 & ~((*(int*)&x) >> 31);
+inline int32_t rand32() {
+    return rand();
+}
+
+inline int64_t rand64() {
+    return (int64_t(rand32()) << 32) | rand32();
+}
+
+inline int firstbitf(float x) {
+    return 0b1 & (~((*(int*)&x) >> 31));
 }
 
 inline float randf(float a, float b) {
-    return rand() / (float) RAND_MAX * (b - a) + a;
+    static constexpr float inv_max = 1.0f/RAND_MAX;
+    return rand() * inv_max * (b - a) + a;
 }
 
 #endif /* common_h */

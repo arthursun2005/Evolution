@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <fstream>
 
-#define default_groupsize 32
+#define default_groupsize 16
 
 class BrainSystem
 {
@@ -22,89 +22,101 @@ public:
     
     inline BrainSystem() : brains(NULL), count(0) {}
     
-    inline BrainSystem(int size) {
-        alloc(size);
-        fill();
+    inline BrainSystem(size_t size) : brains(NULL), count(0) {
+        resize(size);
     }
     
-    inline BrainSystem(const BrainSystem& bs) {
-        alloc(bs.size());
-        fill();
+    inline BrainSystem(const BrainSystem& bs) : brains(NULL), count(0) {
+        resize(bs.size());
         
-        for(int i = 0; i != count; ++i)
+        for(size_t i = 0; i != count; ++i)
             *(brains[i]) = *(bs[i]);
     }
     
-    inline ~BrainSystem() {
-        unfill();
-        free();
+    inline BrainSystem& operator = (const BrainSystem& bs) {
+        resize(bs.size());
+        
+        for(size_t i = 0; i != count; ++i)
+            *(brains[i]) = *(bs[i]);
+        
+        return *this;
     }
     
-    inline void resize(int size) {
-        if(size > count) {
-            Brain** oldBrains = brains;
-            int oldCount = count;
+    ~BrainSystem() {
+        if(brains != NULL) {
+            for(size_t i = 0; i != count; ++i)
+                delete brains[i];
             
-            alloc(size);
-            
-            for(int i = 0; i != oldCount; ++i)
-                brains[i] = oldBrains[i];
-            
-            for(int i = oldCount; i != count; ++i)
-                brains[i] = new Brain();
-            
-            if(oldCount > 0)
-                Free(oldBrains);
-        }else if(size < count) {
-            Brain** oldBrains = brains;
-            int oldCount = count;
-            
-            alloc(size);
-            
-            for(int i = 0; i != size; ++i)
-                brains[i] = oldBrains[i];
-            
-            Free(oldBrains);
-            
-            for(int i = size; i != oldCount; ++i)
-                delete oldBrains[i];
-        }else{
-            for(int i = 0; i != count; ++i)
-                brains[i]->clear();
+            delete[] brains;
+            brains = NULL;
         }
     }
     
-    inline void reset(int input_size, int output_size) {
-        for(int i = 0; i != count; ++i)
+    void resize(size_t size) {
+        if(size == count) {
+            for(size_t i = 0; i != count; ++i)
+                brains[i]->clear();
+        }else{
+            Brain** oldBrains = brains;
+            size_t oldCount = count;
+            
+            count = size;
+            brains = new Brain*[size];
+            
+            if(count > oldCount) {
+                for(size_t i = 0; i != oldCount; ++i)
+                    brains[i] = oldBrains[i];
+                
+                for(size_t i = oldCount; i != count; ++i)
+                    brains[i] = new Brain();
+                
+                if(oldBrains != NULL)
+                    delete[] oldBrains;
+            }else if(count < oldCount) {
+                for(size_t i = 0; i != count; ++i)
+                    brains[i] = oldBrains[i];
+                
+                for(size_t i = count; i != oldCount; ++i)
+                    delete oldBrains[i];
+                
+                delete[] oldBrains;
+            }
+        }
+    }
+    
+    inline void reset(size_t input_size, size_t output_size) {
+        for(size_t i = 0; i != count; ++i)
             brains[i]->reset(input_size, output_size);
     }
     
     inline Brain* best() const {
-        if(count < 1) return NULL;
+        if(count < 1)
+            return NULL;
         
-        int idx = 0;
+        size_t idx = 0;
         
-        for(int i = 1; i != count; ++i)
+        for(size_t i = 1; i != count; ++i)
             if(brains[i]->reward > brains[idx]->reward)
                 idx = i;
         
         return brains[idx];
     }
     
-    inline void replace(int groupsize = 0) {
-        if(count < 1) return;
+    void replace(size_t groupsize = 0) {
+        if(count < 1)
+            return;
         
         groupsize = groupsize < 1 ? default_groupsize : groupsize;
         
-        Brain** _brains = (Brain**)Alloc(sizeof(Brain*) * count);
+        Brain** _brains = new Brain*[count];
         
-        for(int i = 0; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
             _brains[i] = brains[i];
         
-        for(int i = 0; i < count; ++i) {
-            int index = rand() % count;
-            for(int n = 1; n < groupsize; ++n) {
-                int idx = rand() % count;
+        for(size_t i = 0; i < count; ++i) {
+            size_t index = rand64() % count;
+            for(size_t n = 1; n < groupsize; ++n) {
+                size_t idx = rand64() % count;
                 if(_brains[idx]->reward > _brains[index]->reward)
                     index = idx;
             }
@@ -112,28 +124,29 @@ public:
             *(brains[i]) = *(_brains[index]);
         }
         
-        Free(_brains);
+        delete[] _brains;
     }
     
-    inline void produce(int groupsize = 0) {
-        if(count < 1) return;
+    void produce(size_t groupsize = 0) {
+        if(count < 1)
+            return;
         
         groupsize = groupsize < 1 ? default_groupsize : groupsize;
         
-        Brain** _brains = (Brain**)Alloc(sizeof(Brain*) * count);
-        
-        for(int i = 0; i < count; ++i)
+        Brain** _brains = new Brain*[count];
+
+        for(size_t i = 0; i < count; ++i)
             _brains[i] = brains[i];
         
-        for(int i = 0; i < count; ++i) {
-            int index1 = rand() % count;
-            int index2 = rand() % count;
+        for(size_t i = 0; i < count; ++i) {
+            size_t index1 = rand64() % count;
+            size_t index2 = rand64() % count;
             
             if(_brains[index2]->reward > _brains[index1]->reward)
                 std::swap(index1, index2);
             
-            for(int n = 1; n < groupsize; ++n) {
-                int idx = rand() % count;
+            for(size_t n = 1; n < groupsize; ++n) {
+                size_t idx = rand64() % count;
                 float r = _brains[idx]->reward;
                 
                 if(r > _brains[index1]->reward) {
@@ -147,33 +160,33 @@ public:
             Brain::produce(brains[i], _brains[index1], _brains[index2]);
         }
         
-        Free(_brains);
+        delete[] _brains;
     }
     
     inline void mutate() {
-        int half = count >> 1;
+        size_t half = count >> 1;
         
-        for(int i = 0; i != half; ++i)
+        for(size_t i = 0; i != half; ++i)
             brains[i]->mutate();
     }
     
     inline void alter(float scl) {
-        int half = count >> 1;
+        size_t half = count >> 1;
         
-        for(int i = 0; i != half; ++i)
+        for(size_t i = 0; i != half; ++i)
             brains[i]->alter(scl);
     }
     
     inline void setRandom(float scl) {
-        for(int i = 0; i != count; ++i)
+        for(size_t i = 0; i != count; ++i)
             brains[i]->setRandom(scl);
     }
     
-    inline Brain* operator [] (int i) const {
+    inline Brain* operator [] (size_t i) const {
         return brains[i];
     }
     
-    inline int size() const {
+    inline size_t size() const {
         return count;
     }
     
@@ -189,23 +202,23 @@ public:
         return brains + count;
     }
     
-    inline void clear() {
-        for(int i = 0; i != count; ++i)
+    void clear() {
+        for(size_t i = 0; i != count; ++i)
             brains[i]->reward = 0.0f;
     }
     
-    inline void write(std::ofstream& os) const {
+    void write(std::ofstream& os) const {
         os.write((char*)&count, sizeof(count));
         
-        for(int i = 0; i != count; ++i)
+        for(size_t i = 0; i != count; ++i)
             brains[i]->write(os);
     }
     
-    inline void read(std::ifstream& is) {
-        int size;
+    void read(std::ifstream& is) {
+        size_t size;
         is.read((char*)&size, sizeof(size));
         
-        for(int i = 0; i != count; ++i) {
+        for(size_t i = 0; i != count; ++i) {
             if(i >= size) {
                 *(brains[i]) = *(brains[i % size]);
             }else{
@@ -218,9 +231,9 @@ public:
         std::random_shuffle(brains, brains + count);
     }
     
-    inline void reduce() {
+    void reduce() {
         Brain *B = best();
-        for(int i = 0; i != count; ++i) {
+        for(size_t i = 0; i != count; ++i) {
             if(brains[i] != B)
                 *(brains[i]) = *B;
         }
@@ -228,28 +241,7 @@ public:
     
 protected:
     
-    inline void fill() {
-        for(int i = 0; i != count; ++i)
-            brains[i] = new Brain();
-    }
-    
-    inline void unfill() {
-        for(int i = 0; i != count; ++i)
-            delete brains[i];
-    }
-    
-    inline void free() {
-        if(count > 0)
-            Free(brains);
-    }
-    
-    inline void alloc(int size) {
-        count = size;
-        if(count > 0)
-            brains = (Brain**)Alloc(sizeof(Brain*) * count);
-    }
-    
-    int count;
+    size_t count;
     Brain** brains;
     
 };

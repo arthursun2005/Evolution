@@ -141,10 +141,11 @@ public:
     
     AABB aabb;
     
-    int maxBodies;
+    const size_t maxBodies;
     
-    World(float width, float height) : width(width), height(height), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)) {
-        maxBodies = (width * height) / (targetRadius * targetRadius) * 0.25f;
+    World(float width, float height, size_t md) : width(width), height(height), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)), maxBodies(md) {
+        bs.resize(maxBodies);
+        bs.reset(Body::input_size, Body::output_size);
     }
     
     ~World() {
@@ -157,36 +158,22 @@ public:
         float stride = 2.0f * def.radius * targetRadius;
         for(float x = aabb.lowerBound.x + stride; x < aabb.upperBound.x; x += stride) {
             for(float y = aabb.lowerBound.y + stride; y < aabb.upperBound.y; y += stride) {
-                if(bodies.size() >= maxBodies) return;
+                int idx = (int)bodies.size();
+                if(idx >= maxBodies) return;
                 def.position = vec2(x, y);
-                createBody(&def);
-            }
-        }
-    }
-    
-    void generate(BodyDef def, std::ifstream& is) {
-        Brain b;
-        b.read(is);
-        
-        float stride = 2.0f * def.radius * targetRadius;
-        for(float x = aabb.lowerBound.x + stride; x < aabb.upperBound.x; x += stride) {
-            for(float y = aabb.lowerBound.y + stride; y < aabb.upperBound.y; y += stride) {
-                if(bodies.size() >= maxBodies) return;
-                def.position = vec2(x, y);
-                Body* B = createBody(&def);
-                *(B->brain) = b;
+                createBody(&def)->brain = bs[idx];
             }
         }
     }
     
     void alter() {
         BodyDef def;
-        iterator_type begin = bodies.begin();
-        while(begin != bodies.end()) {
+        size_t begin = size();
+        while(begin != maxBodies) {
             if(bodies.size() >= maxBodies) return;
             def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
             Body* body = createBody(&def);
-            *body->brain = *(*begin)->brain;
+            body->brain = bs[begin];
             body->brain->mutate();
         }
     }
@@ -216,6 +203,14 @@ public:
     
     inline int getTreeMaxBalance() const {
         return tree.getMaxBalance();
+    }
+    
+    inline void read(std::ifstream& is) {
+        bs.read(is);
+    }
+    
+    inline void write(std::ofstream& os) const {
+        bs.write(os);
     }
     
     void step(float dt, int its) {

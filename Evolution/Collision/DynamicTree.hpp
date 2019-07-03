@@ -13,6 +13,8 @@
 
 #include <stack>
 
+#define null_node -1
+
 struct TreeNode
 {
     int child1;
@@ -36,7 +38,7 @@ struct TreeNode
     AABB aabb;
     
     inline bool isLeaf() const {
-        return child1 == -1;
+        return child1 == null_node;
     }
 };
 
@@ -75,7 +77,7 @@ class DynamicTree
     /// it becomes the free list
     inline void free_node(int node) {
         nodes[node].next = next;
-        nodes[node].height = -1;
+        nodes[node].height = null_node;
         next = node;
         --count;
     }
@@ -86,11 +88,11 @@ class DynamicTree
     void freeFrom(int index) {
         for(int i = index; i != capacity - 1; ++i) {
             nodes[i].next = i + 1;
-            nodes[i].height = -1;
+            nodes[i].height = null_node;
         }
         
-        nodes[capacity - 1].next = -1;
-        nodes[capacity - 1].height = -1;
+        nodes[capacity - 1].next = null_node;
+        nodes[capacity - 1].height = null_node;
     }
     
     /// assumes nodes[node].isLeaf() == false
@@ -150,7 +152,7 @@ public:
     DynamicTree();
     
     inline ~DynamicTree() {
-        Free(nodes);
+        ::operator delete (nodes);
     }
     
     DynamicTree(const DynamicTree& tree) = delete;
@@ -201,7 +203,7 @@ void DynamicTree::query(T *callback, const AABB &aabb) {
         int node = stack.top();
         stack.pop();
         
-        if(node == -1)
+        if(node == null_node)
             continue;
         
         if(nodes[node].isLeaf()) {

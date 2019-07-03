@@ -40,12 +40,12 @@ public:
         return bodies.cend();
     }
     
-    inline int size() const {
-        return (int)bodies.size();
+    inline size_t size() const {
+        return bodies.size();
     }
     
-    inline int getMaxBrainComplexity() const {
-        int c = 0;
+    inline size_t getMaxBrainComplexity() const {
+        size_t c = 0;
         
         for(Body* body : bodies)
             c = std::max(c, body->brain->totalSize());

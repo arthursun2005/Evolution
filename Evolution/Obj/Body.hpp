@@ -48,8 +48,8 @@ class Body : public Obj
 public:
     
     /// '' -> target
-    static const int single_input = 17;
-    static const int input_size = 2 * single_input + 5;
+    static const int single_input = 15;
+    static const int input_size = 2 * single_input + 7;
     
     /// body force, stick force, stick force local position
     static const int output_size = 6;

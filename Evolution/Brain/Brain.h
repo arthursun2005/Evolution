@@ -18,64 +18,45 @@ protected:
     
     std::vector<Neuron> neurons;
     
-    int links;
+    size_t links;
     
-    /// creates a neuron that is from -> neuron -> to
-    /// if from or to is -1, no link is added
-    inline int create_neuron(int from, int to, int type) {
-        int index = (int)neurons.size();
-        
+    inline size_t create_neuron() {
+        size_t index = neurons.size();
         Neuron neuron;
-        
         neuron.flags = 0;
-        
-        /// we add the links if not given -1
-        if(from != -1) {
-            neuron.add_link(from);
-            ++links;
-        }
-        
-        if(to != -1) {
-            neurons[to].add_link(index);
-            ++links;
-        }
-        
-        neuron.f.type = type;
-        
         neurons.push_back(neuron);
-        
         return index;
     }
     
     void write(std::ofstream& os, const Neuron* n) const {
-        int size = (int)n->inputs.size();
+        size_t size = n->inputs.size();
         os.write((char*)&size, sizeof(size));
         
-        for(const Neuron::Link& link : n->inputs) {
+        for(const NeuroLink& link : n->inputs) {
             os.write((char*)&link.index, sizeof(link.index));
             os.write((char*)&link.weight, sizeof(link.weight));
         }
         
         os.write((char*)&n->bias, sizeof(n->bias));
-        os.write((char*)&n->f, sizeof(n->f));
+        os.write((char*)&n->type, sizeof(n->type));
     }
     
     void read(std::ifstream& is, Neuron* n) {
-        int size;
+        size_t size;
         is.read((char*)&size, sizeof(size));
         n->inputs.resize(size);
         
-        for(const Neuron::Link& link : n->inputs) {
+        for(const NeuroLink& link : n->inputs) {
             is.read((char*)&link.index, sizeof(link.index));
             is.read((char*)&link.weight, sizeof(link.weight));
         }
         
         is.read((char*)&n->bias, sizeof(n->bias));
-        is.read((char*)&n->f, sizeof(n->f));
+        is.read((char*)&n->type, sizeof(n->type));
     }
     
-    int input_size;
-    int output_size;
+    size_t input_size;
+    size_t output_size;
     
 public:
     
@@ -83,7 +64,7 @@ public:
     
     inline Brain() : input_size(0), output_size(0) {}
     
-    inline Brain(int _input_size, int _output_size) {
+    inline Brain(size_t _input_size, size_t _output_size) {
         reset(_input_size, _output_size);
     }
     
@@ -95,15 +76,15 @@ public:
         return neurons.data() + input_size;
     }
     
-    inline int numOfNeurons() const {
-        return (int)neurons.size();
+    inline size_t numOfNeurons() const {
+        return neurons.size();
     }
     
-    inline int numOfLinks() const {
+    inline size_t numOfLinks() const {
         return links;
     }
     
-    inline int totalSize() const {
+    inline size_t totalSize() const {
         return numOfNeurons() + numOfLinks();
     }
     
@@ -114,35 +95,35 @@ public:
         links = 0;
     }
     
-    void reset(int _input_size, int _output_size) {
+    void reset(size_t _input_size, size_t _output_size) {
         reward = 0.0f;
         links = 0;
         
         input_size = _input_size;
         output_size = _output_size;
         
-        int size = input_size + output_size;
+        size_t size = input_size + output_size;
         neurons.resize(size);
         
         for(Neuron &neuron : neurons)
-            neuron.clear();
+            neuron.reset();
         
-        for(int i = 0; i < input_size; ++i) {
+        for(size_t i = 0; i < input_size; ++i) {
             neurons[i].flags = e_neuron_computed | e_neuron_input;
         }
         
-        for(int i = 0; i < output_size; ++i) {
+        for(size_t i = 0; i < output_size; ++i) {
             neurons[input_size + i].flags = e_neuron_output;
         }
         
-        int index1 = input_size + (rand() % output_size);
-        int index2 = rand() % input_size;
-        neurons[index1].add_link(index2);
+        size_t index1 = input_size + (rand64() % output_size);
+        size_t index2 = rand64() % input_size;
+        neurons[index1].add_link(NeuroLink{index2, 1.0f});
         ++links;
     }
     
     void write(std::ofstream& os) const {
-        int total = (int)neurons.size();
+        size_t total = neurons.size();
         
         os.write((char*)&input_size, sizeof(input_size));
         os.write((char*)&output_size, sizeof(output_size));
@@ -154,8 +135,8 @@ public:
     }
     
     void read(std::ifstream& is) {
-        int total;
-        int i, o;
+        size_t total;
+        size_t i, o;
         
         is.read((char*)&i, sizeof(i));
         is.read((char*)&o, sizeof(o));
@@ -173,15 +154,15 @@ public:
     }
     
     inline void compute() {
-        int size = (int)neurons.size();
+        size_t size = neurons.size();
         
-        for(int i = 0; i < input_size; ++i)
-            neurons[i].value = neurons[i].f(neurons[i].value + neurons[i].bias);
+        for(size_t i = 0; i < input_size; ++i)
+            neurons[i].compute_input();
         
-        for(int i = input_size; i < size; ++i)
+        for(size_t i = input_size; i < size; ++i)
             neurons[i].flags &= ~ e_neuron_computed;
         
-        for(int i = 0; i < output_size; ++i)
+        for(size_t i = 0; i < output_size; ++i)
             Neuron::compute_value(input_size + i, neurons.data());
     }
     
@@ -201,65 +182,74 @@ public:
     }
     
     void mutate() {
-        int size = (int)(neurons.size());
+        size_t size = neurons.size();
         
-        int k = rand() & 0xFFFF;
+        int k = rand32() & 0xFFFF;
         
-        if(k <= 0x4FFF) {
+        if(k <= 0x7FFF) {
             
-            int index1 = -1;
+            size_t index1 = -1;
             
             while(index1 == -1 || neurons[index1].inputs.empty())
-                index1 = input_size + (rand() % (size - input_size));
+                index1 = input_size + (rand64() % (size - input_size));
             
+            size_t i = rand64() % neurons[index1].inputs.size();
             
-            int i = rand() % neurons[index1].inputs.size();
-            
-            int index2 = neurons[index1].inputs[i].index;
+            size_t index2 = neurons[index1].inputs[i].index;
             
             neurons[index1].inputs.erase(neurons[index1].inputs.begin() + i);
-            --links;
             
             int func_type = ActivationFunction::rand();
             
-            create_neuron(index2, index1, func_type);
+            size_t neuron = create_neuron();
+            
+            neurons[neuron].add_link(NeuroLink{index2, 1.0f});
+            neurons[index1].add_link(NeuroLink{neuron, 1.0f});
+            
+            neurons[neuron].type = func_type;
+            
+            ++links;
             
         }else if(k <= 0x7FFF) {
-            int index1 = -1;
-            int index2 = 0;
+            size_t index1 = -1;
+            size_t index2 = 0;
             
-            int tries = 0;
+            size_t tries = 0;
             
             while(index1 == -1 || Neuron::has_neuron(index1, index2, neurons.data()) || Neuron::has_neuron(index2, index1, neurons.data()) || index1 == index2) {
-                if(tries >= size) return;
-                index1 = input_size + (rand() % (size - input_size));
-                index2 = rand() % size;
+                
+                if(tries >= size)
+                    return;
+                
+                index1 = input_size + (rand64() % (size - input_size));
+                index2 = rand64() % size;
+                
                 ++tries;
             }
             
-            neurons[index1].add_link(index2);
+            neurons[index1].add_link(NeuroLink{index2, 1.0f});
             ++links;
         }else{
-            int index = rand() % size;
+            size_t index = rand64() % size;
             int func_type = ActivationFunction::rand();
-            neurons[index].f.type = func_type;
+            neurons[index].type = func_type;
         }
     }
     
     static void produce(const Brain* A, const Brain* B, Brain* C) {
         *C = *A;
         
-        int size = C->numOfNeurons();
-        for(int i = 0; i < size; ++i) {
-            int lsize = (int)C->neurons[i].inputs.size();
+        size_t size = C->numOfNeurons();
+        for(size_t i = 0; i < size; ++i) {
+            size_t lsize = C->neurons[i].inputs.size();
             
-            for(int j = 0; j < lsize; ++j) {
-                if(rand() & 0b1) {
+            for(size_t j = 0; j < lsize; ++j) {
+                if(rand32() & 0b1) {
                     C->neurons[i].inputs[j].weight = B->neurons[i].inputs[j].weight;
                 }
             }
             
-            if(rand() & 0b1) {
+            if(rand32() & 0b1) {
                 C->neurons[i].bias = B->neurons[i].bias;
             }
         }

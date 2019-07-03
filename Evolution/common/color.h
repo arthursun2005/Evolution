@@ -27,18 +27,6 @@ struct Colorf
     Colorf(float r, float g, float b) : r(r), g(g), b(b), a(1.0f) {}
     
     Colorf(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
-    
-    inline uint32_t hex() const {
-        int _r = r * 256.0f + 0.5f;
-        int _g = g * 256.0f + 0.5f;
-        int _b = b * 256.0f + 0.5f;
-        int _a = a * 256.0f + 0.5f;
-        return (_r << 24) | (_g << 16) | (_b << 8) | _a;
-    }
-    
-    inline float compress() const {
-        return r * g + g * b + b * a + a * r;
-    }
 };
 
 #endif /* color_h */

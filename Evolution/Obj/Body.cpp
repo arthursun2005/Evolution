@@ -66,8 +66,8 @@ Body::Body(const BodyDef* def) {
 void Body::setInputs(Neuron *in) const {
     in[0].value = velocity.x;
     in[1].value = velocity.y;
-    in[2].value = stick.position.x;
-    in[3].value = stick.position.y;
+    in[2].value = stick.position.x - position.x;
+    in[3].value = stick.position.y - position.y;
     in[4].value = stick.velocity.x;
     in[5].value = stick.velocity.y;
     in[6].value = stick.normal.x;
@@ -79,8 +79,6 @@ void Body::setInputs(Neuron *in) const {
     in[12].value = density;
     in[13].value = stick.density;
     in[14].value = armLength;
-    in[15].value = position.x;
-    in[16].value = position.y;
 }
 
 void Body::setInputs(const AABB& aabb) {
@@ -88,10 +86,12 @@ void Body::setInputs(const AABB& aabb) {
         Neuron* in = brain->inputs();
         setInputs(in);
         target->setInputs(in + single_input);
-        in[input_size - 5].value = aabb.lowerBound.x;
-        in[input_size - 4].value = aabb.lowerBound.y;
-        in[input_size - 3].value = aabb.upperBound.x;
-        in[input_size - 2].value = aabb.upperBound.y;
+        in[input_size - 7].value = target->position.x - position.x;
+        in[input_size - 6].value = target->position.y - position.y;
+        in[input_size - 5].value = aabb.lowerBound.x - position.x;
+        in[input_size - 4].value = aabb.lowerBound.y - position.y;
+        in[input_size - 3].value = aabb.upperBound.x - position.x;
+        in[input_size - 2].value = aabb.upperBound.y - position.y;
     }
 }
 

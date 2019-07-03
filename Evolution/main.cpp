@@ -12,7 +12,7 @@
 #include "Builder.h"
 #include "Graphics.h"
 
-const char* hexFile = "brain14.hex";
+const char* hexFile = "brain.hex";
 const char* logFile = "log";
 
 FILE* log_file;
@@ -21,7 +21,7 @@ FILE* log_file;
 
 #define WRITING false
 
-#define READING true
+#define READING false
 
 #define pop_root 32
 
@@ -33,7 +33,7 @@ int width = 1280;
 int height = 840;
 
 #if TRAINING
-Builder builder(pop_root, pop_root, 30.0f, 30.0f, BodyDef());
+Builder builder(pop_root, pop_root, 60.0f, 60.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
 float dt1 = 0.016f;
 float dt2 = 5.0f;
@@ -43,7 +43,7 @@ int subSteps2 = subSteps1 * (dt2/dt1);
 int mode = 1;
 float totalScore = 0.0f;
 #else
-World world(500.0f, 500.0f);
+World world(500.0f, 500.0f, pop_root * pop_root);
 Graphics<BodySystem> renderer(&world);
 float dt = 0.016f;
 int subSteps = 8;
@@ -129,7 +129,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         
         if(key == GLFW_KEY_C) {
-            printf("%d\n", builder.getMaxBrainComplexity());
+            printf("%zu\n", builder.getMaxBrainComplexity());
         }
         
         if(key == GLFW_KEY_T) {
@@ -141,15 +141,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         
         if(key == GLFW_KEY_K) {
-            printf("%d\n", builder.getBestBrainComplexity());
+            printf("%zu\n", builder.getBestBrainComplexity());
         }
         
         if(key == GLFW_KEY_B) {
             printf("%d\n", builder.generation);
-        }
-        
-        if(key == GLFW_KEY_K) {
-            printf("%d\n", builder.getBestBrainComplexity());
         }
         
         if(key == GLFW_KEY_1) {
@@ -251,12 +247,11 @@ int main(int argc, const char * argv[]) {
 #if TRAINING
     builder.read(is);
 #else
-    world.generate(BodyDef(), is);
-    world.maxBodies = pop_root;
+    world.read(is);
 #endif
     is.close();
 #endif
-        
+    
     do {
         bool press = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
         
@@ -315,8 +310,8 @@ int main(int argc, const char * argv[]) {
                     totalScore += score;
                     fprintf(log_file, "%6d ", builder.generation);
                     fprintf(log_file, "%9.3f ", score);
-                    fprintf(log_file, "%5d ", builder.getMaxBrainComplexity());
-                    fprintf(log_file, "%5d ", builder.getBestBrainComplexity());
+                    fprintf(log_file, "%5zu ", builder.getMaxBrainComplexity());
+                    fprintf(log_file, "%5zu ", builder.getBestBrainComplexity());
                     fprintf(log_file, "%9.3f ", totalScore/(float)builder.generation);
                     fprintf(log_file, "\n");
                     fflush(log_file);
@@ -347,8 +342,8 @@ int main(int argc, const char * argv[]) {
 #else
     
     fprintf(log_file, "generation: %d\n", builder.generation);
-    fprintf(log_file, "max complexity: %d\n", builder.getMaxBrainComplexity());
-    fprintf(log_file, "best complexity: %d\n", builder.getBestBrainComplexity());
+    fprintf(log_file, "max complexity: %zu\n", builder.getMaxBrainComplexity());
+    fprintf(log_file, "best complexity: %zu\n", builder.getBestBrainComplexity());
     
 #endif
     

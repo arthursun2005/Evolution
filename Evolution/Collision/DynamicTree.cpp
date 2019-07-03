@@ -12,22 +12,22 @@ DynamicTree::DynamicTree() {
     capacity = 256;
     count = 0;
     next = 0;
-    root = -1;
+    root = null_node;
     
-    nodes = (TreeNode*)Alloc(sizeof(TreeNode) * capacity);
-    
+    nodes = (TreeNode*)::operator new (sizeof(TreeNode) * capacity);
+
     freeFrom(0);
 }
 
 int DynamicTree::allocate_node() {
-    if(next == -1) {
+    if(next == null_node) {
         /// not enough space for now ...
         
         /// current situation ...
         
         /**
          ** next     1   2   3   4   5 ... capacity - 2     capacity - 1
-         ** index    0   1   2   3   4     capacity - 1     -1
+         ** index    0   1   2   3   4     capacity - 1     null_node
          **/
         
         assert(capacity == count);
@@ -37,13 +37,13 @@ int DynamicTree::allocate_node() {
         /// normally having memory in blocks of powers of 2 is better
         capacity *= 2;
         
-        nodes = (TreeNode*)Alloc(sizeof(TreeNode) * capacity);
+        nodes = (TreeNode*)::operator new (sizeof(TreeNode) * capacity);
         
         /// copy old memory into new
         memcpy(nodes, oldNodes, sizeof(TreeNode) * count);
         
         /// free old
-        Free(oldNodes);
+        ::operator delete (oldNodes);
         
         /// we dont't need to reset nodes[count - 1].next to count ...
         /// because the next we use it, it's going to be called by free_node ...
@@ -55,8 +55,8 @@ int DynamicTree::allocate_node() {
     
     int node = next;
     
-    nodes[node].child1 = -1;
-    nodes[node].child2 = -1;
+    nodes[node].child1 = null_node;
+    nodes[node].child2 = null_node;
     
     next = nodes[node].next;
     
@@ -66,9 +66,9 @@ int DynamicTree::allocate_node() {
 }
 
 void DynamicTree::insertProxy(int proxyId) {
-    if(root == -1) {
+    if(root == null_node) {
         root = proxyId;
-        nodes[root].parent = -1;
+        nodes[root].parent = null_node;
         return;
     }
     
@@ -138,7 +138,7 @@ void DynamicTree::insertProxy(int proxyId) {
     nodes[newParent].aabb = combine_aabb(aabb, nodes[sibling].aabb);
     nodes[newParent].height = nodes[sibling].height + 1;
     
-    if (oldParent != -1)
+    if (oldParent != null_node)
     {
         /// The sibling was not the root.
         if (nodes[oldParent].child1 == sibling)
@@ -162,7 +162,7 @@ void DynamicTree::insertProxy(int proxyId) {
     nodes[proxyId].parent = newParent;
     
     /// Walk back up the tree fixing heights and AABBs
-    while (newParent != -1) {
+    while (newParent != null_node) {
         newParent = balance(newParent);
         fix(newParent);
         newParent = nodes[newParent].parent;
@@ -191,7 +191,7 @@ bool DynamicTree::moveProxy(int nodeId, const AABB &aabb, const vec2& displaceme
 
 void DynamicTree::removeProxy(int leaf) {    
     if (leaf == root) {
-        root = -1;
+        root = null_node;
         return;
     }
     
@@ -206,7 +206,7 @@ void DynamicTree::removeProxy(int leaf) {
         sibling = nodes[parent].child1;
     }
     
-    if (grandParent != -1) {
+    if (grandParent != null_node) {
         /// Destroy parent and connect sibling to grandParent.
         if (nodes[grandParent].child1 == parent) {
             nodes[grandParent].child1 = sibling;
@@ -219,14 +219,14 @@ void DynamicTree::removeProxy(int leaf) {
         
         /// Fix everything
         int index = grandParent;
-        while (index != -1) {
+        while (index != null_node) {
             index = balance(index);
             fix(index);
             index = nodes[index].parent;
         }
     }else{
         root = sibling;
-        nodes[sibling].parent = -1;
+        nodes[sibling].parent = null_node;
         free_node(parent);
     }
 }
@@ -247,7 +247,7 @@ int DynamicTree::balance(int node) {
         return rotate_left(node);
     }
     
-    if(balance < -1) {
+    if(balance < null_node) {
         int leftChild = nodes[node].child1;
         int subBalance = getBalance(leftChild);
         
@@ -261,7 +261,7 @@ int DynamicTree::balance(int node) {
 }
 
 void DynamicTree::query(std::vector<Contact> *list) {
-    if(root == -1) return;
+    if(root == null_node) return;
     
     if(nodes[root].isLeaf()) return;
     
@@ -278,27 +278,27 @@ void DynamicTree::query(std::vector<Contact> *list) {
 }
 
 void DynamicTree::validateStructure() {
-    if(root == -1) return;
+    if(root == null_node) return;
     
     std::stack<int> stack;
     
     stack.push(root);
     
-    assert(nodes[root].parent == -1);
+    assert(nodes[root].parent == null_node);
     
     while(!stack.empty()) {
         int node = stack.top();
         stack.pop();
         
-        if(node == -1)
+        if(node == null_node)
             continue;
         
         int child1 = nodes[node].child1;
         int child2 = nodes[node].child2;
         
         if(nodes[node].isLeaf()) {
-            assert(child1 == -1);
-            assert(child2 == -1);
+            assert(child1 == null_node);
+            assert(child2 == null_node);
             assert(nodes[node].height == 0);
             continue;
         }
@@ -312,19 +312,19 @@ void DynamicTree::validateStructure() {
 }
 
 void DynamicTree::validateSizes() {
-    if(root == -1) return;
+    if(root == null_node) return;
     
     std::stack<int> stack;
     
     stack.push(root);
     
-    assert(nodes[root].parent == -1);
+    assert(nodes[root].parent == null_node);
     
     while(!stack.empty()) {
         int node = stack.top();
         stack.pop();
         
-        if(node == -1)
+        if(node == null_node)
             continue;
         
         int child1 = nodes[node].child1;
@@ -349,7 +349,7 @@ void DynamicTree::validateSizes() {
 }
 
 float DynamicTree::getAreaRatio() const {
-    if (root == -1)
+    if (root == null_node)
         return 0.0f;
     
     float rootArea = nodes[root].aabb.area();
@@ -374,7 +374,7 @@ int DynamicTree::rotate_left(int index) {
     
     int parent = nodes[index].parent;
     
-    if(parent == -1) {
+    if(parent == null_node) {
         root = n;
     }else{
         if(nodes[parent].child1 == index) {
@@ -402,7 +402,7 @@ int DynamicTree::rotate_right(int index) {
     
     int parent = nodes[index].parent;
     
-    if(parent == -1) {
+    if(parent == null_node) {
         root = n;
     }else{
         if(nodes[parent].child1 == index) {
@@ -427,7 +427,7 @@ void DynamicTree::validate() {
     
     int freeCount = 0;
     int freeIndex = next;
-    while (freeIndex != -1) {
+    while (freeIndex != null_node) {
         assert(0 <= freeIndex && freeIndex < capacity);
         freeIndex = nodes[freeIndex].next;
         ++freeCount;
@@ -435,7 +435,7 @@ void DynamicTree::validate() {
     
     assert(count + freeCount == capacity);
     
-    if(root != -1)
+    if(root != null_node)
         assert(nodes[root].height == computeHeight(root));
 }
 
