@@ -23,12 +23,21 @@ enum neuron_flags
 struct NeuroLink {
     size_t index;
     float weight;
+    unsigned int age;
+    
+    inline NeuroLink() {}
+    
+    inline NeuroLink(size_t index) : index(index), weight(0.0f), age(1u) {}
 };
 
 struct Neuron : public ActivationFunction
 {
     float value;
     float bias;
+    unsigned int age;
+    int flags;
+    
+    std::vector<NeuroLink> inputs;
     
     static inline float rand() {
         static std::default_random_engine generator;
@@ -36,11 +45,9 @@ struct Neuron : public ActivationFunction
         return distribution(generator);
     }
     
-    std::vector<NeuroLink> inputs;
-    
-    int flags;
-    
-    inline Neuron() : bias(0.0f) {}
+    inline Neuron() {
+        reset();
+    }
     
     inline void add_link(const NeuroLink& link) {
         inputs.push_back(link);
@@ -49,27 +56,21 @@ struct Neuron : public ActivationFunction
     inline void reset() {
         inputs.clear();
         bias = 0.0f;
+        age = 1u;
     }
     
-    inline void setRandom(float scl) {
+    inline void mutate() {
         for(NeuroLink& link : inputs)
-            link.weight = scl * rand();
+            link.weight += rand() / (float)link.age;
         
-        bias = scl * rand();
+        bias += rand() / (float)age;
     }
     
-    inline void setShared(float value) {
+    inline void grow() {
         for(NeuroLink& link : inputs)
-            link.weight = value;
+            ++link.age;
         
-        bias = value;
-    }
-    
-    inline void alter(float scl) {
-        for(NeuroLink& link : inputs)
-            link.weight += scl * rand();
-        
-        bias += scl * rand();
+        ++age;
     }
     
     inline void remove_link(size_t index) {
@@ -93,12 +94,12 @@ struct Neuron : public ActivationFunction
     }
     
     inline void compute(const Neuron* neurons) {
-        float sum = 0.0f;
+        float sum = bias;
         
         for(const NeuroLink& link : inputs)
             sum += link.weight * neurons[link.index].value;
         
-        value = operator () (sum + bias);
+        value = operator () (sum);
         flags |= e_neuron_computed;
     }
     

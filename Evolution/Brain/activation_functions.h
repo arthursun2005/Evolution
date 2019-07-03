@@ -36,8 +36,6 @@ struct ActivationFunction
     }
     
     inline float operator () (float x) const {
-        return expf(-(x * x) * 0.5f);
-        
         if(type == e_linear) {
             return x;
         }

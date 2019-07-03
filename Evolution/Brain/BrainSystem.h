@@ -125,61 +125,19 @@ public:
         }
         
         delete[] _brains;
-    }
-    
-    void produce(size_t groupsize = 0) {
-        if(count < 1)
-            return;
         
-        groupsize = groupsize < 1 ? default_groupsize : groupsize;
-        
-        Brain** _brains = new Brain*[count];
-
-        for(size_t i = 0; i < count; ++i)
-            _brains[i] = brains[i];
-        
-        for(size_t i = 0; i < count; ++i) {
-            size_t index1 = rand64() % count;
-            size_t index2 = rand64() % count;
-            
-            if(_brains[index2]->reward > _brains[index1]->reward)
-                std::swap(index1, index2);
-            
-            for(size_t n = 1; n < groupsize; ++n) {
-                size_t idx = rand64() % count;
-                float r = _brains[idx]->reward;
-                
-                if(r > _brains[index1]->reward) {
-                    index2 = index1;
-                    index1 = idx;
-                }else if(r > _brains[index2]->reward) {
-                    index2 = idx;
-                }
-            }
-            
-            Brain::produce(brains[i], _brains[index1], _brains[index2]);
-        }
-        
-        delete[] _brains;
+        for(size_t i = 0; i != count; ++i)
+            brains[i]->generate();
     }
     
     inline void mutate() {
-        size_t half = count >> 1;
-        
-        for(size_t i = 0; i != half; ++i)
+        for(size_t i = 0; i != count; ++i)
             brains[i]->mutate();
     }
     
-    inline void alter(float scl) {
-        size_t half = count >> 1;
-        
-        for(size_t i = 0; i != half; ++i)
-            brains[i]->alter(scl);
-    }
-    
-    inline void setRandom(float scl) {
+    inline void grow() {
         for(size_t i = 0; i != count; ++i)
-            brains[i]->setRandom(scl);
+            brains[i]->grow();
     }
     
     inline Brain* operator [] (size_t i) const {

@@ -148,14 +148,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             printf("%d\n", builder.generation);
         }
         
-        if(key == GLFW_KEY_1) {
-            if(builder.mode != e_tune_weights) {
-                fprintf(log_file, "\ntuning weights now....\n");
-                fflush(log_file);
-                builder.tune_weights();
-            }
-        }
-        
 #endif
         
         if(key == GLFW_KEY_P || key == GLFW_KEY_SPACE) {

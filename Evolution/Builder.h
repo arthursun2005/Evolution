@@ -12,13 +12,7 @@
 #include "World.hpp"
 #include <thread>
 
-#define builder_threads 8
-
-enum training_mode
-{
-    e_construct_brain,
-    e_tune_weights
-};
+#define builder_threads 16
 
 struct Room {
     AABB aabb;
@@ -48,7 +42,7 @@ struct Room {
         if(touches(bAs, bBs)) World::solveStickStick(&A->stick, &B->stick, dt);
     }
     
-    void step(float dt, int its, int mode) {
+    void step(float dt, int its) {
         A->setInputs(aabb);
         B->setInputs(aabb);
         
@@ -65,12 +59,6 @@ struct Room {
         
         A->constrain(aabb);
         B->constrain(aabb);
-    }
-    
-    inline void alter(int mode) {
-        if(mode == e_construct_brain) {
-            B->brain->setShared(randf(-2.0f, 2.0f));
-        }
     }
     
     void copyStatistics(Body* body, const BodyDef* def) {
@@ -103,8 +91,6 @@ public:
     
     float subTime = 0.0f;
     float time = 0.0f;
-    
-    int mode = e_construct_brain;
     
     int generation = 0;
     
@@ -154,7 +140,7 @@ public:
     inline void _step_range(int i, int n, float dt, int its) {
         int end = i + n;
         for(; i != end; ++i)
-            rooms[i].step(dt, its, mode);
+            rooms[i].step(dt, its);
     }
     
     inline void step_range(int i, int n, float dt, int col, int its) {
@@ -184,20 +170,16 @@ public:
         float score = 0.0f;
         
         if(time >= threshold) {
-            
             score = bs.best()->reward;
             
-            if(mode == e_construct_brain) {
-                bs.replace();
-                bs.mutate();
-            }else{
-                bs.produce();
-            }
+            bs.replace();
+            bs.mutate();
             
             time = 0.0f;
             ++generation;
             
             bs.clear();
+            bs.grow();
         }
         
         if(subTime >= subThreshold) {
@@ -211,11 +193,8 @@ public:
             assign();
             
             for(Room& R : rooms) {
-                R.alter(mode);
                 R.reset();
             }
-            
-            bs[0]->setShared(randf(-2.0f, 2.0f));
             
             subTime = 0.0f;
         }
@@ -247,12 +226,6 @@ public:
     
     inline void read(std::ifstream& is) {
         bs.read(is);
-    }
-    
-    inline void tune_weights() {
-        mode = e_tune_weights;
-        bs.reduce();
-        bs.setRandom(2.0f);
     }
     
 private:
