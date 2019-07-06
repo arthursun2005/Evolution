@@ -59,21 +59,50 @@ inline bool starts_with(const std::string& str, const std::string& start) {
     return true;
 }
 
-inline int32_t rand32() {
-    return rand();
+#define uint32_max 0xffffffff
+
+#define uint64_max 0xffffffffffffffff
+
+#define uint32_inv_max 1.0 / (double) uint32_max
+
+#define uint64_inv_max 1.0 / (double) uint64_max
+
+inline uint64_t rand64() {
+    thread_local uint64_t r = clock();
+    r = r * 0x1fffffffffffffff + 32416190071;
+    r = r ^ (r >> 15) ^ (r << 17);
+    return r;
 }
 
-inline int64_t rand64() {
-    return (int64_t(rand32()) << 32) | rand32();
+inline uint32_t rand32() {
+    return (uint32_t)rand64();
+}
+
+inline float gaussian_randomf() {
+    thread_local float k1;
+    thread_local float k2;
+    thread_local bool G = false;
+    
+    if(G) {
+        G = !G;
+        return sinf(2.0f * M_PI * k1) * k2;
+    }else{
+        G = !G;
+        
+        k1 = rand32() * uint32_inv_max;
+        k2 = rand32() * uint32_inv_max;
+        k2 = sqrtf(-2.0f * logf(k2));
+        
+        return cosf(2.0f * M_PI * k1) * k2;
+    }
+}
+
+inline float randomf(float a, float b) {
+    return rand32() * uint32_inv_max * (b - a) + a;
 }
 
 inline int firstbitf(float x) {
     return 0b1 & (~((*(int*)&x) >> 31));
-}
-
-inline float randf(float a, float b) {
-    static constexpr float inv_max = 1.0f/RAND_MAX;
-    return rand() * inv_max * (b - a) + a;
 }
 
 #endif /* common_h */

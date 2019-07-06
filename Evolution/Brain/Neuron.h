@@ -30,6 +30,10 @@ struct NeuroLink {
     inline NeuroLink(size_t index) : index(index), weight(0.0f), age(1u) {}
 };
 
+inline float learn_at_age(float x) {
+    return 0.5f * gaussian_randomf() / x;
+}
+
 struct Neuron : public ActivationFunction
 {
     float value;
@@ -38,12 +42,6 @@ struct Neuron : public ActivationFunction
     int flags;
     
     std::vector<NeuroLink> inputs;
-    
-    static inline float rand() {
-        static std::default_random_engine generator;
-        static std::normal_distribution<float> distribution(0.0f, 1.0f);
-        return distribution(generator);
-    }
     
     inline Neuron() {
         reset();
@@ -61,9 +59,16 @@ struct Neuron : public ActivationFunction
     
     inline void mutate() {
         for(NeuroLink& link : inputs)
-            link.weight += rand() / (float)link.age;
+            link.weight += learn_at_age(link.age);
         
-        bias += rand() / (float)age;
+        bias += learn_at_age(age);
+    }
+    
+    inline void renew() {
+        for(NeuroLink& link : inputs)
+            link.age = 1u;
+        
+        age = 1u;
     }
     
     inline void grow() {
@@ -108,7 +113,7 @@ struct Neuron : public ActivationFunction
         value = operator () (value + bias);
     }
     
-    static bool has_neuron(size_t index1, size_t index2, const Neuron* neurons) {
+    inline static bool has_neuron(size_t index1, size_t index2, const Neuron* neurons) {
         std::stack<size_t> stack;
         
         stack.push(index1);
@@ -128,7 +133,7 @@ struct Neuron : public ActivationFunction
         return false;
     }
     
-    static void compute_value(size_t index, Neuron* neurons) {
+    inline static void compute_value(size_t index, Neuron* neurons) {
         if((neurons[index].flags & e_neuron_computed) != 0)
             return;
         

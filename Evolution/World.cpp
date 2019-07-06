@@ -117,7 +117,11 @@ void World::solveCircleCircle(Obj *A, Obj *B, const vec2 &p1, const vec2 &p2, fl
         m.normal = normal;
         m.point = 0.5f * (p1 + p2);
         
-        m.solve();
+        float I = m.solve();
+        
+        if(B->type == Obj::e_stick && A->type == Obj::e_body) {
+            ((Body*)A)->health -= I;
+        }
     }
 }
 

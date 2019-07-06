@@ -12,7 +12,7 @@
 #include "World.hpp"
 #include <thread>
 
-#define builder_threads 16
+#define builder_threads 8
 
 struct Room {
     AABB aabb;
@@ -172,14 +172,12 @@ public:
         if(time >= threshold) {
             score = bs.best()->reward;
             
-            bs.replace();
-            bs.mutate();
+            bs.step();
             
             time = 0.0f;
             ++generation;
             
             bs.clear();
-            bs.grow();
         }
         
         if(subTime >= subThreshold) {
@@ -220,11 +218,11 @@ public:
         return bs.best()->totalSize();
     }
     
-    inline void write(std::ofstream& os) const {
+    inline void write(FILE* os) const {
         bs.write(os);
     }
     
-    inline void read(std::ifstream& is) {
+    inline void read(FILE* is) {
         bs.read(is);
     }
     

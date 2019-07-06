@@ -28,27 +28,28 @@ protected:
         return index;
     }
     
-    void write(std::ofstream& os, const Neuron* n) const {
+    void write(FILE* os, const Neuron* n) const {
         size_t size = n->inputs.size();
-        os.write((char*)&size, sizeof(size));
+        
+        fwrite(&size, sizeof(size), 1, os);
         
         for(const NeuroLink& link : n->inputs) {
-            os.write((char*)&link, sizeof(link));
+            fwrite(&link, sizeof(link), 1, os);
         }
         
-        os.write((char*)&n, sizeof(n) - sizeof(n->inputs));
+        fwrite(n, sizeof(*n) - sizeof(n->inputs), 1, os);
     }
     
-    void read(std::ifstream& is, Neuron* n) {
+    void read(FILE* is, Neuron* n) {
         size_t size;
-        is.read((char*)&size, sizeof(size));
+        fread(&size, sizeof(size), 1, is);
         n->inputs.resize(size);
         
-        for(const NeuroLink& link : n->inputs) {
-            is.read((char*)&link, sizeof(link));
+        for(NeuroLink& link : n->inputs) {
+            fread(&link, sizeof(link), 1, is);
         }
         
-        is.read((char*)&n, sizeof(n) - sizeof(n->inputs));
+        fread(n, sizeof(*n) - sizeof(n->inputs), 1, is);
     }
     
     size_t input_size;
@@ -118,29 +119,25 @@ public:
         ++links;
     }
     
-    void write(std::ofstream& os) const {
+    void write(FILE* os) const {
         size_t total = neurons.size();
         
-        os.write((char*)&input_size, sizeof(input_size));
-        os.write((char*)&output_size, sizeof(output_size));
-        os.write((char*)&total, sizeof(total));
-        os.write((char*)&links, sizeof(links));
+        fwrite(&input_size, sizeof(&input_size), 1, os);
+        fwrite(&output_size, sizeof(&output_size), 1, os);
+        fwrite(&total, sizeof(&total), 1, os);
+        fwrite(&links, sizeof(&links), 1, os);
         
         for(const Neuron &neuron : neurons)
             write(os, &neuron);
     }
     
-    void read(std::ifstream& is) {
+    void read(FILE* is) {
         size_t total;
-        size_t i, o;
         
-        is.read((char*)&i, sizeof(i));
-        is.read((char*)&o, sizeof(o));
-        is.read((char*)&total, sizeof(total));
-        is.read((char*)&links, sizeof(links));
-        
-        input_size = i;
-        output_size = o;
+        fread(&input_size, sizeof(input_size), 1, is);
+        fread(&output_size, sizeof(output_size), 1, is);
+        fread(&total, sizeof(total), 1, is);
+        fread(&links, sizeof(links), 1, is);
         
         neurons.resize(total);
         
@@ -162,6 +159,11 @@ public:
             Neuron::compute_value(input_size + i, neurons.data());
     }
     
+    inline void renew() {
+        for(Neuron& n : neurons)
+            n.renew();
+    }
+    
     inline void grow() {
         for(Neuron& n : neurons)
             n.grow();
@@ -177,46 +179,34 @@ public:
         
         int k = rand32() & 0xf;
         
-        if(k < 0x2) {
+        if(k < 0x4) {
             
-            size_t index1 = -1;
+            size_t index1 = input_size + (rand64() % (size - input_size));
             
-            while(index1 == -1 || neurons[index1].inputs.empty())
-                index1 = input_size + (rand64() % (size - input_size));
-            
-            size_t i = rand64() % neurons[index1].inputs.size();
-            
-            size_t index2 = neurons[index1].inputs[i].index;
-            
-            neurons[index1].inputs.erase(neurons[index1].inputs.begin() + i);
-            
-            size_t neuron = create_neuron();
-            
-            neurons[neuron].add_link(NeuroLink(index2));
-            neurons[index1].add_link(NeuroLink(neuron));
-            
-            ++links;
-            
-        }else if(k < 0x4) {
-            size_t index1 = -1;
-            size_t index2 = 0;
-            
-            size_t tries = 0;
-            
-            while(index1 == -1 || Neuron::has_neuron(index1, index2, neurons.data()) || Neuron::has_neuron(index2, index1, neurons.data()) || index1 == index2) {
+            if(!neurons[index1].inputs.empty()) {
+                size_t i = rand64() % neurons[index1].inputs.size();
                 
-                if(tries >= size)
-                    return;
+                size_t index2 = neurons[index1].inputs[i].index;
                 
-                index1 = input_size + (rand64() % (size - input_size));
-                index2 = rand64() % size;
+                neurons[index1].inputs.erase(neurons[index1].inputs.begin() + i);
                 
-                ++tries;
+                size_t neuron = create_neuron();
+                
+                neurons[neuron].add_link(NeuroLink(index2));
+                neurons[index1].add_link(NeuroLink(neuron));
+                
+                ++links;
             }
             
-            neurons[index1].add_link(NeuroLink(index2));
-            ++links;
         }else if(k < 0x8) {
+            size_t index1 = input_size + (rand64() % (size - input_size));
+            size_t index2 = rand64() % size;
+            
+            while(!Neuron::has_neuron(index1, index2, neurons.data()) && !Neuron::has_neuron(index2, index1, neurons.data()) && index1 != index2) {
+                neurons[index1].add_link(NeuroLink(index2));
+                ++links;
+            }
+        }else{
             size_t index = rand64() % size;
             int func_type = ActivationFunction::rand();
             neurons[index].type = func_type;

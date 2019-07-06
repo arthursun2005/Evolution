@@ -40,14 +40,16 @@ struct Manifold
         }
     }
     
-    void solve() {
+    float solve() {
         float I = force * impulse * mass;
         
         obj1->applyImpulse(point, -I * normal);
         obj2->applyImpulse(point, I * normal);
-
+        
         //addScore(obj1, obj2, I);
         //addScore(obj2, obj1, I);
+
+        return I;
     }
 };
 
@@ -171,7 +173,7 @@ public:
         size_t begin = size();
         while(begin != maxBodies) {
             if(bodies.size() >= maxBodies) return;
-            def.position = vec2(randf(aabb.lowerBound.x, aabb.upperBound.x), randf(aabb.lowerBound.y, aabb.upperBound.y));
+            def.position = vec2(randomf(aabb.lowerBound.x, aabb.upperBound.x), randomf(aabb.lowerBound.y, aabb.upperBound.y));
             Body* body = createBody(&def);
             body->brain = bs[begin];
             body->brain->mutate();
@@ -205,11 +207,11 @@ public:
         return tree.getMaxBalance();
     }
     
-    inline void read(std::ifstream& is) {
+    inline void read(FILE* is) {
         bs.read(is);
     }
     
-    inline void write(std::ofstream& os) const {
+    inline void write(FILE* os) const {
         bs.write(os);
     }
     

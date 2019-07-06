@@ -41,7 +41,7 @@ public:
         normal = vec2(1.0f, 0.0f);
         
         type = e_stick;
-        density = 6.0f;
+        density = 8.0f;
     }
     
     void step(float dt) {

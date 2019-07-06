@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <fstream>
 
-#define default_groupsize 16
+#define default_groupsize 8
 
 class BrainSystem
 {
@@ -102,7 +102,7 @@ public:
         return brains[idx];
     }
     
-    void replace(size_t groupsize = 0) {
+    void step(size_t groupsize = 0) {
         if(count < 1)
             return;
         
@@ -126,16 +126,14 @@ public:
         
         delete[] _brains;
         
-        for(size_t i = 0; i != count; ++i)
+        size_t half = count >> 1;
+        
+        for(size_t i = 0; i != half; ++i) {
             brains[i]->generate();
-    }
-    
-    inline void mutate() {
-        for(size_t i = 0; i != count; ++i)
             brains[i]->mutate();
-    }
-    
-    inline void grow() {
+            brains[i]->renew();
+        }
+        
         for(size_t i = 0; i != count; ++i)
             brains[i]->grow();
     }
@@ -165,16 +163,21 @@ public:
             brains[i]->reward = 0.0f;
     }
     
-    void write(std::ofstream& os) const {
-        os.write((char*)&count, sizeof(count));
+    void write(FILE* os) const {
+        fwrite(&count, sizeof(count), 1, os);
         
         for(size_t i = 0; i != count; ++i)
             brains[i]->write(os);
     }
     
-    void read(std::ifstream& is) {
+    void read(FILE* is) {
+        if(is == NULL) {
+            throw std::invalid_argument("file not yet opened");
+            return;
+        }
+        
         size_t size;
-        is.read((char*)&size, sizeof(size));
+        fread(&size, sizeof(size), 1, is);
         
         for(size_t i = 0; i != count; ++i) {
             if(i >= size) {

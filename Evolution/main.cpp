@@ -12,7 +12,7 @@
 #include "Builder.h"
 #include "Graphics.h"
 
-const char* hexFile = "brain.hex";
+const char* hexFile = "brain4.hex";
 const char* logFile = "log";
 
 FILE* log_file;
@@ -80,10 +80,9 @@ inline vec2 getMouse() {
 
 void write() {
 #if TRAINING
-    std::ofstream os;
-    os.open(hexFile);
+    FILE* os = fopen(hexFile, "w");
     builder.write(os);
-    os.close();
+    fclose(os);
 #endif
 }
 
@@ -117,11 +116,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         
         if(key == GLFW_KEY_N) {
-            printf("%d\n", world.size());
+            printf("%zu\n", world.size());
         }
         
         if(key == GLFW_KEY_C) {
-            printf("%d\n", world.getMaxBrainComplexity());
+            printf("%zu\n", world.getMaxBrainComplexity());
         }
 #else
         if(key == GLFW_KEY_F) {
@@ -234,14 +233,13 @@ int main(int argc, const char * argv[]) {
     log_file = fopen(logFile, "w");
     
 #if READING
-    std::ifstream is;
-    is.open(hexFile);
+    FILE* is = fopen(hexFile, "r");
 #if TRAINING
     builder.read(is);
 #else
     world.read(is);
 #endif
-    is.close();
+    fclose(is);
 #endif
     
     do {
@@ -300,11 +298,11 @@ int main(int argc, const char * argv[]) {
                 
                 if(gen != builder.generation) {
                     totalScore += score;
-                    fprintf(log_file, "%6d ", builder.generation);
-                    fprintf(log_file, "%9.3f ", score);
-                    fprintf(log_file, "%5zu ", builder.getMaxBrainComplexity());
-                    fprintf(log_file, "%5zu ", builder.getBestBrainComplexity());
-                    fprintf(log_file, "%9.3f ", totalScore/(float)builder.generation);
+                    fprintf(log_file, "%7d ", builder.generation);
+                    fprintf(log_file, "%15.3f ", score);
+                    fprintf(log_file, "%6zu ", builder.getMaxBrainComplexity());
+                    fprintf(log_file, "%6zu ", builder.getBestBrainComplexity());
+                    fprintf(log_file, "%15.3f ", totalScore/(float)builder.generation);
                     fprintf(log_file, "\n");
                     fflush(log_file);
                 }

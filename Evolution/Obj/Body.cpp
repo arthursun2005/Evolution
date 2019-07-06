@@ -18,7 +18,7 @@ BodyDef::BodyDef() {
     stick.position = vec2(radius + 2.0f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     
-    maxHealth = 100.0f;
+    maxHealth = 1000.0f;
     
     color = Colorf(0.0f);
     
@@ -147,7 +147,5 @@ void Body::applyImpulse(const vec2& world, const vec2& imp) {
     float invMass = Obj::invMass();
     vec2 d = (world - position).norm();
     d = vec2(fabs(d.x), fabs(d.y));
-    vec2 accel = invMass * scl(d, imp);
-    velocity += accel;
-    health -= accel.length();
+    velocity += invMass * scl(d, imp);
 }
