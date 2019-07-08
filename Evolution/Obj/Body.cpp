@@ -9,7 +9,7 @@
 #include "Body.hpp"
 
 BodyDef::BodyDef() {
-    damping = 0.2f;
+    damping = 0.01f;
     
     radius = 1.0f;
     
@@ -18,7 +18,7 @@ BodyDef::BodyDef() {
     stick.position = vec2(radius + 2.0f * stick.radius, 0.0f);
     stick.velocity = vec2(0.0f, 0.0f);
     
-    maxHealth = 1000.0f;
+    maxHealth = 100.0f;
     
     color = Colorf(0.0f);
     
@@ -27,8 +27,8 @@ BodyDef::BodyDef() {
     
     density = 1.0f;
     
-    maxStickForce = 12.0f;
-    maxForce = 16.0f;
+    maxStickForce = 20.0f;
+    maxForce = 30.0f;
     
     armLength = 2.0f;
 }
@@ -73,12 +73,14 @@ void Body::setInputs(Neuron *in) const {
     in[6].value = stick.normal.x;
     in[7].value = stick.normal.y;
     in[8].value = stick.angularVelocity;
+    /*
     in[9].value = radius;
     in[10].value = stick.length;
     in[11].value = stick.radius;
     in[12].value = density;
     in[13].value = stick.density;
     in[14].value = armLength;
+     */
 }
 
 void Body::setInputs(const AABB& aabb) {
@@ -86,18 +88,16 @@ void Body::setInputs(const AABB& aabb) {
         Neuron* in = brain->inputs();
         setInputs(in);
         target->setInputs(in + single_input);
-        in[input_size - 7].value = target->position.x - position.x;
-        in[input_size - 6].value = target->position.y - position.y;
-        in[input_size - 5].value = aabb.lowerBound.x - position.x;
-        in[input_size - 4].value = aabb.lowerBound.y - position.y;
-        in[input_size - 3].value = aabb.upperBound.x - position.x;
-        in[input_size - 2].value = aabb.upperBound.y - position.y;
+        in[input_size - 2].value = target->position.x - position.x;
+        in[input_size - 1].value = target->position.y - position.y;
+        //in[input_size - 5].value = aabb.lowerBound.x - position.x;
+        //in[input_size - 4].value = aabb.lowerBound.y - position.y;
+        //in[input_size - 3].value = aabb.upperBound.x - position.x;
+        //in[input_size - 2].value = aabb.upperBound.y - position.y;
     }
 }
 
 void Body::think(float dt) {
-    brain->inputs()[input_size - 1].value = dt;
-    
     brain->compute();
     
     Neuron* out = brain->outputs();
@@ -147,5 +147,7 @@ void Body::applyImpulse(const vec2& world, const vec2& imp) {
     float invMass = Obj::invMass();
     vec2 d = (world - position).norm();
     d = vec2(fabs(d.x), fabs(d.y));
-    velocity += invMass * scl(d, imp);
+    vec2 accel = invMass * scl(d, imp);
+    velocity += accel;
+    health -= accel.length();
 }

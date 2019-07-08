@@ -14,7 +14,7 @@ DynamicTree::DynamicTree() {
     next = 0;
     root = null_node;
     
-    nodes = (TreeNode*)::operator new (sizeof(TreeNode) * capacity);
+    nodes = (TreeNode*)Alloc(sizeof(TreeNode) * capacity);
 
     freeFrom(0);
 }
@@ -37,7 +37,7 @@ int DynamicTree::allocate_node() {
         /// normally having memory in blocks of powers of 2 is better
         capacity *= 2;
         
-        nodes = (TreeNode*)::operator new (sizeof(TreeNode) * capacity);
+        nodes = (TreeNode*)Alloc(sizeof(TreeNode) * capacity);
         
         /// copy old memory into new
         memcpy(nodes, oldNodes, sizeof(TreeNode) * count);

@@ -57,8 +57,8 @@ struct Room {
             B->step(dt);
         }
         
-        A->constrain(aabb);
-        B->constrain(aabb);
+        //A->constrain(aabb);
+        //B->constrain(aabb);
     }
     
     void copyStatistics(Body* body, const BodyDef* def) {
@@ -122,15 +122,16 @@ public:
             }
         }
         
-        bs.resize(rooms.size() + 1);
+        //bs.resize(size());
+        bs.resize((uint)rooms.size() + 1);
         
         bs.reset(Body::input_size, Body::output_size);
         
         assign();
-        
+
         bs.clear();
     }
-    
+
     ~Builder() {
         for(Body* body : bodies) {
             delete(body);
@@ -156,6 +157,7 @@ public:
             ++i;
             
             room.B->brain = bs[i];
+            //++i;
             
             room.initialize();
         }
@@ -182,7 +184,8 @@ public:
         
         if(subTime >= subThreshold) {
             for(Room& R : rooms) {
-                float K = R.B->health - R.A->health;
+                float K = (R.B->health - R.A->health);// * (1.0f + (R.A->brain->reward/(R.B->brain->reward + 1.0f)));
+                //R.A->brain->reward -= K;
                 R.B->brain->reward += K;
             }
             
@@ -214,8 +217,8 @@ public:
         return score;
     }
     
-    inline size_t getBestBrainComplexity() const {
-        return bs.best()->totalSize();
+    inline Brain* getBestBrain() const {
+        return bs.best();
     }
     
     inline void write(FILE* os) const {

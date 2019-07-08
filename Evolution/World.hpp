@@ -143,9 +143,9 @@ public:
     
     AABB aabb;
     
-    const size_t maxBodies;
+    const uint maxBodies;
     
-    World(float width, float height, size_t md) : width(width), height(height), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)), maxBodies(md) {
+    World(float width, float height, uint md) : width(width), height(height), aabb(vec2(-0.5f * width, -0.5f * height), vec2(0.5f * width, 0.5f * height)), maxBodies(md) {
         bs.resize(maxBodies);
         bs.reset(Body::input_size, Body::output_size);
     }
@@ -170,7 +170,7 @@ public:
     
     void alter() {
         BodyDef def;
-        size_t begin = size();
+        uint begin = size();
         while(begin != maxBodies) {
             if(bodies.size() >= maxBodies) return;
             def.position = vec2(randomf(aabb.lowerBound.x, aabb.upperBound.x), randomf(aabb.lowerBound.y, aabb.upperBound.y));

@@ -34,14 +34,14 @@ public:
     float angularDamping;
     
     Stick() : owner(NULL), angularVelocity(0.0f) {
-        linearDamping = 0.2f;
-        angularDamping = 0.1f;
+        linearDamping = 0.01f;
+        angularDamping = 0.002f;
         
         /// stick pointing up
         normal = vec2(1.0f, 0.0f);
         
         type = e_stick;
-        density = 8.0f;
+        density = 5.0f;
     }
     
     void step(float dt) {

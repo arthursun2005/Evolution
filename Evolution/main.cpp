@@ -12,7 +12,7 @@
 #include "Builder.h"
 #include "Graphics.h"
 
-const char* hexFile = "brain4.hex";
+const char* hexFile = "brain1.hex";
 const char* logFile = "log";
 
 FILE* log_file;
@@ -35,9 +35,9 @@ int height = 840;
 #if TRAINING
 Builder builder(pop_root, pop_root, 60.0f, 60.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
-float dt1 = 0.016f;
+float dt1 = 0.16f;
 float dt2 = 5.0f;
-int colSteps = 6;
+int colSteps = 60;
 int subSteps1 = 1;
 int subSteps2 = subSteps1 * (dt2/dt1);
 int mode = 1;
@@ -118,17 +118,9 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if(key == GLFW_KEY_N) {
             printf("%zu\n", world.size());
         }
-        
-        if(key == GLFW_KEY_C) {
-            printf("%zu\n", world.getMaxBrainComplexity());
-        }
 #else
         if(key == GLFW_KEY_F) {
             mode = 0x1 ^ mode;
-        }
-        
-        if(key == GLFW_KEY_C) {
-            printf("%zu\n", builder.getMaxBrainComplexity());
         }
         
         if(key == GLFW_KEY_T) {
@@ -137,10 +129,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         
         if(key == GLFW_KEY_B) {
             printf("%d\n", builder.generation);
-        }
-        
-        if(key == GLFW_KEY_K) {
-            printf("%zu\n", builder.getBestBrainComplexity());
         }
         
         if(key == GLFW_KEY_B) {
@@ -291,17 +279,20 @@ int main(int argc, const char * argv[]) {
                 
                 float score;
                 
-                if(mode == 1)
+                if(mode == 1) {
                     score = builder.step(dt1, colSteps, subSteps1);
-                else
+                    usleep(30000);
+                }else
                     score = builder.step(dt2, colSteps, subSteps2);
                 
                 if(gen != builder.generation) {
+                    Brain* b = builder.getBestBrain();
+                    
                     totalScore += score;
                     fprintf(log_file, "%7d ", builder.generation);
                     fprintf(log_file, "%15.3f ", score);
-                    fprintf(log_file, "%6zu ", builder.getMaxBrainComplexity());
-                    fprintf(log_file, "%6zu ", builder.getBestBrainComplexity());
+                    fprintf(log_file, "%6u ", b->numOfLinks());
+                    fprintf(log_file, "%6u ", b->totalSize());
                     fprintf(log_file, "%15.3f ", totalScore/(float)builder.generation);
                     fprintf(log_file, "\n");
                     fflush(log_file);
@@ -323,19 +314,6 @@ int main(int argc, const char * argv[]) {
     fprintf(log_file, "\n");
     
     fprintf(log_file, "real time: %.3f\n", timer.now());
-    
-#if !TRAINING
-    
-    fprintf(log_file, "generation: %d\n", generation);
-    fprintf(log_file, "max complexity: %d\n", world.getMaxBrainComplexity());
-    
-#else
-    
-    fprintf(log_file, "generation: %d\n", builder.generation);
-    fprintf(log_file, "max complexity: %zu\n", builder.getMaxBrainComplexity());
-    fprintf(log_file, "best complexity: %zu\n", builder.getBestBrainComplexity());
-    
-#endif
     
 #if WRITING
     write();

@@ -13,72 +13,85 @@
 #include <vector>
 #include <stack>
 
-enum neuron_flags
-{
-    e_neuron_computed = 0b1,
-    e_neuron_input = 0b10,
-    e_neuron_output = 0b100
-};
+#define memory_rate 0.75f
 
-struct NeuroLink {
-    size_t index;
+#define learn_rate 0.25f
+
+struct NeuralLink {
+    uint index;
+    
+    uint age;
+    
     float weight;
-    unsigned int age;
+    float rate;
     
-    inline NeuroLink() {}
+    inline NeuralLink() {}
     
-    inline NeuroLink(size_t index) : index(index), weight(0.0f), age(1u) {}
+    inline NeuralLink(uint index) : index(index), weight(gaussian_randomf()), rate(0.0f), age(0) {}
 };
 
 inline float learn_at_age(float x) {
-    return 0.5f * gaussian_randomf() / x;
+    return learn_rate * gaussian_randomf() / x;
 }
 
 struct Neuron : public ActivationFunction
 {
     float value;
-    float bias;
-    unsigned int age;
-    int flags;
+    uint age;
+    bool computed;
     
-    std::vector<NeuroLink> inputs;
+    float bias;
+    float rate;
+    
+    std::vector<NeuralLink> inputs;
     
     inline Neuron() {
         reset();
     }
     
-    inline void add_link(const NeuroLink& link) {
+    inline void add_link(const NeuralLink& link) {
         inputs.push_back(link);
     }
     
     inline void reset() {
         inputs.clear();
-        bias = 0.0f;
-        age = 1u;
+        bias = gaussian_randomf();
+        rate = 0.0f;
+        age = 0;
     }
     
     inline void mutate() {
-        for(NeuroLink& link : inputs)
-            link.weight += learn_at_age(link.age);
+        for(NeuralLink& link : inputs)
+            link.rate += learn_at_age(link.age);
         
-        bias += learn_at_age(age);
-    }
-    
-    inline void renew() {
-        for(NeuroLink& link : inputs)
-            link.age = 1u;
-        
-        age = 1u;
+        bias += rate;
     }
     
     inline void grow() {
-        for(NeuroLink& link : inputs)
+        for(NeuralLink& link : inputs) {
             ++link.age;
+            link.rate *= memory_rate;
+            link.weight += link.rate;
+        }
         
         ++age;
+        rate *= memory_rate;
+        rate += learn_at_age(age);
     }
     
-    inline void remove_link(size_t index) {
+    inline void renew() {
+        for(NeuralLink& link : inputs) {
+            link.age = 0;
+            link.rate = 0.0f;
+            link.weight = gaussian_randomf();
+        }
+        
+        age = 0;
+        rate = 0.0f;
+        bias = gaussian_randomf();
+    }
+    
+    inline void remove_link(uint index) {
         auto begin = inputs.begin();
         auto end = inputs.end();
         while(end-- != begin) {
@@ -89,8 +102,8 @@ struct Neuron : public ActivationFunction
         }
     }
     
-    inline bool has_link(size_t index) const {
-        for(const NeuroLink& link : inputs) {
+    inline bool has_link(uint index) const {
+        for(const NeuralLink& link : inputs) {
             if(link.index == index)
                 return true;
         }
@@ -101,28 +114,27 @@ struct Neuron : public ActivationFunction
     inline void compute(const Neuron* neurons) {
         float sum = bias;
         
-        for(const NeuroLink& link : inputs)
+        for(const NeuralLink& link : inputs)
             sum += link.weight * neurons[link.index].value;
         
         value = operator () (sum);
-        flags |= e_neuron_computed;
+        computed = true;
     }
     
     inline void compute_input() {
-        assert(inputs.empty() && (flags & e_neuron_input) != 0);
         value = operator () (value + bias);
     }
     
-    inline static bool has_neuron(size_t index1, size_t index2, const Neuron* neurons) {
-        std::stack<size_t> stack;
+    inline static bool has_neuron(uint index1, uint index2, const Neuron* neurons) {
+        std::stack<uint> stack;
         
         stack.push(index1);
         
         while(!stack.empty()) {
-            size_t n = stack.top();
+            uint n = stack.top();
             stack.pop();
             
-            for(const NeuroLink& link : neurons[n].inputs) {
+            for(const NeuralLink& link : neurons[n].inputs) {
                 if(link.index == index2)
                     return true;
                 
@@ -133,14 +145,12 @@ struct Neuron : public ActivationFunction
         return false;
     }
     
-    inline static void compute_value(size_t index, Neuron* neurons) {
-        if((neurons[index].flags & e_neuron_computed) != 0)
+    inline static void compute_value(uint index, Neuron* neurons) {
+        if(neurons[index].computed)
             return;
         
-        for(const NeuroLink& link : neurons[index].inputs) {
-            if((neurons[link.index].flags & e_neuron_computed) == 0)
-                compute_value(link.index, neurons);
-        }
+        for(const NeuralLink& link : neurons[index].inputs)
+            compute_value(link.index, neurons);
         
         neurons[index].compute(neurons);
     }

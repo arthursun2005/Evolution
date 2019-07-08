@@ -90,7 +90,6 @@
 			isa = PBXGroup;
 			children = (
 				8E88F77E22B6309400AD6D5A /* Timer.h */,
-				8E88F77522B47B7400AD6D5A /* vec2.h */,
 				8E88F77622B4BE3400AD6D5A /* color.h */,
 				8E4113E622A0C29000AD78A2 /* common.h */,
 			);
@@ -114,6 +113,7 @@
 				8E88F78022B6422C00AD6D5A /* DynamicTree.cpp */,
 				8E88F78122B6422C00AD6D5A /* DynamicTree.hpp */,
 				8E3DE51622BB9B770047504D /* Collision.h */,
+				8E88F77522B47B7400AD6D5A /* vec2.h */,
 			);
 			path = Collision;
 			sourceTree = "<group>";

@@ -152,7 +152,7 @@ public:
     DynamicTree();
     
     inline ~DynamicTree() {
-        ::operator delete (nodes);
+        Free(nodes);
     }
     
     DynamicTree(const DynamicTree& tree) = delete;

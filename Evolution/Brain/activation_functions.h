@@ -16,10 +16,8 @@ struct ActivationFunction
     enum types {
         e_linear = 0,
         e_sigmoid,
-        e_smooth,
         e_tanh,
         e_step,
-        e_swish,
         e_relu,
         e_gauss,
         e_sine,
@@ -36,55 +34,52 @@ struct ActivationFunction
     }
     
     inline float operator () (float x) const {
-        if(type == e_linear) {
-            return x;
+        switch(type) {
+            case e_linear:
+                return x;
+                break;
+                
+            case e_sigmoid:
+                return 1.0f / (1.0f + expf(-x));
+                break;
+                
+            case e_tanh:
+                return tanhf(x);
+                break;
+                
+            case e_step:
+                return firstbitf(x);
+                break;
+                
+            case e_relu:
+                return x * firstbitf(x);
+                break;
+                
+            case e_gauss:
+                return expf(-(x * x) * 0.5f);
+                break;
+                
+            case e_sine:
+                return sinf(M_PI * x);
+                break;
+                
+            case e_cosine:
+                return cosf(M_PI * x);
+                break;
+                
+            case e_abs:
+                return fabs(x);
+                break;
+                
+            case e_inv:
+                return -x;
+                break;
+                
+            default:
+                throw ("invalid function type");
+                return 0.0f;
+                break;
         }
-        
-        if(type == e_sigmoid) {
-            return 1.0f / (1.0f + expf(-x));
-        }
-        
-        if(type == e_smooth) {
-            return x / (1.0f + fabs(x));
-        }
-        
-        if(type == e_tanh) {
-            return tanhf(x);
-        }
-        
-        if(type == e_step) {
-            return firstbitf(x);
-        }
-        
-        if(type == e_swish) {
-            return x / (1.0f + expf(-x));
-        }
-        
-        if(type == e_relu) {
-            return x * firstbitf(x);
-        }
-        
-        if(type == e_gauss) {
-            return expf(-(x * x) * 0.5f);
-        }
-        
-        if(type == e_sine) {
-            return sinf(M_PI * x);
-        }
-        
-        if(type == e_cosine) {
-            return cosf(M_PI * x);
-        }
-        
-        if(type == e_abs) {
-            return fabs(x);
-        }
-        
-        if(type == e_inv) {
-            return -x;
-        }
-        
-        return 0.0f;
     }
 };
 

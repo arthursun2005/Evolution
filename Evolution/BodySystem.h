@@ -8,7 +8,6 @@
 
 #ifndef BodySystem_h
 #define BodySystem_h
-///     29        2221.382     51     48        1625.070
 
 #include "Body.hpp"
 #include "DynamicTree.hpp"
@@ -41,17 +40,8 @@ public:
         return bodies.cend();
     }
     
-    inline size_t size() const {
-        return bodies.size();
-    }
-    
-    inline size_t getMaxBrainComplexity() const {
-        size_t c = 0;
-        
-        for(Body* body : bodies)
-            c = std::max(c, body->brain->totalSize());
-        
-        return c;
+    inline uint size() const {
+        return (uint)bodies.size();
     }
     
 protected:
