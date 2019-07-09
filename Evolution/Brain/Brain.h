@@ -39,6 +39,18 @@ protected:
         fwrite(n, sizeof(*n) - sizeof(n->inputs), 1, os);
     }
     
+    void write(std::ofstream& os, const Neuron* n) const {
+        uint size = (uint)n->inputs.size();
+        
+        os.write((char*)&size, sizeof(size));
+        
+        for(const NeuralLink& link : n->inputs) {
+            //os.write((char*)&link, sizeof(link));
+        }
+        
+        //os.write((char*)n, sizeof(*n) - sizeof(n->inputs));
+    }
+    
     void read(FILE* is, Neuron* n) {
         uint size;
         fread(&size, sizeof(size), 1, is);
@@ -49,6 +61,19 @@ protected:
         }
         
         fread(n, sizeof(*n) - sizeof(n->inputs), 1, is);
+    }
+    
+    void read(std::ifstream& is, Neuron* n) {
+        uint size;
+        is.read((char*)&size, sizeof(size));
+        printf("%u\n", size);
+        n->inputs.resize(size);
+        
+        for(NeuralLink& link : n->inputs) {
+            //is.read((char*)&link, sizeof(link));
+        }
+        
+        //is.read((char*)n, sizeof(*n) - sizeof(n->inputs));
     }
     
     uint input_size;
@@ -117,10 +142,22 @@ public:
     void write(FILE* os) const {
         uint total = (uint)neurons.size();
         
-        fwrite(&input_size, sizeof(&input_size), 1, os);
-        fwrite(&output_size, sizeof(&output_size), 1, os);
-        fwrite(&total, sizeof(&total), 1, os);
-        fwrite(&links, sizeof(&links), 1, os);
+        fwrite(&input_size, sizeof(input_size), 1, os);
+        fwrite(&output_size, sizeof(output_size), 1, os);
+        fwrite(&total, sizeof(total), 1, os);
+        fwrite(&links, sizeof(links), 1, os);
+        
+        for(const Neuron &neuron : neurons)
+            write(os, &neuron);
+    }
+    
+    void write(std::ofstream& os) const {
+        uint total = (uint)neurons.size();
+        
+        os.write((char*)&input_size, sizeof(input_size));
+        os.write((char*)&output_size, sizeof(output_size));
+        os.write((char*)&total, sizeof(total));
+        os.write((char*)&links, sizeof(links));
         
         for(const Neuron &neuron : neurons)
             write(os, &neuron);
@@ -133,6 +170,21 @@ public:
         fread(&output_size, sizeof(output_size), 1, is);
         fread(&total, sizeof(total), 1, is);
         fread(&links, sizeof(links), 1, is);
+        
+        neurons.resize(total);
+        
+        for(Neuron& neuron : neurons) {
+            read(is, &neuron);
+        }
+    }
+    
+    void read(std::ifstream& is) {
+        uint total;
+        
+        is.read((char*)&input_size, sizeof(input_size));
+        is.read((char*)&output_size, sizeof(output_size));
+        is.read((char*)&total, sizeof(total));
+        is.read((char*)&links, sizeof(links));
         
         neurons.resize(total);
         
@@ -169,12 +221,17 @@ public:
             n.mutate();
     }
     
+    inline void setShared(float w) {
+        for(Neuron& n : neurons)
+            n.setShared(w);
+    }
+    
     void generate() {
         uint size = (uint)neurons.size();
         
         int k = rand32() & 0xf;
         
-        if(k < 0x4) {
+        if(k < 0x2) {
             
             uint index1 = input_size + (rand32(size - input_size));
             

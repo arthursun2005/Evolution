@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <fstream>
 
-#define default_groupsize 32
+#define default_groupsize 16
 
 class BrainSystem
 {
@@ -60,7 +60,7 @@ public:
             uint oldCount = count;
             
             count = size;
-            brains = new Brain*[size];
+            brains = (Brain**)Alloc(sizeof(Brain*) * count);
             
             if(count > oldCount) {
                 for(uint i = 0; i != oldCount; ++i)
@@ -78,7 +78,7 @@ public:
                 for(uint i = count; i != oldCount; ++i)
                     delete oldBrains[i];
                 
-                delete[] oldBrains;
+                Free(oldBrains);
             }
         }
     }
@@ -160,6 +160,13 @@ public:
             brains[i]->write(os);
     }
     
+    void write(std::ofstream& os) const {
+        os.write((char*)&count, sizeof(count));
+        
+        for(uint i = 0; i != count; ++i)
+            brains[i]->write(os);
+    }
+    
     void read(FILE* is) {
         if(is == NULL) {
             throw std::invalid_argument("file not yet opened");
@@ -168,6 +175,24 @@ public:
         
         uint size;
         fread(&size, sizeof(size), 1, is);
+        
+        for(uint i = 0; i != count; ++i) {
+            if(i >= size) {
+                *(brains[i]) = *(brains[i % size]);
+            }else{
+                brains[i]->read(is);
+            }
+        }
+    }
+    
+    void read(std::ifstream& is) {
+        if(!is.is_open()) {
+            throw std::invalid_argument("file not yet opened");
+            return;
+        }
+        
+        uint size;
+        is.read((char*)&size, sizeof(size));
         
         for(uint i = 0; i != count; ++i) {
             if(i >= size) {

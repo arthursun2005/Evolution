@@ -122,8 +122,8 @@ public:
             }
         }
         
-        //bs.resize(size());
-        bs.resize((uint)rooms.size() + 1);
+        bs.resize(size());
+        //bs.resize((uint)rooms.size() + 1);
         
         bs.reset(Body::input_size, Body::output_size);
         
@@ -153,11 +153,11 @@ public:
     inline void assign() {
         int i = 0;
         for(Room& room : rooms) {
-            room.A->brain = bs[0];
+            room.A->brain = bs[i];
             ++i;
             
             room.B->brain = bs[i];
-            //++i;
+            ++i;
             
             room.initialize();
         }
@@ -185,7 +185,7 @@ public:
         if(subTime >= subThreshold) {
             for(Room& R : rooms) {
                 float K = (R.B->health - R.A->health);// * (1.0f + (R.A->brain->reward/(R.B->brain->reward + 1.0f)));
-                //R.A->brain->reward -= K;
+                R.A->brain->reward -= K;
                 R.B->brain->reward += K;
             }
             
@@ -195,6 +195,12 @@ public:
             
             for(Room& R : rooms) {
                 R.reset();
+                
+                //R.A->brain->mutate();
+                //R.B->brain->mutate();
+                
+                //R.A->brain->setShared(randomf(-2.0f, 2.0f));
+                //R.B->brain->setShared(randomf(-2.0f, 2.0f));
             }
             
             subTime = 0.0f;
@@ -225,7 +231,15 @@ public:
         bs.write(os);
     }
     
+    inline void write(std::ofstream& os) const {
+        bs.write(os);
+    }
+    
     inline void read(FILE* is) {
+        bs.read(is);
+    }
+    
+    inline void read(std::ifstream& is) {
         bs.read(is);
     }
     

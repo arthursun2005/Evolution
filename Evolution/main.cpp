@@ -12,7 +12,7 @@
 #include "Builder.h"
 #include "Graphics.h"
 
-const char* hexFile = "brain1.hex";
+const char* hexFile = "brain4.hex";
 const char* logFile = "log";
 
 FILE* log_file;
@@ -21,7 +21,7 @@ FILE* log_file;
 
 #define WRITING false
 
-#define READING false
+#define READING true
 
 #define pop_root 32
 
@@ -35,9 +35,9 @@ int height = 840;
 #if TRAINING
 Builder builder(pop_root, pop_root, 60.0f, 60.0f, BodyDef());
 Graphics<BodySystem> renderer(&builder);
-float dt1 = 0.16f;
+float dt1 = 0.08f;
 float dt2 = 5.0f;
-int colSteps = 60;
+int colSteps = 30;
 int subSteps1 = 1;
 int subSteps2 = subSteps1 * (dt2/dt1);
 int mode = 1;
@@ -79,11 +79,17 @@ inline vec2 getMouse() {
 }
 
 void write() {
+    /*
 #if TRAINING
-    FILE* os = fopen(hexFile, "w");
+    FILE* os = fopen(hexFile, "wb");
     builder.write(os);
     fclose(os);
 #endif
+     */
+    std::ofstream os;
+    os.open(hexFile);
+    builder.write(os);
+    os.close();
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -219,15 +225,26 @@ int main(int argc, const char * argv[]) {
     Timer timer, subTimer;
     
     log_file = fopen(logFile, "w");
-    
+    /*
 #if READING
-    FILE* is = fopen(hexFile, "r");
+    FILE* is = fopen(hexFile, "rb");
 #if TRAINING
     builder.read(is);
 #else
     world.read(is);
 #endif
     fclose(is);
+#endif
+    */
+#if READING
+    std::ifstream is;
+    is.open(hexFile);
+#if TRAINING
+    builder.read(is);
+#else
+    world.read(is);
+#endif
+    is.close();
 #endif
     
     do {
@@ -281,7 +298,7 @@ int main(int argc, const char * argv[]) {
                 
                 if(mode == 1) {
                     score = builder.step(dt1, colSteps, subSteps1);
-                    usleep(30000);
+                    usleep(10000);
                 }else
                     score = builder.step(dt2, colSteps, subSteps2);
                 

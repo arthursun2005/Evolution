@@ -13,25 +13,20 @@
 #include <vector>
 #include <stack>
 
-#define memory_rate 0.75f
-
-#define learn_rate 0.25f
-
 struct NeuralLink {
     uint index;
     
     uint age;
     
     float weight;
-    float rate;
     
     inline NeuralLink() {}
     
-    inline NeuralLink(uint index) : index(index), weight(gaussian_randomf()), rate(0.0f), age(0) {}
+    inline NeuralLink(uint index) : index(index), weight(gaussian_randomf()), age(1) {}
 };
 
 inline float learn_at_age(float x) {
-    return learn_rate * gaussian_randomf() / x;
+    return gaussian_randomf() / x;
 }
 
 struct Neuron : public ActivationFunction
@@ -41,7 +36,6 @@ struct Neuron : public ActivationFunction
     bool computed;
     
     float bias;
-    float rate;
     
     std::vector<NeuralLink> inputs;
     
@@ -56,38 +50,43 @@ struct Neuron : public ActivationFunction
     inline void reset() {
         inputs.clear();
         bias = gaussian_randomf();
-        rate = 0.0f;
-        age = 0;
+        age = 1;
     }
     
     inline void mutate() {
-        for(NeuralLink& link : inputs)
-            link.rate += learn_at_age(link.age);
+        uint32_t idx = rand32((uint32_t)inputs.size() + 1);
         
-        bias += rate;
+        if(idx == 0) {
+            bias += learn_at_age(age);
+        }else{
+            NeuralLink& link = inputs[idx - 1];
+            link.weight += learn_at_age(link.age);
+        }
     }
     
     inline void grow() {
         for(NeuralLink& link : inputs) {
             ++link.age;
-            link.rate *= memory_rate;
-            link.weight += link.rate;
         }
         
         ++age;
-        rate *= memory_rate;
-        rate += learn_at_age(age);
+    }
+    
+    inline void setShared(float w) {
+        for(NeuralLink& link : inputs) {
+            link.weight = w;
+        }
+        
+        bias = w;
     }
     
     inline void renew() {
         for(NeuralLink& link : inputs) {
-            link.age = 0;
-            link.rate = 0.0f;
+            link.age = 1;
             link.weight = gaussian_randomf();
         }
         
-        age = 0;
-        rate = 0.0f;
+        age = 1;
         bias = gaussian_randomf();
     }
     
